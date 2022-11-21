@@ -1,0 +1,14 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("CDB_URL")
+}
+
+model accounts {
+  id        String    @id
+  balance BigInt
+  @@index([id], map: "account_ids")
+}
