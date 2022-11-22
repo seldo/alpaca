@@ -9,8 +9,7 @@
     "uuid": "^9.0.0"
   },
   "scripts": {
-    "build-edge": "npx esbuild ./api/listall.js --bundle --outfile=./netlify/edge-functions/listall.js",
-    "build-prisma": "prisma generate --schema=./init/schema.prisma",
+    "build": "prisma generate --schema=./init/schema.prisma",
     "dev": "netlify dev"
   }
 }
