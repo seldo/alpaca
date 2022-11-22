@@ -3,12 +3,14 @@
     "@netlify/functions": "^1.3.0",
     "@prisma/client": "^4.6.1",
     "dotenv": "^16.0.3",
+    "esbuild": "^0.15.15",
     "pg": "^8.8.0",
     "prisma": "^4.6.1",
     "uuid": "^9.0.0"
   },
   "scripts": {
-    "build": "prisma generate --schema=./init/schema.prisma",
-    "dev": "netlify dev"    
+    "build-edge": "npx esbuild ./api/listall.js --bundle --outfile=./netlify/edge-functions/listall.js",
+    "build-prisma": "prisma generate --schema=./init/schema.prisma",
+    "dev": "netlify dev"
   }
 }

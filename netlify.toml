@@ -1,0 +1,7 @@
+[[edge_functions]]
+path = "/test"
+function = "hello"
+
+[[edge_functions]]
+path = "/api/listall"
+function = "listall"
