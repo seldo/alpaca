@@ -4,6 +4,9 @@ export default function Index() {
       <h1>Welcome to Remix</h1>
       <ul>
         <li>
+          <a href="/posts/">Posts</a>
+        </li>
+        <li>
           <a
             target="_blank"
             href="https://remix.run/tutorials/blog"
