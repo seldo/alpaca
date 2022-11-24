@@ -7,8 +7,22 @@ datasource db {
   url      = env("CDB_URL")
 }
 
-model accounts {
-  id        String    @id
-  balance BigInt
+model Account {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String
   @@index([id], map: "account_ids")
+  posts   Post[]
+}
+
+model Post {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt  DateTime   @default(now())
+  title      String?
+  slug       String?
+  @@index([slug], map: "slugs")
+  @@unique([slug])
+  body       String?
+  published  Boolean    @default(false)
+  author     Account    @relation(fields: [authorId], references: [id])
+  authorId   String @db.Uuid
 }

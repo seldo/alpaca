@@ -4,7 +4,9 @@
   "scripts": {
     "build": "remix build",
     "dev": "remix dev",
-    "start": "cross-env NODE_ENV=production netlify dev"
+    "start": "cross-env NODE_ENV=production netlify dev",
+    "dbclient": "prisma generate --schema=../init/schema.prisma",
+    "dbmigrate": "prisma migrate dev --schema=../init/schema.prisma --name "
   },
   "dependencies": {
     "@netlify/functions": "^1.3.0",
