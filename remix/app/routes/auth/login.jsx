@@ -1,4 +1,4 @@
-import { useLoaderData } from "public/build/_shared/chunk-5K55SSOS";
+import { useLoaderData } from "@remix-run/react";
 import authenticator from "../../services/auth.server";
 
 export let loader = ({request}) => {
