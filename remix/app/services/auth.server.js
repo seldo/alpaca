@@ -16,18 +16,25 @@ authenticator.use(
         tokenURL: "https://seldo.dev/oauth/token",
         clientID: process.env.CLIENT_KEY,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: "http://localhost:3000/auth/login"
+        callbackURL: "http://localhost:3000/auth/callback"
       },
       async ({ accessToken, refreshToken, extraParams, profile, context }) => {
         // here you can use the params above to get the user and return it
         // what you do inside this and how you find the user is up to you
-        return await getUser(
-          accessToken,
-          refreshToken,
-          extraParams,
-          profile,
-          context
-        );
+        console.log("Getting the fucking user")
+        let userResponse
+        try {
+          userResponse = await fetch("https://seldo.dev/api/v1/accounts/verify_credentials", {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`
+            }
+          })
+        } catch(e) {
+          console.log("error")
+          console.log(e)
+        }
+        return await userResponse.json()
       }
     ),
     // this is optional, but if you setup more than one OAuth2 instance you will
