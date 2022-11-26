@@ -34,6 +34,7 @@ authenticator.use(
           console.log("error")
           console.log(e)
         }
+        console.log("user: got a response, sending it back")
         return await userResponse.json()
       }
     ),

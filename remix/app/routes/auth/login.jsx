@@ -1,42 +1,33 @@
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Form } from "@remix-run/react";
 import authenticator from "../../services/auth.server";
 
 export let loader = async ({request}) => {
 
   let user = await authenticator.isAuthenticated(request)
   if( user ) {
-    console.log("authenticated!")
+    console.log("Login says: authenticated!")
     console.log(user)
-    return true
+    return user
   } else {
-    console.log("Not authenticated")
+    console.log("Login says: not authenticated")
     console.log(user)
     return false
-    /*
-    return (
-      <div>
-        <form method="get" action="/auth/mastodon">
-          <button>Login</button>
-        </form>
-      </div>
-    )
-    */
   }
 
 }
 
-export default () => {
-  let loggedIn = useLoaderData()
-  if(loggedIn) {
+export default function Login() {
+  let user = useLoaderData()
+  if(user) {
     return (
       <div>You are logged in!!!</div>
     )  
   } else {
     return (
       <div>
-        <form method="get" action="/auth/mastodon">
+        <Form method="get" action="/auth/mastodon">
           <button>Login</button>
-        </form>
+        </Form>
       </div>
     )   
   }
