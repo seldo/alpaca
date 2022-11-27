@@ -1,3 +1,13 @@
+import authenticator from "../services/auth.server";
+import { useLoaderData } from "@remix-run/react";
+
+// if they're already logged in take them to the home timeline
+export const loader = async ({request}) => {
+    await authenticator.isAuthenticated(request, {
+        successRedirect: "/home"
+    })
+}
+
 export default function Index() {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
