@@ -30,6 +30,7 @@ model Tweet {
   text            String
   author          User  @relation(fields:[authorId],references: [id])
   authorId        String  // integer ID from user object
+  json            String
 }
 
 // might use this for meta-login to multiple accounts?
