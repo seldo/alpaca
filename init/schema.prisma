@@ -7,6 +7,32 @@ datasource db {
   url      = env("CDB_URL")
 }
 
+// mastodon users; you must successfully auth to this ID to see anything
+model User {
+  id              String @id    // mastodon ref imp uses integer IDs but is that mandator?
+  username        String
+  display_name    String?
+  avatar          String?
+  avatar_static   String?
+  header          String?
+  header_static   String?
+  followers_count Int
+  following_count Int
+  tweets          Tweet[]
+  @@index([id], map: "user_ids")
+  @@index([username], map: "usernames")
+}
+
+// a 7-day cache of tweets. I refuse to call them toots, and posts is too generic.
+model Tweet {
+  id              String @id 
+  permalink       String
+  text            String
+  author          User  @relation(fields:[authorId],references: [id])
+  authorId        String  // integer ID from user object
+}
+
+// might use this for meta-login to multiple accounts?
 model Account {
   id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name    String

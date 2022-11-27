@@ -6,7 +6,7 @@ export const loader = async ({ request }) => {
     console.log("/callback loader called")
     try {
         await authenticator.authenticate("Seldo.dev", request, {
-            successRedirect: "/private?1",
+            successRedirect: "/home",
             failureRedirect: "/auth/login?failed",
         });
     } catch (e) {
