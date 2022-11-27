@@ -21,12 +21,24 @@ export default function Index() {
       <div class="userdata">
         <p>User: {user.display_name || user.username }</p>
       </div>
-      <h1>Tweets</h1>
+      <h1>Home</h1>
       <ul>
         {
           user.tweets? user.tweets.map(t => {
+            console.log(t)
             return (
-              <li dangerouslySetInnerHTML={{__html: t.content}} />
+              <li class="tweet">
+                <div class="author">
+                  <span class="displayName">{t.account.display_name}</span>
+                  <span class="username">@{t.account.acct}</span>
+                </div>
+                <div class="status" dangerouslySetInnerHTML={{__html: t.content}} />
+                <div class="reactions">
+                  <span>💬 {t.replies_count}</span>
+                  <span>🔁 {t.reblogs_count}</span>
+                  <span>⭐️ {t.favourites_count}</span>
+                </div>
+              </li>
             )
           }) : <li>No tweets yet. Give it a sec.</li>
         }
