@@ -7,8 +7,9 @@ export const loader = async ({request}) => {
         failureRedirect: "/auth/mastodon?fromhome"
     })
     let user = await mastodon.getOrCreateUser(authUser)
-    console.log("got user")
-    console.log(user)
+    let timeline = await mastodon.fetchTweets(authUser)
+    console.log(timeline)
+    user.tweets = timeline
     return { user }
 }  
 
@@ -25,9 +26,7 @@ export default function Index() {
         {
           user.tweets? user.tweets.map(t => {
             return (
-              <li>
-                {t}
-              </li>
+              <li dangerouslySetInnerHTML={{__html: t.content}} />
             )
           }) : <li>No tweets yet. Give it a sec.</li>
         }

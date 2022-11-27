@@ -1,4 +1,5 @@
 import { prisma } from "../db.server";
+import authenticator from "../services/auth.server";
 
 export async function getOrCreateUser(authUser) {
   // see if they're in the database
@@ -36,4 +37,17 @@ export async function getOrCreateUser(authUser) {
     })
   }
   return user
+}
+
+export async function fetchTweets(authUser) {
+  // FIXME: surely there is going to be a smarter way than passing this around
+  let token = authUser.accessToken
+  console.log(authUser)
+  let timeline = await fetch(process.env.MASTODON_INSTANCE + "/api/v1/timelines/home", {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
+  return await timeline.json()
 }
