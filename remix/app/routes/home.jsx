@@ -14,30 +14,33 @@ export const loader = async ({request}) => {
 export default function Index() {
   const loaderData = useLoaderData();
   const {user} = loaderData
-  const [tweets,setData] = useState([]);
 
-  useEffect(() => setData(tweets), [tweets]);
+  const [newTweets,setData] = useState([]);
+  useEffect(() => setData(newTweets), [newTweets]);
   const fetcher = useFetcher();
-  
-  // Get fresh data every 30 seconds.
+
+  const [refreshInterval,setRefresh] = useState(1)
+
+  // Get fresh data after 1 second and then every 5 seconds thereafter
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log("Calling at interval")
+      console.log(`Refresh interval: ${refreshInterval}`)
+      if(refreshInterval == 1) {
+        setRefresh(5)
+      }
       if (document.visibilityState === "visible") {
         fetcher.load("/timeline");
       }
-    }, 7 * 1000);
-
+    }, refreshInterval * 1000);
     return () => clearInterval(interval);
-  }, []);
-  
+  }, [fetcher.data]);
+
   // When the fetcher comes back with new data,
   // update our `data` state.
   useEffect(() => {
     if (fetcher.data) {
-      console.log("The data is")
-      console.log(fetcher.data)
-      setData(JSON.parse(fetcher.data));
+      let incoming = JSON.parse(fetcher.data)
+      setData(incoming.concat(newTweets));
     }
   }, [fetcher.data]);
 
@@ -49,9 +52,9 @@ export default function Index() {
       <h1>Home</h1>
       <ul>
         {
-          (tweets.length > 0) ? tweets.map( t=> {
-            console.log("tweet:")
-            console.log(t)  
+          (newTweets.length > 0) ? newTweets.map( t=> {
+            //console.log("tweet:")
+            //console.log(t)  
             return (
               <li class="tweet">
                 <div class="author">
