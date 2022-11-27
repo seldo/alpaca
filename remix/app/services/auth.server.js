@@ -16,7 +16,7 @@ authenticator.use(
         tokenURL: process.env.MASTODON_INSTANCE + "/oauth/token",
         clientID: process.env.CLIENT_KEY,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: "http://localhost:3000/auth/callback"
+        callbackURL: process.env.THIS_HOST + "/auth/callback"
       },
       async ({ accessToken, refreshToken, extraParams, profile, context }) => {
         // here you can use the params above to get the user and return it

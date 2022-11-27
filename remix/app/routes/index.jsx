@@ -3,7 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 
 // if they're already logged in take them to the home timeline
 export const loader = async ({request}) => {
-    await authenticator.isAuthenticated(request, {
+    return await authenticator.isAuthenticated(request, {
         successRedirect: "/home"
     })
 }
