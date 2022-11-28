@@ -39,15 +39,43 @@ export async function getOrCreateUser(authUser) {
   return user
 }
 
+const storeTweets = async (tweets) => {
+  return
+}
+
+/**
+ * Fetches tweets, stores any that don't already exist in the database,
+ * returns the timeline.
+ * @param {} authUser 
+ * @returns 
+ */
 export async function fetchTweets(authUser) {
-  // FIXME: surely there is going to be a smarter way than passing this around
+  // FIXME: surely there is going to be a smarter way than passing the authUser around
   let token = authUser.accessToken
-  console.log(authUser)
-  let timeline = await fetch(process.env.MASTODON_INSTANCE + "/api/v1/timelines/home", {
+  console.log(authUser.accessToken)
+  let timelineData = await fetch(process.env.MASTODON_INSTANCE + "/api/v1/timelines/home", {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${token}`
     }
   })
-  return await timeline.json()
+  let timeline = await timelineData.json()
+  console.log(timeline[0])
+  //await storeTweets(timeline)
+  // let timeline = Array(3)
+  // for(let i = 0; i < timeline.length; i++) {
+  //   timeline[i] = {
+  //     account: {
+  //       display_name: Math.random(),
+  //       acct: Math.random()
+  //     },
+  //     content: "Content: " + Math.random(),
+  //     replies_count: Math.random(),
+  //     reblogs_count: Math.random(),
+  //     favourites_count: Math.random()
+  //   }
+  // }
+  // await new Promise(r => setTimeout(r, 1200));
+  // TODO: can we async this and just not wait?
+  return timeline
 }

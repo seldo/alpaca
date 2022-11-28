@@ -19,26 +19,29 @@ export default function Index() {
   useEffect(() => setData(newTweets), [newTweets]);
   const fetcher = useFetcher();
 
-  const [refreshInterval,setRefresh] = useState(1)
+  const [refreshInterval,setRefresh] = useState(5)
 
-  // Get fresh data after 1 second and then every 5 seconds thereafter
+  // Get fresh data after 5 seconds and then every 20 seconds thereafter
   useEffect(() => {
     const interval = setInterval(() => {
       console.log(`Refresh interval: ${refreshInterval}`)
-      if(refreshInterval == 1) {
-        setRefresh(5)
+      if(refreshInterval == 5) {
+        setRefresh(20)
       }
       if (document.visibilityState === "visible") {
         fetcher.load("/timeline");
       }
     }, refreshInterval * 1000);
     return () => clearInterval(interval);
+    // FIXME: making this dependent on fetcher.data means it checks every 1 second until it gets some data, which is a thundering herd waiting to happen
   }, [fetcher.data]);
 
   // When the fetcher comes back with new data,
   // update our `data` state.
   useEffect(() => {
+    console.log("Looking for fetcher data")
     if (fetcher.data) {
+      console.log("Got fetcher data")
       let incoming = JSON.parse(fetcher.data)
       setData(incoming.concat(newTweets));
     }
@@ -46,7 +49,7 @@ export default function Index() {
 
   return (
     <div>
-      <div class="userdata">
+      <div className="userdata">
         <p>User: {user.display_name || user.username }</p>
       </div>
       <h1>Home</h1>
@@ -56,31 +59,31 @@ export default function Index() {
             //console.log("tweet:")
             //console.log(t)  
             return (
-              <li class="tweet">
-                <div class="author">
-                  <span class="displayName">{t.account.display_name}</span>
-                  <span class="username">@{t.account.acct}</span>
+              <li className="tweet">
+                <div className="author">
+                  <span className="displayName">{t.account.display_name}</span>
+                  <span className="username">@{t.account.acct}</span>
                 </div>
-                <div class="status" dangerouslySetInnerHTML={{__html: t.content}} />
-                <div class="reactions">
+                <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
+                <div className="reactions">
                   <span>💬 {t.replies_count}</span>
                   <span>🔁 {t.reblogs_count}</span>
                   <span>⭐️ {t.favourites_count}</span>
                 </div>
               </li>
             )            
-          }) : null
+          }) : <li>No tweets yet. Give it a sec.</li>
         }
         {
           user.tweets? user.tweets.map(t => {
             return (
-              <li class="tweet">
-                <div class="author">
-                  <span class="displayName">{t.account.display_name}</span>
-                  <span class="username">@{t.account.acct}</span>
+              <li className="tweet">
+                <div className="author">
+                  <span className="displayName">{t.account.display_name}</span>
+                  <span className="username">@{t.account.acct}</span>
                 </div>
-                <div class="status" dangerouslySetInnerHTML={{__html: t.content}} />
-                <div class="reactions">
+                <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
+                <div className="reactions">
                   <span>💬 {t.replies_count}</span>
                   <span>🔁 {t.reblogs_count}</span>
                   <span>⭐️ {t.favourites_count}</span>
