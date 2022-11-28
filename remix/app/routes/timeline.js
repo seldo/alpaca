@@ -7,8 +7,10 @@ export const loader = async ({request}) => {
         failureRedirect: "/auth/mastodon?fromhome",
         throwOnError: true
     })
-    console.log("/timeline authed successfully")
-    let tweets = await mastodon.fetchTweets(authUser)
+    const url = new URL(request.url);
+    let minId = url.searchParams.get("minId");    
+    if(minId == "null") minId = null
+    let tweets = await mastodon.fetchTweets(authUser,minId)
     let tweetString = JSON.stringify(tweets)
     return new Response(tweetString, {    
         status: 200

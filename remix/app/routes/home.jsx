@@ -15,8 +15,8 @@ export default function Index() {
   const loaderData = useLoaderData();
   const {user} = loaderData
 
-  const [newTweets,setData] = useState([]);
-  useEffect(() => setData(newTweets), [newTweets]);
+  const [newTweets,setTweets] = useState([]);
+  useEffect(() => setTweets(newTweets), [newTweets]);
   const fetcher = useFetcher();
 
   const [refreshInterval,setRefresh] = useState(5)
@@ -24,12 +24,12 @@ export default function Index() {
   // Get fresh data after 5 seconds and then every 20 seconds thereafter
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log(`Refresh interval: ${refreshInterval}`)
       if(refreshInterval == 5) {
-        setRefresh(20)
+        setRefresh(10)
       }
       if (document.visibilityState === "visible") {
-        fetcher.load("/timeline");
+        let minId = newTweets[0] ? newTweets[0].id : null
+        fetcher.load("/timeline?minId="+minId);
       }
     }, refreshInterval * 1000);
     return () => clearInterval(interval);
@@ -39,12 +39,10 @@ export default function Index() {
   // When the fetcher comes back with new data,
   // update our `data` state.
   useEffect(() => {
-    console.log("Looking for fetcher data")
     if (fetcher.data) {
-      console.log("Got fetcher data")
       let incoming = JSON.parse(fetcher.data)
-      setData(incoming.concat(newTweets));
-    }
+      setTweets(incoming.concat(newTweets));
+  }
   }, [fetcher.data]);
 
   return (
@@ -56,10 +54,8 @@ export default function Index() {
       <ul>
         {
           (newTweets.length > 0) ? newTweets.map( t=> {
-            //console.log("tweet:")
-            //console.log(t)  
             return (
-              <li className="tweet">
+              <li className="tweet" key="{t.id}">
                 <div className="author">
                   <span className="displayName">{t.account.display_name}</span>
                   <span className="username">@{t.account.acct}</span>
@@ -72,7 +68,7 @@ export default function Index() {
                 </div>
               </li>
             )            
-          }) : <li>No tweets yet. Give it a sec.</li>
+          }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
         }
         {
           user.tweets? user.tweets.map(t => {
