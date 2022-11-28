@@ -73,7 +73,7 @@ export default function Index() {
         {
           user.tweets? user.tweets.map(t => {
             return (
-              <li className="tweet">
+              <li className="tweet" key="{t.id}">
                 <div className="author">
                   <span className="displayName">{t.account.display_name}</span>
                   <span className="username">@{t.account.acct}</span>

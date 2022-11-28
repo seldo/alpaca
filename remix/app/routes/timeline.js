@@ -10,7 +10,7 @@ export const loader = async ({request}) => {
     const url = new URL(request.url);
     let minId = url.searchParams.get("minId");    
     if(minId == "null") minId = null
-    let tweets = await mastodon.fetchTweets(authUser,minId)
+    let tweets = await mastodon.fetchTimeline(authUser,minId)
     let tweetString = JSON.stringify(tweets)
     return new Response(tweetString, {    
         status: 200

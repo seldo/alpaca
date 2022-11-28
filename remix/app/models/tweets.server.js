@@ -83,6 +83,16 @@ const getOrCreateTweet = async(tweetData) => {
 const storeTweets = async (tweets) => {
   for(let i = 0; i < tweets.length; i++) {
     let tweetData = tweets[i]
+    // reblogs are different
+    // we store the reblog itself
+    // and separately store the tweet they reblogged
+    if (tweetData.reblog && tweetData.reblog.length > 0) {
+      let rbAuthor = await getOrCreateUser(tweetData.reblog.account)
+      let rbTweet = await getOrCreateTweet(tweetData.reblog)
+      tweetData.reblog = rbTweet.id
+      // FIXME: we should add a reblogged field to the DB
+      // and then we can fetch the reblogged tweets natively at fetch time
+    }
     let author = await getOrCreateUser(tweetData.account)
     let tweet = await getOrCreateTweet(tweetData)
   }
@@ -90,13 +100,41 @@ const storeTweets = async (tweets) => {
   return
 }
 
+const storeTimeline = async (viewerId,timeline) => {
+
+  // store the tweets themselves so we can satisfy db constraints
+  await storeTweets(timeline)
+
+  // now store these timeline entries
+  let timelineBatch = []
+  for(let i = 0; i < timeline.length; i++) {
+    let tweet = timeline[i]
+    timelineBatch.push({
+      // id: autogen
+      // seenAt: autogen // FIXME: danger will robinson
+      viewerId,
+      tweetId: tweet.id
+    })
+  }
+
+  const storedTimelineEntries = await prisma.timelineEntry.createMany({
+    data: timelineBatch,
+    skipDuplicates: true
+  })
+
+  return
+ 
+}
+
 /**
- * Fetches tweets, stores any that don't already exist in the database,
+ * Fetches a user's timeline. Stores the timeline entries so we can
+ * reconstruct it, and stores any tweets and authors we haven't seen
+ * before into the tweets cache.
  * returns the timeline.
  * @param {} userData 
  * @returns 
  */
-export async function fetchTweets (userData,minId) {
+export async function fetchTimeline (userData,minId) {
   // FIXME: surely there is going to be a smarter way than passing the userData around
   let token = userData.accessToken
   let timelineData
@@ -109,9 +147,9 @@ export async function fetchTweets (userData,minId) {
     })
     let timeline = await timelineData.json()
     try {
-      storeTweets(timeline)
+      await storeTimeline(userData.id,timeline)
     } catch (e) {
-      console.log("Error storing new tweets")
+      console.log("Error storing timeline")
       console.log(e)
     }
     // TODO: can we async this and just not wait?
