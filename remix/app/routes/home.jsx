@@ -8,14 +8,15 @@ export const loader = async ({request}) => {
         failureRedirect: "/auth/mastodon?fromhome"
     })
     let user = await mastodon.getOrCreateUser(authUser)
-    return { user }
+    let timeline = await mastodon.getTimeline(authUser,{ hydrate: true })
+    return { user, timeline }
 }  
 
 export default function Index() {
   const loaderData = useLoaderData();
-  const {user} = loaderData
+  const {user, timeline } = loaderData
 
-  const [newTweets,setTweets] = useState([]);
+  const [newTweets,setTweets] = useState(timeline);
   useEffect(() => setTweets(newTweets), [newTweets]);
   const fetcher = useFetcher();
 
@@ -55,7 +56,7 @@ export default function Index() {
         {
           (newTweets.length > 0) ? newTweets.map( t=> {
             return (
-              <li className="tweet" key="{t.id}">
+              <li className="tweet" key={t.id}>
                 <div className="author">
                   <span className="displayName">{t.account.display_name}</span>
                   <span className="username">@{t.account.acct}</span>
@@ -69,24 +70,6 @@ export default function Index() {
               </li>
             )            
           }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
-        }
-        {
-          user.tweets? user.tweets.map(t => {
-            return (
-              <li className="tweet" key="{t.id}">
-                <div className="author">
-                  <span className="displayName">{t.account.display_name}</span>
-                  <span className="username">@{t.account.acct}</span>
-                </div>
-                <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
-                <div className="reactions">
-                  <span>💬 {t.replies_count}</span>
-                  <span>🔁 {t.reblogs_count}</span>
-                  <span>⭐️ {t.favourites_count}</span>
-                </div>
-              </li>
-            )
-          }) : <li>No tweets yet. Give it a sec.</li>
         }
       </ul>
     </div>

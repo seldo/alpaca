@@ -6,10 +6,6 @@ export async function getOrCreateUser(userData) {
   let user = await prisma.user.findUnique({
     where: {
       id: userData.id
-    },
-    include: {
-      tweets: true,
-      // FIXME: this cannot possibly scale, how do we limit?
     }
   })
   // if so return, otherwise insert them first
@@ -80,6 +76,7 @@ const getOrCreateTweet = async(tweetData) => {
   return tweet
 }
 
+// FIXME: increase efficiency with a createMany/ignoreDuplicates here
 const storeTweets = async (tweets) => {
   for(let i = 0; i < tweets.length; i++) {
     let tweetData = tweets[i]
@@ -110,8 +107,8 @@ const storeTimeline = async (viewerId,timeline) => {
   for(let i = 0; i < timeline.length; i++) {
     let tweet = timeline[i]
     timelineBatch.push({
-      // id: autogen
-      // seenAt: autogen // FIXME: danger will robinson
+      id: viewerId + ":" + tweet.id,
+      seenAt: tweet.created_at,
       viewerId,
       tweetId: tweet.id
     })
@@ -127,12 +124,55 @@ const storeTimeline = async (viewerId,timeline) => {
 }
 
 /**
- * Fetches a user's timeline. Stores the timeline entries so we can
- * reconstruct it, and stores any tweets and authors we haven't seen
- * before into the tweets cache.
- * returns the timeline.
- * @param {} userData 
- * @returns 
+ * Gets the most recent tweets in the user's timeline
+ * @param {} userData   User object must include .id
+ * @param {*} options 
+ *    hydrate   boolean Whether to hydrate the tweets 
+ * @returns array of tweet IDs (default) or full tweets (if hydrate=true)
+ */
+export const getTimeline = async (userData, options = {
+    hydrate: false
+  }) => {
+
+  let query = {
+      where: {
+        viewerId: userData.id
+      },
+      orderBy: {
+        seenAt: "desc"
+      }
+    }
+  if (options.hydrate) {
+    query.include = {
+      tweet: true
+    }
+  }
+
+  let timelineEntries = await prisma.timelineEntry.findMany(query)
+
+  if(options.hydrate) {
+    // transform into full tweets
+    // console.log("Hydrating timeline from ")
+    // console.log(timelineEntries[0])
+    let entries = timelineEntries.map( (entry) => {
+      return entry.tweet.json
+    })
+    // console.log("to")
+    // console.log(entries[0])
+    return entries
+  } else {
+    return timelineEntries
+  }
+
+}
+
+/**
+ * Fetches a user's timeline from the remote Mastodon instance. 
+ * Stores the timeline entries in the timeline cache, and stores 
+ * any tweets and authors we haven't seen before into those caches.
+ * @param {}      userData  Must contain an .id and .accessToken property
+ * @param String  minId     Tweets before this ID will not be fetched
+ * @returns array of fully-hydrated tweets including RTs.
  */
 export async function fetchTimeline (userData,minId) {
   // FIXME: surely there is going to be a smarter way than passing the userData around
