@@ -2,6 +2,13 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import authenticator from "../services/auth.server";
 import * as mastodon from "../models/tweets.server";
+import stylesRoot from "../styles/root.css";
+
+export const links = () => {
+  return [
+    { rel: "stylesheet", href: stylesRoot }
+  ];
+}
 
 export const loader = async ({request}) => {
     let authUser = await authenticator.isAuthenticated(request, {
@@ -47,7 +54,7 @@ export default function Index() {
   }, [fetcher.data]);
 
   return (
-    <div>
+    <div className="container mx-auto px-10">
       <div className="userdata">
         <p>User: {user.display_name || user.username }</p>
       </div>

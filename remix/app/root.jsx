@@ -6,10 +6,15 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import stylesUrl from "./styles/root.css";
+
+export const links = () => {
+  return [{ rel: "stylesheet", href: stylesUrl }];
+}
 
 export const meta = () => ({
   charset: "utf-8",
-  title: "New Remix App",
+  title: "Alpaca Blue: a Mastodon client",
   viewport: "width=device-width,initial-scale=1",
 });
 

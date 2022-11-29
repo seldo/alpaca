@@ -2,8 +2,10 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "remix build",
-    "dev": "remix dev",
+    "build": "npm run build:css && remix build",
+    "build:css": "tailwindcss -m -i ./styles/root.css -o app/styles/root.css",
+    "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
+    "dev:css": "tailwindcss -w -i ./styles/root.css -o app/styles/root.css",
     "start": "cross-env NODE_ENV=production netlify dev",
     "dbclient": "prisma generate --schema=../init/schema.prisma",
     "dbmigrate": "prisma migrate dev --schema=../init/schema.prisma --name "
@@ -24,7 +26,11 @@
     "@remix-run/dev": "^1.7.6",
     "@remix-run/eslint-config": "^1.7.6",
     "@remix-run/serve": "^1.7.6",
-    "eslint": "^8.27.0"
+    "autoprefixer": "^10.4.13",
+    "concurrently": "^7.6.0",
+    "eslint": "^8.27.0",
+    "postcss": "^8.4.19",
+    "tailwindcss": "^3.2.4"
   },
   "engines": {
     "node": ">=14"

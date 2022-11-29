@@ -1,5 +1,11 @@
 import authenticator from "../services/auth.server";
-import { useLoaderData } from "@remix-run/react";
+import stylesRoot from "../styles/root.css";
+
+export const links = () => {
+  return [
+    { rel: "stylesheet", href: stylesRoot }
+  ];
+}
 
 // if they're already logged in take them to the home timeline
 export const loader = async ({request}) => {
@@ -10,7 +16,7 @@ export const loader = async ({request}) => {
 
 export default function Index() {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+    <div className="container mx-auto px-4">
       <h1>Alpaca Blue</h1>
       <h2>An open source Mastodon client</h2>
       <p>Currently only works in dev against my test server.</p>
