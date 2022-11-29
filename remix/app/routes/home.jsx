@@ -54,7 +54,7 @@ export default function Index() {
   }, [fetcher.data]);
 
   return (
-    <div className="container mx-auto px-10">
+    <div className="container sm:w-50">
       <div className="userdata">
         <p>User: {user.display_name || user.username }</p>
       </div>
