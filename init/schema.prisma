@@ -9,7 +9,7 @@ datasource db {
 
 // mastodon users; you must successfully auth to this ID to see anything
 model User {
-  id              String @id    // mastodon ref imp uses integer IDs but is that mandator?
+  id              String      @id    // mastodon ref imp uses integer IDs but is that mandator?
   username        String
   display_name    String?
   avatar          String?
@@ -19,26 +19,37 @@ model User {
   followers_count Int
   following_count Int
   tweets          Tweet[]
+  timeline        TimelineEntry[]
   @@index([id], map: "user_ids")
   @@index([username], map: "usernames")
 }
 
 // a 7-day cache of tweets. I refuse to call them toots, and posts is too generic.
 model Tweet {
-  id              String @id 
+  id              String      @id 
   permalink       String
   text            String
-  author          User  @relation(fields:[authorId],references: [id])
-  authorId        String  // integer ID from user object
-  json            String
+  author          User        @relation(fields:[authorId],references: [id])
+  authorId        String      // integer ID from user object
+  json            Json        @db.JsonB
+  timelineEntry   TimelineEntry[]
+}
+
+model TimelineEntry {
+  id              String      @id
+  seenAt          DateTime    @default(now())
+  viewer          User        @relation(fields:[viewerId],references:[id])
+  viewerId        String
+  tweet           Tweet       @relation(fields:[tweetId],references:[id])
+  tweetId         String
 }
 
 // might use this for meta-login to multiple accounts?
 model Account {
-  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name    String
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
   @@index([id], map: "account_ids")
-  posts   Post[]
+  posts           Post[]
 }
 
 model Post {

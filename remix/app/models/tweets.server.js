@@ -152,13 +152,9 @@ export const getTimeline = async (userData, options = {
 
   if(options.hydrate) {
     // transform into full tweets
-    // console.log("Hydrating timeline from ")
-    // console.log(timelineEntries[0])
     let entries = timelineEntries.map( (entry) => {
       return entry.tweet.json
     })
-    // console.log("to")
-    // console.log(entries[0])
     return entries
   } else {
     return timelineEntries
@@ -179,7 +175,7 @@ export async function fetchTimeline (userData,minId) {
   let token = userData.accessToken
   let timelineData
   try {
-    timelineData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/timelines/home${ minId ? `?minId=${minId}` : "" }`, {
+    timelineData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/timelines/home${ minId ? `?min_id=${minId}` : "" }`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
