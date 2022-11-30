@@ -3,7 +3,7 @@ import { useLoaderData, useFetcher } from "@remix-run/react";
 import authenticator from "../services/auth.server";
 import * as mastodon from "../models/tweets.server";
 import stylesRoot from "../styles/root.css";
-import Tweet from "../components/tweet"
+import Tweet from "../shared/components/tweet"
 
 export const links = () => {
   return [
