@@ -54,31 +54,59 @@ export default function Index() {
   }, [fetcher.data]);
 
   return (
-    <div className="container sm:w-50">
-      <div className="userdata">
-        <p>User: {user.display_name || user.username }</p>
+    <div className="container flex flex-row">
+      <div className="gutter container w-16 px-4 py-2 h-screen">
+        <div className="menu-bar flex flex-col place-content-between h-full">
+          <div className="menu">
+            <div className="logo py-2">
+              <img className="floof" src="/images/floof-with-border.svg" />
+            </div>
+            <ul className="menuItems">
+              <li><a className="home" href="/home"><span>Home</span></a></li>
+              <li><a className="search" href="/search"><span>Search</span></a></li>
+              <li><a className="notifications" href="/notifications"><span>Notifications</span></a></li>
+              <li><a className="messages" href="/message"><span>Messages</span></a></li>
+              <li><a className="profile" href="/profile"><span>Profile</span></a></li>
+              <li><a className="settings" href="/settings"><span>Settings</span></a></li>
+              <li><a className="compose" href="/compose"><span>Compose</span></a></li>
+            </ul>
+          </div>
+          <div className="user">
+            <img className="avatar" src={user.avatar} title={user.display_name || user.username } />
+          </div>
+        </div>
       </div>
-      <h1>Home</h1>
-      <ul>
-        {
-          (newTweets.length > 0) ? newTweets.map( t=> {
-            return (
-              <li className="tweet" key={t.id}>
-                <div className="author">
-                  <span className="displayName">{t.account.display_name}</span>
-                  <span className="username">@{t.account.acct}</span>
-                </div>
-                <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
-                <div className="reactions">
-                  <span>💬 {t.replies_count}</span>
-                  <span>🔁 {t.reblogs_count}</span>
-                  <span>⭐️ {t.favourites_count}</span>
-                </div>
-              </li>
-            )            
-          }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
-        }
-      </ul>
+      <div className="content container">
+        <div className="latest">
+          <h1>Latest posts</h1>
+        </div>
+        <div className="composeTop pr-4">
+          <textarea className="w-full" placeholder="What's up?"></textarea>
+          <div className="buttonHolder">
+            <button>Post</button>
+          </div>
+        </div>
+        <ul>
+          {
+            (newTweets.length > 0) ? newTweets.map( t=> {
+              return (
+                <li className="tweet" key={t.id}>
+                  <div className="author">
+                    <span className="displayName">{t.account.display_name}</span>
+                    <span className="username">@{t.account.acct}</span>
+                  </div>
+                  <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
+                  <div className="reactions">
+                    <span>💬 {t.replies_count}</span>
+                    <span>🔁 {t.reblogs_count}</span>
+                    <span>⭐️ {t.favourites_count}</span>
+                  </div>
+                </li>
+              )            
+            }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
+          }
+        </ul>
+      </div>
     </div>
   );
 }

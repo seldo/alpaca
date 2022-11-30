@@ -8,7 +8,7 @@ module.exports = {
       center: true
     },
     colors: {
-      'blue': '#1fb6ff',
+      'blue': '#64b5e3',
       'pink': '#ff49db',
       'orange': '#ff7849',
       'green': '#13ce66',
