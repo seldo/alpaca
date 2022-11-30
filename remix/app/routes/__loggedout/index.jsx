@@ -1,5 +1,5 @@
-import authenticator from "../services/auth.server";
-import stylesRoot from "../styles/root.css";
+import authenticator from "../../services/auth.server";
+import stylesRoot from "~/../styles/root.css";
 
 export const links = () => {
   return [

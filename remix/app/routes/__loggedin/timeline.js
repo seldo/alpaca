@@ -1,5 +1,5 @@
-import authenticator from "../services/auth.server";
-import * as mastodon from "../models/tweets.server";
+import authenticator from "~/services/auth.server";
+import * as mastodon from "~/models/tweets.server";
 
 export const loader = async ({request}) => {
     console.log("/timeline called")

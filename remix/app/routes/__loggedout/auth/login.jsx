@@ -1,5 +1,5 @@
 import { useLoaderData, Form } from "@remix-run/react";
-import authenticator from "../../services/auth.server";
+import authenticator from "../../../services/auth.server";
 
 export let loader = async ({request}) => {
 

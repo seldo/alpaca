@@ -1,6 +1,6 @@
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { getPosts } from "../../models/posts.server";
+import { getPosts } from "../../../models/posts.server";
 
 export const loader = async () => {
   return {

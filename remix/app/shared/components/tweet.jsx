@@ -6,9 +6,9 @@ const Tweet = (t) => {
         </div>
     } else {
         return <li className="tweet flex flex-row w-full" key={t.id}>
-            <div className="gutter">
+            <div className="gutter">            
             <div className="authorAvatar">
-                <img src={t.account.avatar} />
+                <a title={t.account.display_name || "@" + t.account_username} href={"/u/"+t.account.acct}><img src={t.account.avatar} /></a>
             </div>
             </div>
             <div className="tweetBody grow">
