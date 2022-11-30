@@ -51,6 +51,9 @@
     margin-top: 17px;
     margin-bottom: 20px;
 }
+.content {
+    overflow-x: hidden;
+}
 .composeTop {
     border-bottom: 0.5px solid #ccc;
     padding-bottom: 10px;
@@ -70,4 +73,51 @@
     padding: 2px 10px;
     position: relative;
     right: 0px;
+}
+.tweet {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid #ccc;
+    padding-right: 10px;
+    font-size: 92%;
+}
+.tweet .gutter {
+    width: 60px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.tweet .gutter .authorAvatar img {
+    border-radius: 100%;
+}
+.tweet .tweetBody {
+    /* FIXME: this is a dumb way to get this */
+    width: 100px;
+}
+.tweet .displayName {
+    font-weight: bold;
+    margin-right: 3px;
+}
+.tweet .username {
+    color: #888;
+    font-size: 90%;
+}
+.tweet .reactions {
+    padding-top: 10px;
+}
+.tweet .reactions>div {
+    color: #888;
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-y: 1.5px;
+    padding-left: 25px;
+}
+.tweet .reactions .replies { background-image: url("/images/reply-icon.svg")}
+.tweet .reactions .reblogs { background-image: url("/images/retweet-icon.svg")}
+.tweet .reactions .favorites { background-image: url("/images/heart-icon.svg")}
+.tweet .reactions .share { background-image: url("/images/share-icon.svg")}
+
+.tweet .reactions .share span {
+    display: none;
 }

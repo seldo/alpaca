@@ -54,8 +54,8 @@ export default function Index() {
   }, [fetcher.data]);
 
   return (
-    <div className="container flex flex-row">
-      <div className="gutter container w-16 px-4 py-2 h-screen">
+    <div className="flex flex-row">
+      <div className="gutter px-4 py-2 h-screen">
         <div className="menu-bar flex flex-col place-content-between h-full">
           <div className="menu">
             <div className="logo py-2">
@@ -76,7 +76,7 @@ export default function Index() {
           </div>
         </div>
       </div>
-      <div className="content container">
+      <div className="content w-full">
         <div className="latest">
           <h1>Latest posts</h1>
         </div>
@@ -90,16 +90,24 @@ export default function Index() {
           {
             (newTweets.length > 0) ? newTweets.map( t=> {
               return (
-                <li className="tweet" key={t.id}>
-                  <div className="author">
-                    <span className="displayName">{t.account.display_name}</span>
-                    <span className="username">@{t.account.acct}</span>
+                <li className="tweet flex flex-row w-full" key={t.id}>
+                  <div className="gutter">
+                    <div className="authorAvatar">
+                      <img src={t.account.avatar} />
+                    </div>
                   </div>
-                  <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
-                  <div className="reactions">
-                    <span>💬 {t.replies_count}</span>
-                    <span>🔁 {t.reblogs_count}</span>
-                    <span>⭐️ {t.favourites_count}</span>
+                  <div className="tweetBody grow">
+                    <div className="author">
+                      <span className="displayName">{t.account.display_name}</span>
+                      <span className="username">@{t.account.acct}</span>
+                    </div>
+                    <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
+                    <div className="reactions flex flex-row place-content-between w-full">
+                      <div class="replies">{t.replies_count ? t.replies_count : ''}</div>
+                      <div class="reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
+                      <div class="favorites">{t.favourites_count ? t.favourites_count : ''}</div>
+                      <div class="share"><span>Share</span></div>
+                    </div>
                   </div>
                 </li>
               )            
