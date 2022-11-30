@@ -121,3 +121,9 @@
 .tweet .reactions .share span {
     display: none;
 }
+.reblog .reblogNotice {
+    font-size: 80%;
+    font-weight: bold;
+    color: #666;
+    background-image: url("/images/retweet-icon.svg")
+}

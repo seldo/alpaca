@@ -3,6 +3,7 @@ import { useLoaderData, useFetcher } from "@remix-run/react";
 import authenticator from "../services/auth.server";
 import * as mastodon from "../models/tweets.server";
 import stylesRoot from "../styles/root.css";
+import Tweet from "../components/tweet"
 
 export const links = () => {
   return [
@@ -89,28 +90,7 @@ export default function Index() {
         <ul>
           {
             (newTweets.length > 0) ? newTweets.map( t=> {
-              return (
-                <li className="tweet flex flex-row w-full" key={t.id}>
-                  <div className="gutter">
-                    <div className="authorAvatar">
-                      <img src={t.account.avatar} />
-                    </div>
-                  </div>
-                  <div className="tweetBody grow">
-                    <div className="author">
-                      <span className="displayName">{t.account.display_name}</span>
-                      <span className="username">@{t.account.acct}</span>
-                    </div>
-                    <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
-                    <div className="reactions flex flex-row place-content-between w-full">
-                      <div class="replies">{t.replies_count ? t.replies_count : ''}</div>
-                      <div class="reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
-                      <div class="favorites">{t.favourites_count ? t.favourites_count : ''}</div>
-                      <div class="share"><span>Share</span></div>
-                    </div>
-                  </div>
-                </li>
-              )            
+              return Tweet(t)      
             }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
           }
         </ul>
