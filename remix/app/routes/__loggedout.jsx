@@ -15,13 +15,11 @@ export const loader = async ({request}) => {
 
 export default function Index() {
     return <div>
-        <div className="flex flex-row">
-          <div className="main-gutter px-4 py-2 h-screen">
-            <Globalnav />
-          </div>
-          <div className="content w-full">
-            <Outlet />
-          </div>
+        <div className="main-gutter px-3 py-2 h-screen fixed top-0">
+        <Globalnav />
+        </div>
+        <div className="content">
+        <Outlet />
         </div>
     </div>
 }

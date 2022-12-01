@@ -16,13 +16,11 @@ export default function Index() {
     const loaderData = useLoaderData();
     const {user} = loaderData  
     return <div>
-        <div className="flex flex-row">
-          <div className="main-gutter px-3 py-2 h-screen fixed top-0">
-            <Globalnav user={user} />
-          </div>
-          <div className="content w-full">
-            <Outlet context={{user}}/>
-          </div>
+        <div className="main-gutter px-3 py-2 h-screen fixed top-0">
+        <Globalnav user={user} />
+        </div>
+        <div className="content">
+        <Outlet context={{user}}/>
         </div>
     </div>
 }
