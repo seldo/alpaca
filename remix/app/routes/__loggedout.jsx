@@ -1,7 +1,5 @@
 import {Outlet} from "@remix-run/react";
-import { useLoaderData } from "@remix-run/react";
 import authenticator from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
 import Globalnav from "~/shared/components/globalnav"
 
 export const loader = async ({request}) => {
@@ -19,7 +17,7 @@ export default function Index() {
         <Globalnav />
         </div>
         <div className="content">
-        <Outlet />
+            <Outlet />
         </div>
     </div>
 }

@@ -12,13 +12,13 @@ export const links = () => {
   ];
 }
 
-export const loader = async ({request}) => {
-    // FIXME: it is gross, GROSS that I have to re-load the user here
-    // see https://github.com/remix-run/react-router/issues/9188#issuecomment-1248180434
-    let authUser = await authenticator.isAuthenticated(request,{throwOnError:true})
-    let user = await mastodon.getOrCreateUser(authUser)
-    let timeline = await mastodon.getTimeline(user,{ hydrate: true })
-    return { user, timeline }
+export const loader = async ({request, data}) => {
+  // FIXME: it is gross, GROSS that I have to re-load the user here
+  // see https://github.com/remix-run/react-router/issues/9188#issuecomment-1248180434
+  let authUser = await authenticator.isAuthenticated(request,{throwOnError:true})
+  let user = await mastodon.getOrCreateUserFromData(authUser)
+  let timeline = await mastodon.getTimeline(user,{ hydrate: true })
+  return { user, timeline }
 }
 
 export default function Index() {

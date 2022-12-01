@@ -8,7 +8,7 @@ export const loader = async ({request}) => {
     let authUser = await authenticator.isAuthenticated(request, {
         failureRedirect: "/auth/mastodon?fromhome"
     })
-    let user = await mastodon.getOrCreateUser(authUser)
+    let user = await mastodon.getOrCreateUserFromData(authUser)
     return { user }
 }
 

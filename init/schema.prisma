@@ -11,6 +11,7 @@ datasource db {
 model User {
   id              String      @id    // mastodon ref imp uses integer IDs but is that mandator?
   username        String
+  instance        String
   display_name    String?
   avatar          String?
   avatar_static   String?
@@ -21,7 +22,8 @@ model User {
   tweets          Tweet[]
   timeline        TimelineEntry[]
   @@index([id], map: "user_ids")
-  @@index([username], map: "usernames")
+  @@index([username,instance], map: "usernames")
+  @@unique([username,instance])
 }
 
 // a 7-day cache of tweets. I refuse to call them toots, and posts is too generic.

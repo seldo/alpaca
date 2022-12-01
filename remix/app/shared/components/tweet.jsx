@@ -1,4 +1,5 @@
 const Tweet = (t) => {
+    console.log(t)
     if(t.reblog !== null) {
         return <div className="reblog">
             <div className="reblogNotice">{t.account.display_name || "@" + t.account.username} reblogged</div>

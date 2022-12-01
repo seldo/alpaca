@@ -1,21 +1,104 @@
 import { prisma } from "../db.server";
-import authenticator from "../services/auth.server";
 
-export async function getOrCreateUser(userData) {
+export async function getUserByUsername(username,instance,options = {
+  withTweets: false
+}) {
   // see if they're in the database
-  let user = await prisma.user.findUnique({
+  let conditions = {
     where: {
-      id: userData.id
+      username_instance: {
+        username,
+        instance
+      },
     }
-  })
+  }
+  if(options.withTweets) {
+    conditions.include = {
+      tweets: true
+    }
+  }
+  let user = await prisma.user.findUnique(conditions)  
+  if (user) user = formatUserTweets(user)
+  return user
+}
+
+export async function getOrFetchUserByUsername(username,instance,options = {
+  withTweets: false,
+  token
+}) {
+  let user = await getUserByUsername(username,instance,{withTweets:options.withTweets})
+  console.log("User by username was",user)
+  if(!user) {
+    // fetch them from the api; we must use webfinger because they aren't in the cache
+    userData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/lookup?acct=${username+"@"+instance+"&skip_webfinger=false"}`, {
+      method: "GET"
+    })
+    // get user data
+    user = await userData.json()
+    // store user data
+    await getOrCreateUserFromData(user)
+  }
+  // they might have never tweeted, we might never have fetched their tweets, let's do it either way
+  if(!user.tweets || (user.tweets && user.tweets.length == 0)) {   
+    // get + store (public) user tweets
+    // TODO: if we've got a token and are the user we should fetch private tweets too
+    user.tweets = await getOrFetchTweetsByUserId(user.id)
+    console.log("Fetch user and tweets, tweets were")
+  }
+  return user
+}
+
+export async function getUserById(userId,options = {
+  withTweets: false
+}) {
+  // see if they're in the database
+  let conditions = {
+    where: {
+      id: userId
+    }
+  }
+  if(options.withTweets) {
+    conditions.include = {
+      tweets: true
+    }
+  }
+  let user = await prisma.user.findUnique(conditions)  
+  if (user) user = formatUserTweets(user)
+  return user
+}
+
+function getInstanceFromData(userData) {
+  let acctInstance = userData.acct.split('@')[1]
+  if (acctInstance) return acctInstance
+  let urlInstance = userData.url.split('//')[1].split('/')[0]
+  return urlInstance
+}
+
+function formatUserTweets(user) {
+  // only reformat if we haven't already done so
+  if(user.tweets && user.tweets.length > 0 && user.tweets[0].json) {
+    let formattedTweets = user.tweets.map( (t) => {
+      return t.json
+    })
+    user.tweets = formattedTweets
+  }
+  return user
+}
+
+export async function getOrCreateUserFromData(userData,options = {
+    withTweets: false
+  }) {
+  let user = await getUserById(userData.id,{withTweets:options.withTweets})
   // if so return, otherwise insert them first
   if (!user) {
+    let instance = getInstanceFromData(userData)
     user = await prisma.user.upsert({
       where: {
         id: userData.id
       },
       update: {
         username: userData.username,
+        instance: instance,
         display_name: userData.display_name,
         avatar: userData.avatar,
         header: userData.header,
@@ -25,6 +108,7 @@ export async function getOrCreateUser(userData) {
       create: {
         id: userData.id,
         username: userData.username,
+        instance: instance,
         display_name: userData.display_name,
         avatar: userData.avatar,
         header: userData.header,
@@ -33,14 +117,43 @@ export async function getOrCreateUser(userData) {
       }
     })
   }
-  // if the user has tweets make sure they fit our expected format
-  if(user.tweets) {
-    let formattedTweets = user.tweets.map( (t) => {
-      return t.json
-    })
-    user.tweets = formattedTweets
-  }
   return user
+}
+
+export const getTweetsByUserId = async(userId,options) => {
+  let query = {
+    where: {
+      id: userId
+    }
+    // TODO: orderby
+  }
+
+  let tweets = await prisma.timelineEntry.findMany(query)
+  return tweets
+}
+
+export const getOrFetchTweetsByUserId = async(userId,options) => {
+  // try to get them locally first
+  let tweets = await getTweetsByUserId(userId)
+  // if we get no tweets, we try to fetch them, but technically there might not be any
+  if (tweets.length == 0) {
+    tweets = await fetchTweetsByUserId(userId,options)
+  }
+  if(tweets) tweets = formatUserTweets(tweets)
+  return tweets
+}
+
+export const fetchTweetsByUserId = async(userId,options) => {
+    console.log("Trying to fetch tweets for userId",userId)
+    tweetData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${userId}/statuses`, {
+      method: "GET"
+      // TODO: might want to get private tweets with token if authed
+    })
+    tweets = await tweetData.json()
+    if(tweets) tweets = formatUserTweets(tweets)
+    // now store them for later
+    await storeTweets(tweets)
+    return tweets
 }
 
 const getOrCreateTweet = async(tweetData) => {
@@ -84,16 +197,18 @@ const storeTweets = async (tweets) => {
     // we store the reblog itself
     // and separately store the tweet they reblogged
     if (tweetData.reblog && tweetData.reblog.length > 0) {
-      let rbAuthor = await getOrCreateUser(tweetData.reblog.account)
+      let rbAuthor = await getOrCreateUserFromData(tweetData.reblog.account)
       let rbTweet = await getOrCreateTweet(tweetData.reblog)
       tweetData.reblog = rbTweet.id
       // FIXME: we should add a reblogged field to the DB
       // and then we can fetch the reblogged tweets natively at fetch time
     }
-    let author = await getOrCreateUser(tweetData.account)
+    // TODO: can this be done totally async?
+    let author = await getOrCreateUserFromData(tweetData.account)
     let tweet = await getOrCreateTweet(tweetData)
   }
   // FIXME: some sort of error catching...
+  // TODO: a return value would be nice
   return
 }
 
