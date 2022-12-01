@@ -152,7 +152,6 @@ export const fetchTweetsByUserId = async(userId,options) => {
 }
 
 export const isFollowing = async(userToken,followingId) => {
-  followingId = '109382405233051756'
   let followingRequestUrl = new URL(process.env.MASTODON_INSTANCE + "/api/v1/accounts/relationships")
   followingRequestUrl.searchParams.set('id',followingId)
   let followingData  = await fetch(followingRequestUrl.toString(), {

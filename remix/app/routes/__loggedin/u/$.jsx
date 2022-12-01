@@ -47,7 +47,7 @@ export default function Index() {
         </div>
         <div className="buttonBar">
             { 
-            (following.following) ? <div class="followButton empty">Following</div> : <button class="followButton filled">
+            (following.following) ? <button class="followButton empty">Following</button> : <button class="followButton filled">
                 Follow
             </button>
             }
