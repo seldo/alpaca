@@ -27,7 +27,6 @@ export async function getOrFetchUserByUsername(username,instance,options = {
   token
 }) {
   let user = await getUserByUsername(username,instance,{withTweets:options.withTweets})
-  console.log("User by username was",user)
   if(!user) {
     // fetch them from the api; we must use webfinger because they aren't in the cache
     userData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/lookup?acct=${username+"@"+instance+"&skip_webfinger=false"}`, {
@@ -43,7 +42,6 @@ export async function getOrFetchUserByUsername(username,instance,options = {
     // get + store (public) user tweets
     // TODO: if we've got a token and are the user we should fetch private tweets too
     user.tweets = await getOrFetchTweetsByUserId(user.id)
-    console.log("Fetch user and tweets, tweets were")
   }
   return user
 }
@@ -144,16 +142,33 @@ export const getOrFetchTweetsByUserId = async(userId,options) => {
 }
 
 export const fetchTweetsByUserId = async(userId,options) => {
-    console.log("Trying to fetch tweets for userId",userId)
-    tweetData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${userId}/statuses`, {
+    let tweetData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${userId}/statuses`, {
       method: "GET"
       // TODO: might want to get private tweets with token if authed
     })
-    tweets = await tweetData.json()
+    let tweets = await tweetData.json()
     if(tweets) tweets = formatUserTweets(tweets)
     // now store them for later
     await storeTweets(tweets)
     return tweets
+}
+
+export const isFollowing = async(userToken,followingId) => {
+  followingId = '109382405233051756'
+  console.log("Looking for",followingId)
+  console.log("Token is",userToken)
+  let followingRequestUrl = new URL(process.env.MASTODON_INSTANCE + "/api/v1/accounts/relationships")
+  followingRequestUrl.searchParams.set('id',followingId)
+  console.log("Request url",followingRequestUrl.toString())
+  let followingData  = await fetch(followingRequestUrl.toString(), {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${userToken}`
+    }  
+  })
+  let following = await followingData.json()
+  if(following[0]) return following[0]
+  else return null
 }
 
 const getOrCreateTweet = async(tweetData) => {
@@ -298,18 +313,14 @@ export async function fetchTimeline (userData,minId) {
     })
     let timeline = await timelineData.json()
     try {
+      // TODO: can we async this and just not wait?
       await storeTimeline(userData.id,timeline)
     } catch (e) {
-      console.log("Error storing timeline")
-      console.log(e)
+      console.log("Error storing timeline",e)
     }
-    // TODO: can we async this and just not wait?
-    //console.log(timeline)
     return timeline
   } catch (e) {
-    console.log("Error fetching new tweets")
-    //console.log(timelineData)
-    console.log(e)
+    console.log("Error fetching new tweets",e)
     return []
   }
 }

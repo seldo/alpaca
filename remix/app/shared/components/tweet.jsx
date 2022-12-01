@@ -1,12 +1,11 @@
 const Tweet = (t) => {
-    console.log(t)
     if(t.reblog !== null) {
         return <div className="reblog">
             <div className="reblogNotice">{t.account.display_name || "@" + t.account.username} reblogged</div>
             {Tweet(t.reblog)}
         </div>
     } else {
-        return <li className="tweet flex flex-row w-full" key={t.id}>
+        return <li key={t.id} className="tweet flex flex-row w-full" key={t.id}>
             <div className="gutter">            
             <div className="authorAvatar">
                 <a title={t.account.display_name || "@" + t.account_username} href={"/u/"+t.account.acct}><img src={t.account.avatar} /></a>

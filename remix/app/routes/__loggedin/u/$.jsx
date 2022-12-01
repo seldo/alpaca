@@ -16,7 +16,8 @@ export const loader = async ({request, params}) => {
         withTweets: true,
         token: authUser.accessToken
     })
-    return { user }
+    let following = await mastodon.isFollowing(authUser.accessToken,user.id)
+    return { user, following }
 }
 
 export const meta = ({data}) => {
@@ -26,9 +27,7 @@ export const meta = ({data}) => {
 }
 
 export default function Index() {
-    const {user} = useLoaderData();
-    console.log("profile user")
-    console.log(user)
+    const {user, following} = useLoaderData();
     return <div>
         <div>
             <div className="backButton">Back</div>
@@ -40,7 +39,14 @@ export default function Index() {
             background
         </div>
         <div>
-            Avatar ---- follow button
+            Avatar ---- 
+            <div>
+                { 
+                (following.following) ? <span>Following</span> : <button>
+                    Follow
+                </button>
+                }
+            </div>
         </div>
         <div>
             Display name again
