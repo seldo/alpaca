@@ -11,11 +11,18 @@
     max-height: 50px;
     border-radius: 50%;
 }
+.main-gutter {
+    border-right: 0.5px solid #ccc;
+}
+.content {
+    margin-left: 76px;
+}
 .menuItems {
     margin-top: 1rem;
 }
 .menuItems li {
     margin-bottom: 1rem;
+    margin-left: 0.7rem;
 }
 .menuItems li a span {
     display: none;
@@ -50,22 +57,26 @@
     font-size: 120%;
     margin-top: 17px;
     margin-bottom: 20px;
+    margin-left: 10px;
 }
 .content {
     overflow-x: hidden;
 }
 .composeTop {
-    border-bottom: 0.5px solid #ccc;
     padding-bottom: 10px;
-    margin-bottom: 10px;
+    margin-left: 10px;
 }
 .composeTop textarea {
-    padding: 4px;
+    padding: 10px;
 }
-.composeTop .buttonHolder {
+.buttonHolder {
+    padding-bottom: 10px;
     text-align: right;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-bottom: 0.5px solid #ccc;
 }
-.composeTop button {
+.buttonHolder button {
     border: 1px solid #64b5e3;
     background-color: #64b5e3;
     color: #fff;

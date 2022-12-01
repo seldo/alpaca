@@ -6,22 +6,21 @@ import Globalnav from "~/shared/components/globalnav"
 
 export const loader = async ({request}) => {
     let authUser = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/auth/mastodon?fromhome"
+        successRedirect: "/home?fromloggedout"
     })
-    let user = await mastodon.getOrCreateUser(authUser)
-    return { user }
+    // if we're logged in we'll redirect them
+    // so they'll only get here if there's no user anyway
+    return null
 }
 
 export default function Index() {
-    const loaderData = useLoaderData();
-    const {user} = loaderData  
     return <div>
         <div className="flex flex-row">
-          <div className="main-gutter px-3 py-2 h-screen fixed top-0">
-            <Globalnav user={user} />
+          <div className="main-gutter px-4 py-2 h-screen">
+            <Globalnav />
           </div>
           <div className="content w-full">
-            <Outlet context={{user}}/>
+            <Outlet />
           </div>
         </div>
     </div>

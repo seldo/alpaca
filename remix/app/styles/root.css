@@ -553,6 +553,14 @@ video {
   visibility: visible;
 }
 
+.fixed {
+  position: fixed;
+}
+
+.top-0 {
+  top: 0px;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -594,14 +602,19 @@ video {
   place-content: space-between;
 }
 
-.px-4 {
-  padding-left: 1rem;
-  padding-right: 1rem;
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .pr-4 {
@@ -619,12 +632,21 @@ video {
   border-radius: 50%;
 }
 
+.main-gutter {
+  border-right: 0.5px solid #ccc;
+}
+
+.content {
+  margin-left: 76px;
+}
+
 .menuItems {
   margin-top: 1rem;
 }
 
 .menuItems li {
   margin-bottom: 1rem;
+  margin-left: 0.7rem;
 }
 
 .menuItems li a span {
@@ -681,6 +703,7 @@ video {
   font-size: 120%;
   margin-top: 17px;
   margin-bottom: 20px;
+  margin-left: 10px;
 }
 
 .content {
@@ -688,20 +711,23 @@ video {
 }
 
 .composeTop {
-  border-bottom: 0.5px solid #ccc;
   padding-bottom: 10px;
-  margin-bottom: 10px;
+  margin-left: 10px;
 }
 
 .composeTop textarea {
-  padding: 4px;
+  padding: 10px;
 }
 
-.composeTop .buttonHolder {
+.buttonHolder {
+  padding-bottom: 10px;
   text-align: right;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  border-bottom: 0.5px solid #ccc;
 }
 
-.composeTop button {
+.buttonHolder button {
   border: 1px solid #64b5e3;
   background-color: #64b5e3;
   color: #fff;

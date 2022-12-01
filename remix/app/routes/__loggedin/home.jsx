@@ -4,6 +4,7 @@ import authenticator from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import stylesRoot from "~/../styles/root.css";
 import { Tweet } from "~/shared/components/tweet"
+import Avatar from "~/shared/components/avatar"
 
 export const links = () => {
   return [
@@ -17,7 +18,7 @@ export const loader = async ({request}) => {
     let authUser = await authenticator.isAuthenticated(request,{throwOnError:true})
     let user = await mastodon.getOrCreateUser(authUser)
     let timeline = await mastodon.getTimeline(user,{ hydrate: true })
-    return { timeline }
+    return { user, timeline }
 }
 
 export default function Index() {
@@ -59,11 +60,12 @@ export default function Index() {
       <div className="latest">
         <h1>Latest posts</h1>
       </div>
-      <div className="composeTop pr-4">
+      <div className="composeTop pr-4 flex flex-row">
+        <Avatar user={user} />
         <textarea className="w-full" placeholder="What's up?"></textarea>
-        <div className="buttonHolder">
-          <button>Post</button>
-        </div>
+      </div>
+      <div className="buttonHolder">
+        <button>Post</button>
       </div>
       <ul>
         {
