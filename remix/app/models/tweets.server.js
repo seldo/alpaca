@@ -100,8 +100,7 @@ export async function getOrCreateUserFromData(userData,options = {
         display_name: userData.display_name,
         avatar: userData.avatar,
         header: userData.header,
-        followers_count: userData.followers_count,
-        following_count: userData.following_count
+        json: userData
       },
       create: {
         id: userData.id,
@@ -110,8 +109,7 @@ export async function getOrCreateUserFromData(userData,options = {
         display_name: userData.display_name,
         avatar: userData.avatar,
         header: userData.header,
-        followers_count: userData.followers_count,
-        following_count: userData.following_count
+        json: userData
       }
     })
   }
@@ -155,11 +153,8 @@ export const fetchTweetsByUserId = async(userId,options) => {
 
 export const isFollowing = async(userToken,followingId) => {
   followingId = '109382405233051756'
-  console.log("Looking for",followingId)
-  console.log("Token is",userToken)
   let followingRequestUrl = new URL(process.env.MASTODON_INSTANCE + "/api/v1/accounts/relationships")
   followingRequestUrl.searchParams.set('id',followingId)
-  console.log("Request url",followingRequestUrl.toString())
   let followingData  = await fetch(followingRequestUrl.toString(), {
     method: "GET",
     headers: {

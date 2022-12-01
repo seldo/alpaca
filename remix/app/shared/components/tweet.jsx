@@ -1,3 +1,5 @@
+import Avatar from "~/shared/components/avatar"
+
 const Tweet = (t) => {
     if(t.reblog !== null) {
         return <div className="reblog">
@@ -5,10 +7,10 @@ const Tweet = (t) => {
             {Tweet(t.reblog)}
         </div>
     } else {
-        return <li key={t.id} className="tweet flex flex-row w-full" key={t.id}>
+        return <li key={t.id} className="tweet flex flex-row w-full">
             <div className="gutter">            
             <div className="authorAvatar">
-                <a title={t.account.display_name || "@" + t.account_username} href={"/u/"+t.account.acct}><img src={t.account.avatar} /></a>
+                <Avatar user={t.account} /> 
             </div>
             </div>
             <div className="tweetBody grow">

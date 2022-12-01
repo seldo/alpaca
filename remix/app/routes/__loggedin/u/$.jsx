@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { MetaFunction } from "@remix-run/node"
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useFetcher, useNavigate } from "@remix-run/react";
 import authenticator from "../../../services/auth.server";
 import * as mastodon from "../../../models/tweets.server";
-import stylesRoot from "~/../styles/root.css";
 import { Tweet } from "../../../shared/components/tweet"
+import Avatar from "~/shared/components/avatar"
+import { Link } from "react-router-dom";
 
 export const loader = async ({request, params}) => {
     let authUser = await authenticator.isAuthenticated(request, {
@@ -28,37 +28,39 @@ export const meta = ({data}) => {
 
 export default function Index() {
     const {user, following} = useLoaderData();
-    return <div>
-        <div>
-            <div className="backButton">Back</div>
-            <div>{user.display_name}</div>
-            <div>@{user.acct}</div>
-        </div>
-        # of Tweets
-        <div>
-            background
-        </div>
-        <div>
-            Avatar ---- 
+    const navigate = useNavigate();
+    return <div className="profilePage">
+        <div className="profileTopNav flex flex-row">
+            <Link to="/" onClick={() => navigate(-1)}><div className="backButton"></div></Link>
             <div>
-                { 
-                (following.following) ? <span>Following</span> : <button>
-                    Follow
-                </button>
-                }
+                <div class="displayName">{user.display_name || user.username}</div>
+                <div class="tweetCount">{user.json.statuses_count} tweets</div>
             </div>
         </div>
-        <div>
-            Display name again
+        <div className="profileHeader">
+            <div className="headerContainer">
+                <img src={user.header} />
+            </div>
+            <div className="avatarContainer">
+                <Avatar user={user} />
+            </div>
         </div>
-        <div>
-            Profile description
+        <div className="buttonBar">
+            { 
+            (following.following) ? <div class="followButton empty">Following</div> : <button class="followButton filled">
+                Follow
+            </button>
+            }
         </div>
-        <div>
-            Profile metadata
-        </div>
-        <div>
-            Follow and follower counts
+        <div className="descriptions">
+            <div className="displayName">
+                { user.display_name || user.username }
+            </div>
+            <div className="note" dangerouslySetInnerHTML={{__html: user.json.note}} />
+            <div className="followerCounts">
+                <span className="followingCount"><span className="number">{ user.json.following_count }</span> Following</span> 
+                <span className="followersCount"><span className="number">{ user.json.followers_count }</span> Followers</span> 
+            </div>
         </div>
         <div>
         <ul>

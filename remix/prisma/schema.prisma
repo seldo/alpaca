@@ -14,11 +14,8 @@ model User {
   instance        String
   display_name    String?
   avatar          String?
-  avatar_static   String?
   header          String?
-  header_static   String?
-  followers_count Int
-  following_count Int
+  json            Json        @db.JsonB
   tweets          Tweet[]
   timeline        TimelineEntry[]
   @@index([id], map: "user_ids")
