@@ -28,6 +28,7 @@ model Tweet {
   id              String      @id 
   permalink       String
   text            String
+  createdAt       DateTime
   author          User        @relation(fields:[authorId],references: [id])
   authorId        String      // integer ID from user object
   json            Json        @db.JsonB
