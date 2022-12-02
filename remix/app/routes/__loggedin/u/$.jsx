@@ -1,10 +1,29 @@
 import { useState, useEffect } from "react";
-import { useLoaderData, useFetcher, useNavigate } from "@remix-run/react";
-import authenticator from "../../../services/auth.server";
-import * as mastodon from "../../../models/tweets.server";
-import { Tweet } from "../../../shared/components/tweet"
-import Avatar from "~/shared/components/avatar"
+import { 
+    useLoaderData, 
+    useFetcher, 
+    useNavigate,
+    Form 
+} from "@remix-run/react";
 import { Link } from "react-router-dom";
+import authenticator from "~/services/auth.server";
+import * as mastodon from "~/models/tweets.server";
+import { Tweet } from "~/shared/components/tweet"
+import Avatar from "~/shared/components/avatar"
+
+export const action = async ({request,params}) => {
+    console.log("Got a post")
+    let authUser = await authenticator.isAuthenticated(request, {
+        throwOnError: true
+    })
+    let handle = params['*']
+    let [username,instance] = handle.split('@')
+    console.log("Trying to fetch user",username,instance)
+    let user = await mastodon.getOrFetchUserByUsername(username,instance)
+    let follow = await mastodon.followUserById(user.id,authUser.accessToken)
+    console.log("Follow result",follow)
+    return null
+}
 
 export const loader = async ({request, params}) => {
     let authUser = await authenticator.isAuthenticated(request, {
@@ -33,8 +52,8 @@ export default function Index() {
         <div className="profileTopNav flex flex-row">
             <Link to="/" onClick={() => navigate(-1)}><div className="backButton"></div></Link>
             <div>
-                <div class="displayName">{user.display_name || user.username}</div>
-                <div class="tweetCount">{user.json.statuses_count} tweets</div>
+                <div className="displayName">{user.display_name || user.username}</div>
+                <div className="tweetCount">{user.json.statuses_count} tweets</div>
             </div>
         </div>
         <div className="profileHeader">
@@ -47,9 +66,15 @@ export default function Index() {
         </div>
         <div className="buttonBar">
             { 
-            (following.following) ? <button class="followButton empty">Following</button> : <button class="followButton filled">
-                Follow
-            </button>
+            (following.following) ? <Form method="post" action={`/u/unfollow`} reloadDocument>
+                <input type="hidden" name="username" value={user.username} />
+                <input type="hidden" name="instance" value={user.instance} />
+                <button className="followButton empty">Following</button>
+            </Form> : <Form method="post" action={`/u/follow`} reloadDocument>
+                <input type="hidden" name="username" value={user.username} />
+                <input type="hidden" name="instance" value={user.instance} />
+                <button className="followButton filled">Follow</button>
+            </Form>
             }
         </div>
         <div className="descriptions">

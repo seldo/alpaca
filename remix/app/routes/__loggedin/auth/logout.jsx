@@ -1,6 +1,6 @@
 import { useLoaderData, Form } from "@remix-run/react";
-import { sessionStorage } from "../../../services/session.server";
-import { authenticator } from "../../../services/auth.server";
+import { sessionStorage } from "~/services/session.server";
+import { authenticator } from "~/services/auth.server";
 
 export async function action({ request }) {
     await authenticator.logout(request, { redirectTo: "/auth/login?justloggedout" });

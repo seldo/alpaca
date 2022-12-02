@@ -1,7 +1,8 @@
 // app/services/auth.server.ts
 import { Authenticator } from "remix-auth";
 import { sessionStorage } from "./session.server";
-import { OAuth2Strategy } from "remix-auth-oauth2"
+//import { OAuth2Strategy } from "remix-auth-oauth2"
+import { MastodonStrategy } from "./mastodonstrategy"
 
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
@@ -10,7 +11,15 @@ export let authenticator = new Authenticator(sessionStorage,{
 });
 
 authenticator.use(
-    new OAuth2Strategy(
+    // new OAuth2Strategy(
+    //   {
+    //     authorizationURL: process.env.MASTODON_INSTANCE + "/oauth/authorize",
+    //     tokenURL: process.env.MASTODON_INSTANCE + "/oauth/token",
+    //     clientID: process.env.CLIENT_KEY,
+    //     clientSecret: process.env.CLIENT_SECRET,
+    //     callbackURL: process.env.THIS_HOST + "/auth/callback"
+    //   },
+    new MastodonStrategy(
       {
         authorizationURL: process.env.MASTODON_INSTANCE + "/oauth/authorize",
         tokenURL: process.env.MASTODON_INSTANCE + "/oauth/token",

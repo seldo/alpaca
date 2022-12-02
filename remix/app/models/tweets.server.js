@@ -24,7 +24,7 @@ export async function getUserByUsername(username,instance,options = {
 
 export async function getOrFetchUserByUsername(username,instance,options = {
   withTweets: false,
-  token
+  token: null
 }) {
   let user = await getUserByUsername(username,instance,{withTweets:options.withTweets})
   if(!user) {
@@ -317,4 +317,31 @@ export async function fetchTimeline (userData,minId) {
     console.log("Error fetching new tweets",e)
     return []
   }
+}
+
+export const followUserById = async(followId,userToken) => {
+  let followRequestUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${followId}/follow`)
+  let followData  = await fetch(followRequestUrl.toString(), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${userToken}`
+    }  
+  })
+  let follow = await followData.json()
+  return follow
+}
+
+export const unfollowUserById = async(followId,userToken) => {
+  console.log("Unfollowing using token auth",userToken)
+  let followRequestUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${followId}/unfollow`)
+  let followData  = await fetch(followRequestUrl.toString(), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${userToken}`
+    }  
+  })
+  console.log("unFollow data",followData)
+  let follow = await followData.json()
+  console.log("unFollow request result",follow)
+  return follow
 }
