@@ -13,18 +13,18 @@ const Tweet = (t) => {
                 <Avatar user={t.account} /> 
             </div>
             </div>
-            <div className="tweetBody grow">
-            <div className="author">
-                <span className="displayName">{t.account.display_name}</span>
-                <span className="username">@{t.account.acct}</span>
-            </div>
-            <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
-            <div className="reactions flex flex-row place-content-between w-full">
-                <div className="replies">{t.replies_count ? t.replies_count : ''}</div>
-                <div className="reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
-                <div className="favorites">{t.favourites_count ? t.favourites_count : ''}</div>
-                <div className="share"><span>Share</span></div>
-            </div>
+            <div className="tweetBody nextToAvatar grow">
+                <div className="author">
+                    <span className="displayName">{t.account.display_name}</span>
+                    <span className="username">@{t.account.acct}</span>
+                </div>
+                <div className="status" dangerouslySetInnerHTML={{__html: t.content}} />
+                <div className="reactions flex flex-row place-content-between w-full">
+                    <div className="replies">{t.replies_count ? t.replies_count : ''}</div>
+                    <div className="reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
+                    <div className="favorites">{t.favourites_count ? t.favourites_count : ''}</div>
+                    <div className="share"><span>Share</span></div>
+                </div>
             </div>
         </li>
     }

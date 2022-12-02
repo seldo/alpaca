@@ -34,6 +34,9 @@ export async function getOrFetchUserByUsername(username,instance,options = {
     })
     // get user data
     user = await userData.json()
+    // FIXME: ugly hack to match format of db
+    user.json = JSON.parse(JSON.stringify(user))
+    user.instance = getInstanceFromData(user)
     // store user data
     await getOrCreateUserFromData(user)
   }
@@ -344,4 +347,22 @@ export const unfollowUserById = async(followId,userToken) => {
   let follow = await followData.json()
   console.log("unFollow request result",follow)
   return follow
+}
+
+export const search = async(query,options = {token: null}) => {
+  console.log("Searching for",query)
+  if (query === null) return false // why does mastodon search for null anyway?
+  let searchUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v2/search`)
+  searchUrl.searchParams.set('q',query)
+  searchUrl.searchParams.set('resolve',true)
+  let searchData  = await fetch(searchUrl.toString(), {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${options.token}`
+    }    
+  })
+  let searchResults = await searchData.json()
+  if (searchResults.error) return false
+  console.log("Search results",searchResults)
+  return searchResults
 }

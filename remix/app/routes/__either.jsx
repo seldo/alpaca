@@ -1,13 +1,8 @@
 import {Outlet} from "@remix-run/react";
-import authenticator from "~/services/auth.server";
 import Globalnav from "~/shared/components/globalnav"
 
 export const loader = async ({request}) => {
-    let authUser = await authenticator.isAuthenticated(request, {
-        successRedirect: "/home?fromloggedout"
-    })
-    // if we're logged in we'll redirect them
-    // so they'll only get here if there's no user anyway
+    // we don't auth here for "either" routes
     return null
 }
 

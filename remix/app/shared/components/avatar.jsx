@@ -11,8 +11,8 @@ function getInstanceFromData(userData) {
 
 export default function Avatar({user}) {
     if (user) {
-        return <div className="user">
-            <Link to={`/u/${user.username}@${getInstanceFromData(user)}`}><img className="avatar" src={user.avatar} title={user.display_name || user.username } /></Link>
+        return <div className="avatar">
+            <Link to={`/u/${user.username}@${getInstanceFromData(user)}`}><img className="avatarImage" src={user.avatar} title={user.display_name || user.username } /></Link>
         </div>
     } else {
         return <div />

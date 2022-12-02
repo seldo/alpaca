@@ -16,7 +16,7 @@ export default function Index() {
     const loaderData = useLoaderData();
     const {user} = loaderData  
     return <div>
-        <div className="main-gutter px-3 py-2 h-screen fixed top-0">
+        <div className="main-gutter h-screen fixed top-0">
         <Globalnav user={user} />
         </div>
         <div className="content">
