@@ -51,7 +51,24 @@ export default function Index() {
   useEffect(() => {
     if (fetcher.data) {
       let incoming = JSON.parse(fetcher.data)
-      setTweets(incoming.concat(newTweets));
+      // dedupe and merge incoming tweets since this is not guaranteed
+      //let union = incoming.concat(newTweets)
+      let seenIds = []
+      for(let i = 0; i < newTweets.length; i++) {
+        seenIds.push(newTweets[i].id)
+      }
+      for(let i = 0; i < incoming.length; i++) {
+        let tweet = incoming[i]
+        if (!seenIds.includes(tweet.id)) {
+          newTweets.push(tweet)
+        }
+      }
+      newTweets.sort( (a,b) => {
+        console.log(a.created_at)
+        if(b.created_at > a.created_at) return 1
+        else return -1
+      })
+      setTweets(newTweets)
   }
   }, [fetcher.data]);
 
