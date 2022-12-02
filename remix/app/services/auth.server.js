@@ -53,7 +53,7 @@ authenticator.use(
     ),
     // this is optional, but if you setup more than one OAuth2 instance you will
     // need to set a custom name to each one
-    "Mastodon"
+    "Seldo.dev"
   );
 
 export default authenticator
