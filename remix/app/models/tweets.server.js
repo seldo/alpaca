@@ -184,6 +184,7 @@ const getOrCreateTweet = async(tweetData) => {
       update: {
         permalink: tweetData.url ? tweetData.url : tweetData.uri,
         text: tweetData.content,
+        createdAt: tweetData.created_at,
         authorId: tweetData.account.id,
         json: tweetData
       },
@@ -191,6 +192,7 @@ const getOrCreateTweet = async(tweetData) => {
         id: tweetData.id,
         permalink: tweetData.url ? tweetData.url : tweetData.uri,
         text: tweetData.content,
+        createdAt: tweetData.created_at,
         authorId: tweetData.account.id,
         json: tweetData
       }
