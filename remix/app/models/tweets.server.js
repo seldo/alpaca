@@ -29,7 +29,7 @@ export async function getOrFetchUserByUsername(username,instance,options = {
   let user = await getUserByUsername(username,instance,{withTweets:options.withTweets})
   if(!user) {
     // fetch them from the api; we must use webfinger because they aren't in the cache
-    userData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/lookup?acct=${username+"@"+instance+"&skip_webfinger=false"}`, {
+    let userData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/lookup?acct=${username+"@"+instance+"&skip_webfinger=false"}`, {
       method: "GET"
     })
     // get user data
