@@ -179,7 +179,7 @@
 }
 .headerContainer {
     display: block;
-    width: 100%;
+    width: calc(100% - 75px);
     height: 15vh;
     overflow: hidden;
     position: absolute;
@@ -192,8 +192,8 @@
     height: 15vh;
     position: absolute;
 }
-.profileHeader .avatar {
-    width: 120px;
+.profileHeader .avatar .avatarImage {
+    min-width: 120px;
     max-height: 120px;
     position: absolute;
     bottom: -60px;

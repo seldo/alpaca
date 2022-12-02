@@ -64,7 +64,6 @@ export default function Index() {
         }
       }
       newTweets.sort( (a,b) => {
-        console.log(a.created_at)
         if(b.created_at > a.created_at) return 1
         else return -1
       })

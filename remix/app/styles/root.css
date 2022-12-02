@@ -624,10 +624,6 @@ video {
   padding-right: 1rem;
 }
 
-.filter {
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
-}
-
 .floof {
   min-height: 20px;
   max-height: 50px;
@@ -865,7 +861,7 @@ video {
 
 .headerContainer {
   display: block;
-  width: 100%;
+  width: calc(100% - 75px);
   height: 15vh;
   overflow: hidden;
   position: absolute;
@@ -880,8 +876,8 @@ video {
   position: absolute;
 }
 
-.profileHeader .avatar {
-  width: 120px;
+.profileHeader .avatar .avatarImage {
+  min-width: 120px;
   max-height: 120px;
   position: absolute;
   bottom: -60px;
