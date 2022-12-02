@@ -2,7 +2,7 @@
 import { Authenticator } from "remix-auth";
 import { sessionStorage } from "./session.server";
 //import { OAuth2Strategy } from "remix-auth-oauth2"
-import { MastodonStrategy } from "./mastodonstrategy"
+import { MastodonStrategy } from "./mastodonstrategy.server"
 
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
