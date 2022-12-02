@@ -55,12 +55,12 @@ export default function Index() {
             </Form>
         </div>
         {
-            (!results || (results.accounts.length == 0 && results.statuses.length == 0 && results.hashtags.length == 0)) ? <div class="searchResults">Did not find anything.</div> : <div className="searchResults">
+            (!results || (results.accounts.length == 0 && results.statuses.length == 0 && results.hashtags.length == 0)) ? <div className="searchResults">Did not find anything.</div> : <div className="searchResults">
                 { (results.accounts.length > 0) ? <div>
                         <h2>Accounts</h2>
                         <ul>
-                        { results.accounts.map( r => {
-                                return <div className="miniProfile searchResult">
+                        { results.accounts.map( (r,index) => {
+                                return <li  key={`accounts_${index}`} className="miniProfile searchResult">
                                     <div className="flex flex-row">
                                         <Avatar user={r} />
                                         <div className="words nextToAvatar grow">
@@ -75,8 +75,7 @@ export default function Index() {
                                         </div>
                                         <FollowButton username={r.username} instance={getInstanceFromData(r)} following={r.following} />
                                     </div>
-
-                                </div>
+                                </li>
                             })
                         }
                         </ul>
@@ -85,10 +84,10 @@ export default function Index() {
                 { (results.statuses.length > 0) ? <div>
                         <h2>Statuses</h2>
                         <ul>
-                        { results.statuses.map( r => {
-                                return <div className="miniStatus searchResult">
+                        { results.statuses.map( (r,index) => {
+                                return <li key={`statuses_${index}`}  className="miniStatus searchResult">
                                     {JSON.stringify(r)}
-                                </div>
+                                </li>
                             })
                         }
                         </ul>
@@ -97,10 +96,10 @@ export default function Index() {
                 { (results.accounts.length > 0) ? <div>
                         <h2>Hashtags</h2>
                         <ul>
-                        { results.hashtags.map( r => {
-                                return <div className="miniHashtag searchResult">
+                        { results.hashtags.map( (r,index) => {
+                                return <li key={`hashtags_${index}`} className="miniHashtag searchResult">
                                     {JSON.stringify(r)}
-                                </div>
+                                </li>
                             })
                         }
                         </ul>
