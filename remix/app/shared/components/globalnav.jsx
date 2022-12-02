@@ -17,7 +17,7 @@ export default function Globalnav({user}) {
                 <li key="menu7"><a className="compose" href="/compose"><span>Compose</span></a></li>
             </ul>
         </div>
-        <div class="authUser">
+        <div className="authUser">
             <Avatar user={user} />
         </div>
     </div>

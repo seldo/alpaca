@@ -34,6 +34,11 @@
     color: #888;
     font-size: 90%;
 }
+.time {
+    font-size: 80%;
+    color: #888;
+    float: right;
+}
 .main-gutter {
     padding-left: 10px;
     border-right: 0.5px solid #ccc;
@@ -147,9 +152,9 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position-y: 1.5px;
-    padding-left: 33px;
+    padding-left: 30px;
     padding-top: 2.5px;
-    margin-left: 25px;
+    margin-left: 40px;
     margin-top: 5px;
     margin-bottom: -5px;
 }

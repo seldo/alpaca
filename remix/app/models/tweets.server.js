@@ -10,11 +10,15 @@ export async function getUserByUsername(username,instance,options = {
         username,
         instance
       },
-    }
+    }    
   }
   if(options.withTweets) {
     conditions.include = {
-      tweets: true
+      tweets: {
+        orderBy: {
+          createdAt: "desc"
+        }
+      }
     }
   }
   let user = await prisma.user.findUnique(conditions)  
@@ -60,7 +64,11 @@ export async function getUserById(userId,options = {
   }
   if(options.withTweets) {
     conditions.include = {
-      tweets: true
+      tweets: {
+        orderBy: {
+          createdAt: "desc"
+        }
+      }
     }
   }
   let user = await prisma.user.findUnique(conditions)  
@@ -75,6 +83,11 @@ function getInstanceFromData(userData) {
   return urlInstance
 }
 
+/**
+ * Transform a user object's tweets into mastodon's richer format
+ * @param {} user 
+ * @returns 
+ */
 function formatUserTweets(user) {
   // only reformat if we haven't already done so
   if(user.tweets && user.tweets.length > 0 && user.tweets[0].json) {
@@ -84,6 +97,17 @@ function formatUserTweets(user) {
     user.tweets = formattedTweets
   }
   return user
+}
+
+/**
+ * Transform mastodon's account object on each tweet to include an instance
+ * @param {} tweets 
+ */
+function formatTweetUsers(tweets) {
+  return tweets.map( (t) => {
+    t.account.instance = getInstanceFromData(t.account)
+    return t
+  })
 }
 
 export async function getOrCreateUserFromData(userData,options = {
@@ -123,8 +147,10 @@ export const getTweetsByUserId = async(userId,options) => {
   let query = {
     where: {
       id: userId
-    }
-    // TODO: orderby
+    },
+    orderBy: {
+      createdAt: "desc"
+    }    
   }
 
   let tweets = await prisma.timelineEntry.findMany(query)
@@ -138,7 +164,7 @@ export const getOrFetchTweetsByUserId = async(userId,options) => {
   if (tweets.length == 0) {
     tweets = await fetchTweetsByUserId(userId,options)
   }
-  if(tweets) tweets = formatUserTweets(tweets)
+  if(tweets) tweets = formatTweetUsers(tweets)
   return tweets
 }
 
@@ -148,7 +174,7 @@ export const fetchTweetsByUserId = async(userId,options) => {
       // TODO: might want to get private tweets with token if authed
     })
     let tweets = await tweetData.json()
-    if(tweets) tweets = formatUserTweets(tweets)
+    if(tweets) tweets = formatTweetUsers(tweets)
     // now store them for later
     await storeTweets(tweets)
     return tweets
@@ -284,7 +310,8 @@ export const getTimeline = async (userData, options = {
     let entries = timelineEntries.map( (entry) => {
       return entry.tweet.json
     })
-    return entries
+    let timeline = formatTweetUsers(entries)
+    return timeline
   } else {
     return timelineEntries
   }
@@ -310,7 +337,9 @@ export async function fetchTimeline (userData,minId) {
         "Authorization": `Bearer ${token}`
       }
     })
-    let timeline = await timelineData.json()
+    let timelineRaw = await timelineData.json()
+    // format it
+    let timeline = formatTweetUsers(timelineRaw)
     try {
       // TODO: can we async this and just not wait?
       await storeTimeline(userData.id,timeline)
