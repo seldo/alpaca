@@ -63,7 +63,7 @@ export default function Index() {
                                 return <div className="miniProfile searchResult">
                                     <div className="flex flex-row">
                                         <Avatar user={r} />
-                                        <div className="words nextToAvatar">
+                                        <div className="words nextToAvatar grow">
                                             <div className="name">
                                                 <span className="displayName">{r.display_name}</span>
                                                 <span className="username">{r.username}@{getInstanceFromData(r)}</span>
