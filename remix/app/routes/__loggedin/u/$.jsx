@@ -12,7 +12,6 @@ import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 
 export const action = async ({request,params}) => {
-    console.log("Got a post")
     let authUser = await authenticator.isAuthenticated(request, {
         throwOnError: true
     })
@@ -26,10 +25,8 @@ export const action = async ({request,params}) => {
     if(profileUrl.searchParams.get('unfollowed')) {
         optimisticFollow = false
     }
-    console.log("Trying to fetch user",username,instance)
     let user = await mastodon.getOrFetchUserByUsername(username,instance)
     let follow = await mastodon.followUserById(user.id,authUser.accessToken)
-    console.log("Follow result",follow)
     follow.following = optimisticFollow || follow.following
     return null
 }
