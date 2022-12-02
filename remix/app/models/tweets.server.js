@@ -149,7 +149,7 @@ export const getTweetsByUserId = async(userId,options) => {
       id: userId
     },
     orderBy: {
-      createdAt: "desc"
+      seenAt: "desc"
     }    
   }
 
