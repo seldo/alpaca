@@ -378,14 +378,11 @@ export const unfollowUserById = async(followId,userToken) => {
       "Authorization": `Bearer ${userToken}`
     }  
   })
-  console.log("unFollow data",followData)
   let follow = await followData.json()
-  console.log("unFollow request result",follow)
   return follow
 }
 
 export const search = async(query,options = {token: null}) => {
-  console.log("Searching for",query)
   if (query === null) return false // why does mastodon search for null anyway?
   let searchUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v2/search`)
   searchUrl.searchParams.set('q',query)
@@ -398,7 +395,6 @@ export const search = async(query,options = {token: null}) => {
   })
   let searchResults = await searchData.json()
   if (searchResults.error) return false
-  console.log("Search results",searchResults)
   return searchResults
 }
 
@@ -436,14 +432,47 @@ export const batchNotifications = async (notifications) => {
   // process each group of reactions
   let batches = []
   for(let trt of Object.values(thingsReactedTo)) {
-    console.log(trt)
+    // everything is the same type so we can infer it from the first one
+    let type = trt[0].type
+    // get the events into most recent order
+    trt.sort( (a,b) => {
+      if (b.created_at > a.created_at) {
+        return 1
+      } else {
+        return -1  
+      }
+    })
+    let lastEvent = trt[0].created_at // credit the batch with the time of the most recent
+    let notification = { type, lastEvent }
+    switch(type) {
+      case "favourite": // fuckin' "u"s
+        notification.status = trt[0].status
+        notification.accounts = trt.map( (t) => {
+          return t.account
+        })
+        break;
+      case "mention":
+        notification.status = trt[0].status
+        notification.account = trt[0].account
+        break;
+      case "follow":
+        notification.accounts = trt.map( (t) => {
+          return t.account
+        })
+        break;
+    }
+    batches.push(notification)
   }
-  return 
+  // sort by lastEvent
+  batches.sort( (a,b) => {
+    if (b.lastEvent > a.lastEvent) return 1
+    else return -1
+  })
+  return batches
 }
 
 export const getOrFetchNotifications = async (user) => {
   let notifications = await getNotificationsByUserId(user.id)
-  console.log("Fetching with ",user.accessToken)
   if (!notifications) {
     let notificationsUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/notifications`)
     notificationsUrl.searchParams.set('limit',200)
@@ -454,7 +483,6 @@ export const getOrFetchNotifications = async (user) => {
       }    
     })
     notifications = await notificationsData.json()
-    console.log("notifications fetched",notificationsData)
     // TODO: store them
   }
   return notifications
