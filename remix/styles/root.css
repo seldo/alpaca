@@ -6,6 +6,11 @@
     min-height: 20px;
     max-height: 50px;
 }
+h2 {
+    margin-left: 10px;
+    font-weight: bold;
+    font-size: 120%;
+}
 .genericButton {
     font-size: 90%;
     font-weight: bold;
@@ -28,7 +33,6 @@
 }
 .displayName {
     font-weight: bold;
-    margin-right: 3px;
 }
 .username {
     color: #888;
@@ -85,12 +89,12 @@
 .menu-bar .authUser {
     margin-bottom: 10px;
 }
+.menu-bar .authUser .avatar {
+    padding-left: 2px;
+}
 .latest {
-    font-weight: bold;
-    font-size: 120%;
     margin-top: 17px;
     margin-bottom: 20px;
-    margin-left: 10px;
 }
 .content {
     overflow-x: hidden;
@@ -264,14 +268,39 @@
     margin-top: 70px;
     overflow: hidden;
 }
-.searchResults h2 {
-    margin-left: 10px;
-    font-weight: bold;
-    font-size: 120%;
-}
 .searchResults .searchResult {
     border-bottom: 0.5px solid #ccc;
     margin-top: 10px;
     padding-right: 10px;
     padding-bottom: 10px;
+}
+.notificationsHeader {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid #ccc;
+}
+.notificationMessage .notifyText {
+    margin-left: 70px;
+    font-size: 90%;
+    margin-top: 10px;
+}
+.notificationMessage .tweet .gutter {
+    min-width: 70px;
+    background-position:center;
+    background-repeat: no-repeat;
+    background-size: 30px;
+}
+.notificationMessage.notifyLike .tweet .gutter {
+    background-image: url("/images/heart-icon.svg");
+}
+.notificationMessage.notifyFollow {
+    background-image: url("/images/profile-icon.svg");
+    background-repeat: no-repeat;
+    background-size: 30px;
+    background-position-x: 20px;
+    background-position-y: 10px;
+    margin-bottom: 10px;
+    border-bottom: 0.5px solid #ccc;
+    min-height: 50px;
 }

@@ -1,6 +1,9 @@
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import authenticator from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
+import Tweet from "~/shared/components/tweet"
+import { Link } from "react-router-dom";
+import { LinkToAccount } from "~/shared/components/tweet"
 
 export const loader = async ({request}) => {
     let authUser = await authenticator.isAuthenticated(request)
@@ -15,32 +18,32 @@ export const loader = async ({request}) => {
 const formatEvent = (event) => {
     switch(event.type) {
         case "favourite":
-            return <div>
+            console.log("event",event)
+            return <div className="notificationMessage notifyLike">
                 {
-                    (event.accounts.length == 1) ? <div>
-                        {event.accounts[0].display_name} liked your tweet
-                    </div> : (event.accounts.length == 2) ? <div>
-                        {event.accounts[0].display_name} and {event.accounts[1].display_name} liked your tweet
-                    </div> : <div>
-                        {event.accounts[0].display_name} and {event.accounts.length-1} others liked your tweet
+                    (event.accounts.length == 1) ? <div className="notifyText">
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> liked your tweet
+                    </div> : (event.accounts.length == 2) ? <div className="notifyText">
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and <span className="displayName">{LinkToAccount(event.accounts[1])}</span> liked your tweet
+                    </div> : <div className="notifyText">
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your tweet
                     </div>
                 }
-                <div dangerouslySetInnerHTML={{__html: event.status.content}} />
+                {Tweet(event.status,{avatar:false})}
             </div>
         case "mention":
-            return <div>
-                {event.account.display_name} mentioned you in a tweet:
-                <div dangerouslySetInnerHTML={{__html: event.status.content}} />
+            return <div className="notificationMessage notifyMention">
+                {Tweet(event.status)}
             </div>
         case "follow":
-            return <div>
+            return <div className="notificationMessage notifyFollow">
                 {
-                    (event.accounts.length == 1) ? <div>
-                        {event.accounts[0].display_name} followed you
-                    </div> : (event.accounts.length == 2) ? <div>
-                        {event.accounts[0].display_name} and {event.accounts[1].display_name} followed you
-                    </div> : <div>
-                        {event.accounts[0].display_name} and {event.accounts.length-1} others followed you.
+                    (event.accounts.length == 1) ? <div className="notifyText">
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> followed you
+                    </div> : (event.accounts.length == 2) ? <div className="notifyText">
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and <span className="displayName">{LinkToAccount(event.accounts[1])}</span> followed you
+                    </div> : <div className="notifyText">
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others followed you.
                     </div>
                 }
             </div>

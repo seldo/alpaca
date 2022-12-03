@@ -7,19 +7,39 @@ import { Link } from "react-router-dom";
 TimeAgo.addLocale(en)
 const timeAgo = new TimeAgo('en-US')
 
-const Tweet = (t) => {
+export const getInstanceFromAccount = (account) => {
+    let acctInstance = account.acct.split('@')[1]
+    if (acctInstance) return acctInstance
+    let urlInstance = account.url.split('//')[1].split('/')[0]
+    return urlInstance
+  }  
+
+export const LinkToAccount = (account,content) => {
+    account.instance = getInstanceFromAccount(account)
+    let profileLink = `/u/${account.username}@${account.instance}`
+    return <Link to={profileLink}>{(account.display_name || "@" + account.username)}</Link>
+}
+
+const Tweet = (t,options = {
+        avatar: true
+    }) => {
+    console.log(t)
     if(t.reblog !== null) {
         return <div className="reblog">
-            <div className="reblogNotice"><Link to={`/u/${t.account.username}@${t.account.instance}`}>{t.account.display_name || "@" + t.account.username} reblogged</Link></div>
+            <div className="reblogNotice">
+                { LinkToAccount(t.account) } reblogged
+            </div>
             {Tweet(t.reblog)}
         </div>
     } else {
         //console.log(t)
         return <li key={t.id} className="tweet flex flex-row w-full">
             <div className="gutter">            
-            <div className="authorAvatar">
-                <Avatar user={t.account} /> 
-            </div>
+            {
+                (options.avatar) ? <div className="authorAvatar">
+                    <Avatar user={t.account} /> 
+                </div> : <div />
+            }
             </div>
             <div className="tweetBody nextToAvatar grow">
                 <div className="author">
@@ -40,4 +60,5 @@ const Tweet = (t) => {
   }
 
 export { Tweet }
+export default Tweet
   

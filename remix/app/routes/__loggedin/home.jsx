@@ -74,7 +74,7 @@ export default function Index() {
   return (
     <div>
       <div className="latest">
-        <h1>Latest posts</h1>
+        <h2>Latest posts</h2>
       </div>
       <div className="composeTop pr-4 flex flex-row">
         <Avatar user={user} />

@@ -18,6 +18,7 @@ model User {
   json            Json        @db.JsonB
   tweets          Tweet[]
   timeline        TimelineEntry[]
+  notifications   Notification[]
   @@index([id], map: "user_ids")
   @@index([username,instance], map: "usernames")
   @@unique([username,instance])
@@ -44,23 +45,11 @@ model TimelineEntry {
   tweetId         String
 }
 
-// might use this for meta-login to multiple accounts?
-model Account {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String
-  @@index([id], map: "account_ids")
-  posts           Post[]
-}
-
-model Post {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt  DateTime   @default(now())
-  title      String?
-  slug       String?
-  @@index([slug], map: "slugs")
-  @@unique([slug])
-  body       String?
-  published  Boolean    @default(false)
-  author     Account    @relation(fields: [authorId], references: [id])
-  authorId   String @db.Uuid
+model Notification {
+  id              String      @id
+  createdAt       DateTime
+  type            String
+  json            Json        @db.JsonB
+  user            User        @relation(fields:[userId],references: [id])
+  userId          String  
 }

@@ -1,4 +1,5 @@
 import { prisma } from "../db.server";
+import { getInstanceFromAccount } from "~/shared/components/tweet";
 
 export async function getUserByUsername(username,instance,options = {
   withTweets: false
@@ -40,7 +41,7 @@ export async function getOrFetchUserByUsername(username,instance,options = {
     user = await userData.json()
     // FIXME: ugly hack to match format of db
     user.json = JSON.parse(JSON.stringify(user))
-    user.instance = getInstanceFromData(user)
+    user.instance = getInstanceFromAccount(user)
     // store user data
     await getOrCreateUserFromData(user)
   }
@@ -76,13 +77,6 @@ export async function getUserById(userId,options = {
   return user
 }
 
-function getInstanceFromData(userData) {
-  let acctInstance = userData.acct.split('@')[1]
-  if (acctInstance) return acctInstance
-  let urlInstance = userData.url.split('//')[1].split('/')[0]
-  return urlInstance
-}
-
 /**
  * Transform a user object's tweets into mastodon's richer format
  * @param {} user 
@@ -106,7 +100,7 @@ function formatUserTweets(user) {
 function formatTweetUsers(tweets) {
   if (tweets && tweets.length > 0) {
     return tweets.map( (t) => {
-      t.account.instance = getInstanceFromData(t.account)
+      t.account.instance = getInstanceFromAccount(t.account)
       return t
     })
   } else {
@@ -120,7 +114,7 @@ export async function getOrCreateUserFromData(userData,options = {
   let user = await getUserById(userData.id,{withTweets:options.withTweets})
   // if so return, otherwise insert them first
   if (!user) {
-    let instance = getInstanceFromData(userData)
+    let instance = getInstanceFromAccount(userData)
     user = await prisma.user.upsert({
       where: {
         id: userData.id
@@ -399,7 +393,29 @@ export const search = async(query,options = {token: null}) => {
 }
 
 export const storeNotifications = async (notifications) => {
+  /*
+  // store all the notifications in one big transaction
+  let timelineBatch = []
+  for(let i = 0; i < timeline.length; i++) {
+    let tweet = timeline[i]
+    timelineBatch.push({
+      id: viewerId + ":" + tweet.id,
+      seenAt: tweet.created_at,
+      viewerId,
+      tweetId: tweet.id
+    })
+  }
+
+  const storedTimelineEntries = await prisma.timelineEntry.createMany({
+    data: timelineBatch,
+    skipDuplicates: true
+  })
+
+  return
+   */
+  
   // TODO: this
+  return
 }
 
 export const getNotificationsByUserId = async (userId) => {
@@ -436,26 +452,26 @@ export const batchNotifications = async (notifications) => {
     let type = trt[0].type
     // get the events into most recent order
     trt.sort( (a,b) => {
-      if (b.created_at > a.created_at) {
-        return 1
-      } else {
-        return -1  
-      }
+      if (b.created_at > a.created_at) return 1
+      else return -1  
     })
     let lastEvent = trt[0].created_at // credit the batch with the time of the most recent
     let notification = { type, lastEvent }
     switch(type) {
       case "favourite": // fuckin' "u"s
+        // many people can favorite one status
         notification.status = trt[0].status
         notification.accounts = trt.map( (t) => {
           return t.account
         })
         break;
       case "mention":
+        // only one person can mention you at a time
         notification.status = trt[0].status
         notification.account = trt[0].account
         break;
       case "follow":
+        // many people can follow you
         notification.accounts = trt.map( (t) => {
           return t.account
         })
@@ -483,7 +499,7 @@ export const getOrFetchNotifications = async (user) => {
       }    
     })
     notifications = await notificationsData.json()
-    // TODO: store them
+    await storeNotifications(notifications)
   }
   return notifications
 }

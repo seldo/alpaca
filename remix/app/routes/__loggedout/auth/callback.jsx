@@ -1,6 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
-import { sessionStorage } from "../../../services/session.server";
-import { authenticator } from "../../../services/auth.server";
+import { authenticator } from "~/services/auth.server";
 
 export const loader = async ({ request }) => {
     console.log("/callback loader called")
