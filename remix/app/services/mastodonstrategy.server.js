@@ -7,7 +7,7 @@ import { OAuth2Strategy } from "remix-auth-oauth2";
 export class MastodonStrategy extends OAuth2Strategy {
   // The OAuth2Strategy already has a name but we override it to be specific of
   // the service we are using
-  name = "mastodonauth";
+  name = "Seldo.dev";
 
   // We receive our custom options and our verify callback
   constructor(
