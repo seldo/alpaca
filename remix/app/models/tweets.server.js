@@ -104,10 +104,14 @@ function formatUserTweets(user) {
  * @param {} tweets 
  */
 function formatTweetUsers(tweets) {
-  return tweets.map( (t) => {
-    t.account.instance = getInstanceFromData(t.account)
-    return t
-  })
+  if (tweets && tweets.length > 0) {
+    return tweets.map( (t) => {
+      t.account.instance = getInstanceFromData(t.account)
+      return t
+    })
+  } else {
+    return tweets
+  }
 }
 
 export async function getOrCreateUserFromData(userData,options = {
@@ -396,4 +400,62 @@ export const search = async(query,options = {token: null}) => {
   if (searchResults.error) return false
   console.log("Search results",searchResults)
   return searchResults
+}
+
+export const storeNotifications = async (notifications) => {
+  // TODO: this
+}
+
+export const getNotificationsByUserId = async (userId) => {
+  // TODO: actually get them
+  return false
+}
+
+const parseThingId = (n) => {
+  switch (n.type) {
+    case "mention": return "mentioned_" + n.status.id
+    case "status": return // FIXME: ignoring notifications for now
+    case "reblog": return "reblogged_" + n.status.id
+    case "follow": return "followed_you"
+    case "follow_request": return n.account.id + "_requested_follow"
+    case "favourite": return "favorited_" + n.status.id
+    case "poll": return // FIXME: ignoring polls ending for now
+    case "update": return // FIXME: ignoring status updates for now
+  }
+}
+
+export const batchNotifications = async (notifications) => {
+  let thingsReactedTo = {}
+  // batch up by the thing they are reacting to
+  for(let i = 0; i < notifications.length; i++) {
+    let n = notifications[i]
+    let nId = parseThingId(n)
+    if (!thingsReactedTo[nId]) thingsReactedTo[nId] = []
+    thingsReactedTo[nId].push(n)
+  }
+  // process each group of reactions
+  let batches = []
+  for(let trt of Object.values(thingsReactedTo)) {
+    console.log(trt)
+  }
+  return 
+}
+
+export const getOrFetchNotifications = async (user) => {
+  let notifications = await getNotificationsByUserId(user.id)
+  console.log("Fetching with ",user.accessToken)
+  if (!notifications) {
+    let notificationsUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/notifications`)
+    notificationsUrl.searchParams.set('limit',200)
+    let notificationsData  = await fetch(notificationsUrl.toString(), {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${user.accessToken}`
+      }    
+    })
+    notifications = await notificationsData.json()
+    console.log("notifications fetched",notificationsData)
+    // TODO: store them
+  }
+  return notifications
 }
