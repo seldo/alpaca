@@ -1,9 +1,9 @@
 import { useLoaderData, Form } from "@remix-run/react";
-import authenticator from "../../../services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 
 export let loader = async ({request}) => {
 
-  let user = await authenticator.isAuthenticated(request)
+  let user = await authenticateAndRefresh(request)
   if( user ) {
     console.log("Login says: authenticated!")
     console.log(user)

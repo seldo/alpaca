@@ -4,26 +4,25 @@ import { OAuth2Strategy } from "remix-auth-oauth2";
 // And we create our strategy extending the OAuth2Strategy, we also need to
 // pass the User as we did on the FormStrategy, we pass the Auth0Profile and the
 // extra params
-export class MastodonStrategy extends OAuth2Strategy {
+export class MastodonStrategy extends OAuth2Strategy {  
 
   // We receive our custom options and our verify callback
   constructor(
     options,
     verify
   ) {
-    // And we pass the options to the super constructor using our own options
-    // to generate them, this way we can ask less configuration to the developer
-    // using our strategy
     super(
       {
         authorizationURL: options.authorizationURL,
         tokenURL: options.tokenURL,
         clientID: options.clientID,
         clientSecret: options.clientSecret,
-        callbackURL: options.callbackURL,
+        callbackURL: options.callbackURL
       },
       verify
     );
+
+    this.instanceName = options.instanceName || "didn't get one"
 
     this.scope = options.scope || "read write";
   }
@@ -34,9 +33,14 @@ export class MastodonStrategy extends OAuth2Strategy {
   // you need to send to the authorizationURL here base on your provider.
   authorizationParams() {
     const urlSearchParams = {
-      scope: this.scope,
+      scope: this.scope
     };
 
     return new URLSearchParams(urlSearchParams);
   }
+
+  generateState() {
+    return this.instanceName
+  }
+
 }

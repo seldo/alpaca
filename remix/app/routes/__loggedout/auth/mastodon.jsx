@@ -1,10 +1,14 @@
 import { redirect } from "@remix-run/node";
-import authenticator from "~/services/auth.server";
+import { authenticateAnyInstance } from "~/services/auth.server";
 
 export const loader = async ({ request, params }) => {
-  console.log("loader happened in mastodon")
-  await authenticator.authenticate("Seldo.dev", request,{
+  const url = new URL(request.url);
+  let instanceName = url.searchParams.get("instance");
+
+  console.log("/auth/mastodon called with instance",instanceName)
+  return await authenticateAnyInstance(instanceName,request,{
     successRedirect: "/home",
     failureRedirect: "/auth/login?frommasto"
-  });
+  })
+
 };

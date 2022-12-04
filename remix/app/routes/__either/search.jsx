@@ -4,7 +4,7 @@ import {
     Form
 } from "@remix-run/react";
 import { useState } from "react"
-import authenticator from "~/services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
@@ -12,10 +12,7 @@ import FollowButton from "~/shared/components/followbutton"
 // maybe search is a GET so a loader makes sense
 export const loader = async ({request, params}) => {
     // FIXME: authentication should be optional
-    let authUser = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/auth/mastodon?temporaryfromsearch",
-        throwOnError: true
-    })
+    let authUser = await authenticateAndRefresh(request)
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
     let results = await mastodon.search(q,{

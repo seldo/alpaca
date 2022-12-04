@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -9,57 +9,76 @@ datasource db {
 
 // the server users log in to, we need to register as an app with each one
 model Instance {
-   id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   domain         String
-   clientKey      String
-   clientSecret   String
-   @@index([domain],map: "domains")
-   @@unique([domain])
-}
-
-// mastodon users; you must successfully auth to this ID to see anything
-model User {
-  id              String      @id    // mastodon ref imp uses integer IDs but is that mandator?
-  username        String
-  instance        String
-  display_name    String?
-  avatar          String?
-  header          String?
-  json            Json        @db.JsonB
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  url             String
+  clientKey       String
+  clientSecret    String
+  users           User[]
   tweets          Tweet[]
-  timeline        TimelineEntry[]
+  timelineEntries TimelineEntry[]
   notifications   Notification[]
-  @@index([id], map: "user_ids")
-  @@index([username,instance], map: "usernames")
-  @@unique([username,instance])
+
+  @@unique([name])
+  @@index([name], map: "names")
 }
 
-// a 7-day cache of tweets. I refuse to call them toots, and posts is too generic.
+model User {
+  instance      Instance        @relation(fields: [instanceId], references: [id])
+  instanceId    String          @db.Uuid // our internal instance ID
+  id            String          // mastodon ref imp uses integer IDs but is that mandator?
+  username      String
+  display_name  String?
+  avatar        String?
+  header        String?
+  json          Json            @db.JsonB
+  tweets        Tweet[]
+  timeline      TimelineEntry[]
+  notifications Notification[]
+
+  @@id([instanceId, id])
+  @@unique([username, instanceId])
+  @@index([id], map: "user_ids")
+  @@index([username, instanceId], map: "usernames")
+}
+
 model Tweet {
-  id              String      @id 
-  permalink       String
-  text            String
-  createdAt       DateTime
-  author          User        @relation(fields:[authorId],references: [id])
-  authorId        String      // integer ID from user object
-  json            Json        @db.JsonB
-  timelineEntry   TimelineEntry[]
+  id            String
+  permalink     String
+  text          String
+  createdAt     DateTime
+  author        User            @relation(fields: [authorId, instanceId], references: [id, instanceId])
+  authorId      String          // same id as User table so mastodon ID, needs instance to be unique
+  instance      Instance        @relation(fields: [instanceId], references: [id])
+  instanceId    String          @db.Uuid // internal instance ID from Instance table
+  json          Json            @db.JsonB
+  timelineEntry TimelineEntry[]
+
+  @@id([id, instanceId])
 }
 
 model TimelineEntry {
-  id              String      @id
-  seenAt          DateTime    @default(now())
-  viewer          User        @relation(fields:[viewerId],references:[id])
-  viewerId        String
-  tweet           Tweet       @relation(fields:[tweetId],references:[id])
-  tweetId         String
+  id         String         // mastodon ID, needs instance to be unique
+  instance   Instance       @relation(fields: [instanceId], references: [id])
+  instanceId String         @db.Uuid
+  seenAt     DateTime       @default(now())
+  viewer     User           @relation(fields: [viewerId, instanceId], references: [id, instanceId])
+  viewerId   String
+  tweet      Tweet          @relation(fields: [tweetId, instanceId], references: [id, instanceId])
+  tweetId    String
+
+  @@id([id, instanceId])
 }
 
 model Notification {
-  id              String      @id
-  createdAt       DateTime
-  type            String
-  json            Json        @db.JsonB
-  user            User        @relation(fields:[userId],references: [id])
-  userId          String  
+  id         String         // mastodon ID, needs instance to be unique
+  instance   Instance       @relation(fields: [instanceId], references: [id])
+  instanceId String         @db.Uuid
+  createdAt  DateTime
+  type       String
+  json       Json           @db.JsonB
+  user       User           @relation(fields: [userId, instanceId], references: [id, instanceId])
+  userId     String
+
+  @@id([id, instanceId])
 }

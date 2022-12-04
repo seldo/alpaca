@@ -1,4 +1,4 @@
-import { prisma } from "../db.server";
+import { prisma } from "~/db.server";
 import { getInstanceFromAccount } from "~/shared/components/tweet";
 import { redirect } from "@remix-run/node";
 

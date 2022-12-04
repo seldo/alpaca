@@ -1,17 +1,16 @@
-import authenticator from "../../services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 import stylesRoot from "~/../styles/root.css";
-
-export const links = () => {
-  return [
-    { rel: "stylesheet", href: stylesRoot }
-  ];
-}
+import { Form } from "@remix-run/react";
 
 // if they're already logged in take them to the home timeline
 export const loader = async ({request}) => {
-    return await authenticator.isAuthenticated(request, {
-        successRedirect: "/home"
-    })
+  console.log("/ called")
+  let user = await authenticateAndRefresh(request,{
+      successRedirect: "/home",
+      failureRedirect: false,
+      throwOnError: false
+  })
+  return null
 }
 
 export default function Index() {
@@ -19,8 +18,12 @@ export default function Index() {
     <div className="container mx-auto px-4">
       <h1>Alpaca Blue</h1>
       <h2>An open source Mastodon client</h2>
-      <p>Currently only works in dev against my test server.</p>
-      <p><a href="/auth/mastodon">Login</a></p>
+      <div>
+        <Form method="get" action="/auth/mastodon">
+          <p>Instance name: <input type="text" name="instance" /></p>
+          <button type="submit">Login</button>
+        </Form>
+      </div>
     </div>
   );
 }

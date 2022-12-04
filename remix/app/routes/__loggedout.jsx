@@ -1,10 +1,13 @@
 import {Outlet} from "@remix-run/react";
-import authenticator from "~/services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 import Globalnav from "~/shared/components/globalnav"
 
 export const loader = async ({request}) => {
-    let authUser = await authenticator.isAuthenticated(request, {
-        successRedirect: "/home?fromloggedout"
+    console.log("__loggedout called")
+    let authUser = await authenticateAndRefresh(request,{
+        successRedirect: "/home",
+        failureRedirect: false,
+        throwOnError: false
     })
     // if we're logged in we'll redirect them
     // so they'll only get here if there's no user anyway
