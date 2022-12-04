@@ -5,16 +5,14 @@ import {
     useNavigate
 } from "@remix-run/react";
 import { Link } from "react-router-dom";
-import authenticator from "~/services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import { Tweet } from "~/shared/components/tweet"
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 
 export const action = async ({request,params}) => {
-    let authUser = await authenticator.isAuthenticated(request, {
-        throwOnError: true
-    })
+    let authUser = await authenticateAndRefresh(request)
     let handle = params['*']
     let [username,instance] = handle.split('@')
     let profileUrl = new URL(request.url)
