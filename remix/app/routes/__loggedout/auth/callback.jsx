@@ -9,15 +9,7 @@ export const loader = async ({ request }) => {
         });
     } catch (e) {
         console.log("/callback threw redirect")
-        console.log(e)
+        //console.log(e)
         throw e
     }
-    console.log("/callback didn't wait")
-}
-
-export default function Callback() {
-    console.log("/callback default function got called")
-    return (
-        <div>Callback</div>
-    )
 }

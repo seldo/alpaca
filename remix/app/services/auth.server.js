@@ -30,7 +30,9 @@ authenticator.use(
       async ({ accessToken, refreshToken, extraParams, profile, context }) => {
         // here you can use the params above to get the user and return it
         // what you do inside this and how you find the user is up to you
-        console.log("Getting the user")
+        console.log("access token",accessToken)
+        console.log("refresh token",refreshToken)
+        console.log("extra params",extraParams)
         let userResponse
         try {
           userResponse = await fetch(process.env.MASTODON_INSTANCE + "/api/v1/accounts/verify_credentials", {
@@ -43,11 +45,11 @@ authenticator.use(
           console.log("error")
           console.log(e)
         }
-        console.log("user: got a response, sending it back")
         let user = await userResponse.json()
+        console.log("auth.server: got user",user)
         // FIXME: we'll have to use the refresh token sometimes. How?
         user.accessToken = accessToken
-        user.refreshToken = refreshToken
+        user.tokenExpiry = extraParams
         return user
       }
     ),
@@ -57,3 +59,14 @@ authenticator.use(
   );
 
 export default authenticator
+
+export const authenticateAndRefresh = async (request) => {
+  console.log("authenticateandrefresh called")
+  let authUser
+  authUser = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/auth/mastodon?aar",
+    throwOnError: true
+  })
+  if(authUser) console.log("...and it found a valid user",authUser.accessToken)
+  return authUser
+}

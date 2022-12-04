@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
-import authenticator from "~/services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import { Tweet } from "~/shared/components/tweet"
 import Avatar from "~/shared/components/avatar"
@@ -8,7 +8,7 @@ import Avatar from "~/shared/components/avatar"
 export const loader = async ({request, data}) => {
   // FIXME: it is gross, GROSS that I have to re-load the user here
   // see https://github.com/remix-run/react-router/issues/9188#issuecomment-1248180434
-  let authUser = await authenticator.isAuthenticated(request,{throwOnError:true})
+  let authUser = await authenticateAndRefresh(request)
   let user = await mastodon.getOrCreateUserFromData(authUser)
   let timeline = await mastodon.getTimeline(user,{ hydrate: true })
   return { user, timeline }

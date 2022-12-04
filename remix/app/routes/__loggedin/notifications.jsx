@@ -1,12 +1,12 @@
 import { useLoaderData, useFetcher } from "@remix-run/react";
-import authenticator from "~/services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import { Tweet, batchNotifications } from "~/shared/components/tweet"
 import { LinkToAccount } from "~/shared/components/tweet"
 import { useEffect, useState } from "react";
 
 export const loader = async ({request}) => {
-    let authUser = await authenticator.isAuthenticated(request)
+    let authUser = await authenticateAndRefresh(request)
     let user = await mastodon.getOrCreateUserFromData(authUser)
     // TODO: we'll change this to just get and then use a fetcher to refresh
     let notifications = await mastodon.getOrFetchNotifications(authUser)

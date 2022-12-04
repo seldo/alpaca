@@ -15,6 +15,8 @@ export default function Globalnav({user}) {
                 <li><Link className="profile" rel="intent" to="/profile"><span>Profile</span></Link></li>
                 <li key="menu5"><a key="menu6" className="settings" href="/settings"><span>Settings</span></a></li>
                 <li key="menu7"><a className="compose" href="/compose"><span>Compose</span></a></li>
+                <li key="menu8"><a href="/auth/login">Login</a></li>
+                <li key="menu9"><a href="/auth/logout">Logout</a></li>
             </ul>
         </div>
         <div className="authUser">

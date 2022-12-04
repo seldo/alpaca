@@ -1,5 +1,6 @@
 import { prisma } from "../db.server";
 import { getInstanceFromAccount } from "~/shared/components/tweet";
+import { redirect } from "@remix-run/node";
 
 export async function getUserByUsername(username,instance,options = {
   withTweets: false
@@ -414,6 +415,10 @@ export const storeNotifications = async (notifications,forWhom) => {
   return storedNotifications
 }
 
+const forceAuthRefresh = () => {
+  throw redirect('/auth/mastodon')
+}
+
 export const fetchAndStoreNotifications = async (user,minId = null) => {
   let notificationsUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/notifications`)
   notificationsUrl.searchParams.set('limit',200)
@@ -423,7 +428,9 @@ export const fetchAndStoreNotifications = async (user,minId = null) => {
       "Authorization": `Bearer ${user.accessToken}`
     }    
   })
+  if(notificationsData.status != "200") forceAuthRefresh()
   notifications = await notificationsData.json()
+  console.log("notifications feed got",notifications)
   await storeNotifications(notifications,user.id)
   return notifications
 }

@@ -1,9 +1,16 @@
 import {Outlet} from "@remix-run/react";
 import { useLoaderData } from "@remix-run/react";
-import authenticator from "~/services/auth.server";
+import { authenticator, authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import Globalnav from "~/shared/components/globalnav"
 
+export const loader = async ({request}) => {
+    let authUser = await authenticateAndRefresh(request)
+    let user = await mastodon.getOrCreateUserFromData(authUser)
+    return { user }
+}
+
+/*
 export const loader = async ({request}) => {
     let authUser = await authenticator.isAuthenticated(request, {
         failureRedirect: "/auth/mastodon?fromhome"
@@ -11,6 +18,7 @@ export const loader = async ({request}) => {
     let user = await mastodon.getOrCreateUserFromData(authUser)
     return { user }
 }
+*/
 
 export default function Index() {
     const loaderData = useLoaderData();
