@@ -2,15 +2,8 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import authenticator from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
-import stylesRoot from "~/../styles/root.css";
 import { Tweet } from "~/shared/components/tweet"
 import Avatar from "~/shared/components/avatar"
-
-export const links = () => {
-  return [
-    { rel: "stylesheet", href: stylesRoot }
-  ];
-}
 
 export const loader = async ({request, data}) => {
   // FIXME: it is gross, GROSS that I have to re-load the user here
@@ -38,6 +31,7 @@ export default function Index() {
         setRefresh(10)
       }
       if (document.visibilityState === "visible") {
+        // FIXME: is index 0 really the max ID of the current set, so the min of the fetch?
         let minId = newTweets[0] ? newTweets[0].id : null
         fetcher.load("/timeline?minId="+minId);
       }
@@ -52,7 +46,6 @@ export default function Index() {
     if (fetcher.data) {
       let incoming = JSON.parse(fetcher.data)
       // dedupe and merge incoming tweets since this is not guaranteed
-      //let union = incoming.concat(newTweets)
       let seenIds = []
       for(let i = 0; i < newTweets.length; i++) {
         seenIds.push(newTweets[i].id)
@@ -86,7 +79,7 @@ export default function Index() {
       <ul>
         {
           (newTweets.length > 0) ? newTweets.map( t=> {
-            return Tweet(t)      
+            return <li key={t.id}>{Tweet(t)}</li>
           }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
         }
       </ul>

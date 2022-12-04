@@ -12,7 +12,7 @@ function getInstanceFromData(userData) {
 export default function Avatar({user}) {
     if (user) {
         return <div className="avatar">
-            <Link to={`/u/${user.username}@${getInstanceFromData(user)}`}><img className="avatarImage" src={user.avatar} title={user.display_name || user.username } /></Link>
+            <Link rel="intent" to={`/u/${user.username}@${getInstanceFromData(user)}`}><img className="avatarImage" src={user.avatar} title={user.display_name || user.username } /></Link>
         </div>
     } else {
         return <div />

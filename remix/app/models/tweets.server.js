@@ -392,114 +392,66 @@ export const search = async(query,options = {token: null}) => {
   return searchResults
 }
 
-export const storeNotifications = async (notifications) => {
-  /*
+export const storeNotifications = async (notifications,forWhom) => {
   // store all the notifications in one big transaction
-  let timelineBatch = []
-  for(let i = 0; i < timeline.length; i++) {
-    let tweet = timeline[i]
-    timelineBatch.push({
-      id: viewerId + ":" + tweet.id,
-      seenAt: tweet.created_at,
-      viewerId,
-      tweetId: tweet.id
+  let batchInsert = []
+  for(let i = 0; i < notifications.length; i++) {
+    let n = notifications[i]
+    batchInsert.push({
+      id: n.id,
+      createdAt: n.created_at,
+      type: n.type,
+      json: n,
+      userId: forWhom
     })
   }
 
-  const storedTimelineEntries = await prisma.timelineEntry.createMany({
-    data: timelineBatch,
+  const storedNotifications = await prisma.notification.createMany({
+    data: batchInsert,
     skipDuplicates: true
   })
 
-  return
-   */
-  
-  // TODO: this
-  return
+  return storedNotifications
+}
+
+export const fetchAndStoreNotifications = async (user,minId = null) => {
+  let notificationsUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/notifications`)
+  notificationsUrl.searchParams.set('limit',200)
+  let notificationsData  = await fetch(notificationsUrl.toString(), {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${user.accessToken}`
+    }    
+  })
+  notifications = await notificationsData.json()
+  await storeNotifications(notifications,user.id)
+  return notifications
 }
 
 export const getNotificationsByUserId = async (userId) => {
-  // TODO: actually get them
-  return false
-}
-
-const parseThingId = (n) => {
-  switch (n.type) {
-    case "mention": return "mentioned_" + n.status.id
-    case "status": return // FIXME: ignoring notifications for now
-    case "reblog": return "reblogged_" + n.status.id
-    case "follow": return "followed_you"
-    case "follow_request": return n.account.id + "_requested_follow"
-    case "favourite": return "favorited_" + n.status.id
-    case "poll": return // FIXME: ignoring polls ending for now
-    case "update": return // FIXME: ignoring status updates for now
-  }
-}
-
-export const batchNotifications = async (notifications) => {
-  let thingsReactedTo = {}
-  // batch up by the thing they are reacting to
-  for(let i = 0; i < notifications.length; i++) {
-    let n = notifications[i]
-    let nId = parseThingId(n)
-    if (!thingsReactedTo[nId]) thingsReactedTo[nId] = []
-    thingsReactedTo[nId].push(n)
-  }
-  // process each group of reactions
-  let batches = []
-  for(let trt of Object.values(thingsReactedTo)) {
-    // everything is the same type so we can infer it from the first one
-    let type = trt[0].type
-    // get the events into most recent order
-    trt.sort( (a,b) => {
-      if (b.created_at > a.created_at) return 1
-      else return -1  
-    })
-    let lastEvent = trt[0].created_at // credit the batch with the time of the most recent
-    let notification = { type, lastEvent }
-    switch(type) {
-      case "favourite": // fuckin' "u"s
-        // many people can favorite one status
-        notification.status = trt[0].status
-        notification.accounts = trt.map( (t) => {
-          return t.account
-        })
-        break;
-      case "mention":
-        // only one person can mention you at a time
-        notification.status = trt[0].status
-        notification.account = trt[0].account
-        break;
-      case "follow":
-        // many people can follow you
-        notification.accounts = trt.map( (t) => {
-          return t.account
-        })
-        break;
+  let query = {
+    where: {
+      userId
+    },
+    orderBy: {
+      createdAt: "desc"
     }
-    batches.push(notification)
   }
-  // sort by lastEvent
-  batches.sort( (a,b) => {
-    if (b.lastEvent > a.lastEvent) return 1
-    else return -1
+
+  let notificationsRaw = await prisma.notification.findMany(query)
+
+  // turn them back into the mastodon format
+  let notifications = notificationsRaw.map( n => {
+    return n.json
   })
-  return batches
+
+  return notifications
 }
 
 export const getOrFetchNotifications = async (user) => {
   let notifications = await getNotificationsByUserId(user.id)
   if (!notifications) {
-    let notificationsUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/notifications`)
-    notificationsUrl.searchParams.set('limit',200)
-    let notificationsData  = await fetch(notificationsUrl.toString(), {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${user.accessToken}`
-      }    
-    })
-    notifications = await notificationsData.json()
-    await storeNotifications(notifications)
+    notifications = fetchAndStoreNotifications(user)
   }
   return notifications
 }
