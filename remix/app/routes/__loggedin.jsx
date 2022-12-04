@@ -10,16 +10,6 @@ export const loader = async ({request}) => {
     return { user }
 }
 
-/*
-export const loader = async ({request}) => {
-    let authUser = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/auth/mastodon?fromhome"
-    })
-    let user = await mastodon.getOrCreateUserFromData(authUser)
-    return { user }
-}
-*/
-
 export default function Index() {
     const loaderData = useLoaderData();
     const {user} = loaderData  
