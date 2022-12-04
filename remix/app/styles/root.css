@@ -674,6 +674,11 @@ h2 {
   float: right;
 }
 
+.composeBox textarea {
+  width: 100%;
+  padding: 10px;
+}
+
 .main-gutter {
   padding-left: 10px;
   border-right: 0.5px solid #ccc;
@@ -762,10 +767,6 @@ h2 {
 .composeTop {
   padding-bottom: 10px;
   margin-left: 10px;
-}
-
-.composeTop textarea {
-  padding: 10px;
 }
 
 .buttonHolder {

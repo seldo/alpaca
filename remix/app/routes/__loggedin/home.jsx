@@ -3,7 +3,7 @@ import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import { Tweet } from "~/shared/components/tweet"
-import Avatar from "~/shared/components/avatar"
+import { ComposeBox } from "~/shared/components/compose"
 
 export const loader = async ({request, data}) => {
   // FIXME: it is gross, GROSS that I have to re-load the user here
@@ -69,12 +69,8 @@ export default function Index() {
       <div className="latest">
         <h2>Latest posts</h2>
       </div>
-      <div className="composeTop pr-4 flex flex-row">
-        <Avatar user={user} />
-        <textarea className="w-full" placeholder="What's up?"></textarea>
-      </div>
-      <div className="buttonHolder">
-        <button>Post</button>
+      <div className="composeTop">
+        <ComposeBox user={user} />
       </div>
       <ul>
         {

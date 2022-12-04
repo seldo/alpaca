@@ -5,7 +5,7 @@ import {
     useNavigate
 } from "@remix-run/react";
 import { Link } from "react-router-dom";
-import { authenticateAndRefresh } from "~/services/auth.server";
+import { authenticator, authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/tweets.server";
 import { Tweet } from "~/shared/components/tweet"
 import Avatar from "~/shared/components/avatar"
