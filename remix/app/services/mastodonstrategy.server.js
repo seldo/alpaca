@@ -5,9 +5,6 @@ import { OAuth2Strategy } from "remix-auth-oauth2";
 // pass the User as we did on the FormStrategy, we pass the Auth0Profile and the
 // extra params
 export class MastodonStrategy extends OAuth2Strategy {
-  // The OAuth2Strategy already has a name but we override it to be specific of
-  // the service we are using
-  name = "Seldo.dev";
 
   // We receive our custom options and our verify callback
   constructor(

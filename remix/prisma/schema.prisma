@@ -7,6 +7,16 @@ datasource db {
   url      = env("CDB_URL")
 }
 
+// the server users log in to, we need to register as an app with each one
+model Instance {
+   id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+   domain         String
+   clientKey      String
+   clientSecret   String
+   @@index([domain],map: "domains")
+   @@unique([domain])
+}
+
 // mastodon users; you must successfully auth to this ID to see anything
 model User {
   id              String      @id    // mastodon ref imp uses integer IDs but is that mandator?

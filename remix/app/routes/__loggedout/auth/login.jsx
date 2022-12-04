@@ -26,7 +26,8 @@ export default function Login() {
     return (
       <div>
         <Form method="get" action="/auth/mastodon">
-          <button>Login</button>
+          <p>Instance name: <input type="text" name="instance" /></p>
+          <button type="submit">Login</button>
         </Form>
       </div>
     )   
