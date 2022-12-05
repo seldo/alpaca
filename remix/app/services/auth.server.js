@@ -34,8 +34,15 @@ const getOrCreateInstance = async (instanceName) => {
     let appCreated = await appData.json()
     // TODO: check for 200 etc.
     console.log("auth.server: App created as",appCreated)
-    instanceData = await prisma.instance.create({
-      data: {
+    instanceData = await prisma.instance.upsert({
+      where: {
+        name: instanceName
+      },
+      update: {
+        clientKey: appCreated.client_id,
+        clientSecret: appCreated.client_secret
+      },
+      create: {
         name: instanceName,
         url: "https://" + instanceName,
         clientKey: appCreated.client_id,
@@ -105,18 +112,19 @@ export const authenticateAndRefresh = async (request,options = {
   let session = await getSession(request.headers.get("Cookie"))
   let instanceName = session.get("oauth2:state")
   if(!instanceName) {
+    console.log("AAR didn't find instance name")
     if (options.throwOnError) throw redirect(options.failureRedirect)
     else return null
   }
   let authenticator = await getOrCreateInstance(instanceName)
-  console.log("instantiated authenticator for instance",authenticator)
+  console.log("instantiated authenticator for instance",instanceName)
   try {
     let authUser = await authenticator.isAuthenticated(request, options)
-    if(authUser.error) {
+    if(!authUser || authUser.error) {
       if(options.throwOnError) throw redirect(options.failureRedirect)
       else return null
     } else {
-      console.log("...and it found a valid user",authUser)
+      console.log("...and it found a valid user",authUser.username,'@',authUser.instance)
       return authUser
     }
   } catch (e) {

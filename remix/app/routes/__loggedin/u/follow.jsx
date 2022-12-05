@@ -11,7 +11,7 @@ export const action = async ({request,params}) => {
     console.log("Trying to fetch user",username,instance)
     let user = await mastodon.getOrFetchUserByUsername(username,instance)
     console.log("Trying to follow user ID",user.id)
-    let follow = await mastodon.followUserById(user.id,authUser.accessToken)
+    let follow = await mastodon.followUserById(user.id,instance,authUser.accessToken)
     console.log("Follow result",follow)
     return redirect(`/u/${username}@${instance}?followed`)
 }

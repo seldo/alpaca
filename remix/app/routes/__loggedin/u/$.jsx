@@ -39,7 +39,7 @@ export const loader = async ({request, params}) => {
         withTweets: true,
         token: authUser.accessToken
     })
-    let following = await mastodon.isFollowing(authUser.accessToken,user.id)
+    let following = await mastodon.isFollowing(authUser.accessToken,instance,user.id)
     return { user, following }
 }
 

@@ -3,8 +3,8 @@ CREATE TABLE "Instance" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" STRING NOT NULL,
     "url" STRING NOT NULL,
-    "clientKey" STRING NOT NULL,
-    "clientSecret" STRING NOT NULL,
+    "clientKey" STRING,
+    "clientSecret" STRING,
 
     CONSTRAINT "Instance_pkey" PRIMARY KEY ("id")
 );
@@ -42,6 +42,7 @@ CREATE TABLE "TimelineEntry" (
     "seenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "viewerId" STRING NOT NULL,
     "tweetId" STRING NOT NULL,
+    "tweetInstanceId" UUID NOT NULL,
 
     CONSTRAINT "TimelineEntry_pkey" PRIMARY KEY ("id","instanceId")
 );
@@ -89,7 +90,7 @@ ALTER TABLE "TimelineEntry" ADD CONSTRAINT "TimelineEntry_instanceId_fkey" FOREI
 ALTER TABLE "TimelineEntry" ADD CONSTRAINT "TimelineEntry_viewerId_instanceId_fkey" FOREIGN KEY ("viewerId", "instanceId") REFERENCES "User"("id", "instanceId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TimelineEntry" ADD CONSTRAINT "TimelineEntry_tweetId_instanceId_fkey" FOREIGN KEY ("tweetId", "instanceId") REFERENCES "Tweet"("id", "instanceId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TimelineEntry" ADD CONSTRAINT "TimelineEntry_tweetId_tweetInstanceId_fkey" FOREIGN KEY ("tweetId", "tweetInstanceId") REFERENCES "Tweet"("id", "instanceId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_instanceId_fkey" FOREIGN KEY ("instanceId") REFERENCES "Instance"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

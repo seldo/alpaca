@@ -12,7 +12,7 @@ export const loader = async ({request, data}) => {
     failureRedirect: "/",
     throwOnError: true
   })
-  console.log("/home loader got authuser",authUser)
+  console.log("/home loader got authuser",authUser.username,"@",authUser.instance)
   let user = await mastodon.getOrCreateUserFromData(authUser)
   let timeline = await mastodon.getTimeline(user,{ hydrate: true })
   return { user, timeline }

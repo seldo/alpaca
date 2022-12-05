@@ -11,7 +11,7 @@ export const action = async ({request,params}) => {
     console.log("Trying to fetch user",username,instance)
     let user = await mastodon.getOrFetchUserByUsername(username,instance)
     console.log("Trying to unfollow user ID",user.id)
-    let unfollow = await mastodon.unfollowUserById(user.id,authUser.accessToken)
+    let unfollow = await mastodon.unfollowUserById(user.id,instance,authUser.accessToken)
     console.log("Unfollow result",unfollow)
     return redirect(`/u/${username}@${instance}?unfollowed`)
 }

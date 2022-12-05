@@ -9,11 +9,11 @@ datasource db {
 
 // the server users log in to, we need to register as an app with each one
 model Instance {
-  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name            String
   url             String
-  clientKey       String
-  clientSecret    String
+  clientKey       String?
+  clientSecret    String?
   users           User[]
   tweets          Tweet[]
   timelineEntries TimelineEntry[]
@@ -26,7 +26,7 @@ model Instance {
 model User {
   instance      Instance        @relation(fields: [instanceId], references: [id])
   instanceId    String          @db.Uuid // our internal instance ID
-  id            String          // mastodon ref imp uses integer IDs but is that mandator?
+  id            String // mastodon ref imp uses integer IDs but is that mandator?
   username      String
   display_name  String?
   avatar        String?
@@ -48,7 +48,7 @@ model Tweet {
   text          String
   createdAt     DateTime
   author        User            @relation(fields: [authorId, instanceId], references: [id, instanceId])
-  authorId      String          // same id as User table so mastodon ID, needs instance to be unique
+  authorId      String // same id as User table so mastodon ID, needs instance to be unique
   instance      Instance        @relation(fields: [instanceId], references: [id])
   instanceId    String          @db.Uuid // internal instance ID from Instance table
   json          Json            @db.JsonB
@@ -58,27 +58,28 @@ model Tweet {
 }
 
 model TimelineEntry {
-  id         String         // mastodon ID, needs instance to be unique
-  instance   Instance       @relation(fields: [instanceId], references: [id])
-  instanceId String         @db.Uuid
-  seenAt     DateTime       @default(now())
-  viewer     User           @relation(fields: [viewerId, instanceId], references: [id, instanceId])
-  viewerId   String
-  tweet      Tweet          @relation(fields: [tweetId, instanceId], references: [id, instanceId])
-  tweetId    String
+  id              String // mastodon ID, needs instance to be unique
+  instance        Instance @relation(fields: [instanceId], references: [id])
+  instanceId      String   @db.Uuid // this is the instance of the view
+  seenAt          DateTime @default(now())
+  viewer          User     @relation(fields: [viewerId, instanceId], references: [id, instanceId])
+  viewerId        String
+  tweet           Tweet    @relation(fields: [tweetId, tweetInstanceId], references: [id, instanceId])
+  tweetId         String
+  tweetInstanceId String   @db.Uuid
 
   @@id([id, instanceId])
 }
 
 model Notification {
-  id         String         // mastodon ID, needs instance to be unique
-  instance   Instance       @relation(fields: [instanceId], references: [id])
-  instanceId String         @db.Uuid
-  createdAt  DateTime
-  type       String
-  json       Json           @db.JsonB
-  user       User           @relation(fields: [userId, instanceId], references: [id, instanceId])
-  userId     String
+  id             String // mastodon ID, needs instance to be unique
+  instance       Instance @relation(fields: [instanceId], references: [id]) // this is the instance of the event
+  instanceId     String   @db.Uuid
+  createdAt      DateTime
+  type           String
+  json           Json     @db.JsonB
+  user           User     @relation(fields: [userId, instanceId], references: [id, instanceId])
+  userId         String
 
   @@id([id, instanceId])
 }

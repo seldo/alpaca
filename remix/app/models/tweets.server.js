@@ -28,14 +28,16 @@ export async function getUserByUsername(username, instance, options = {
   return user
 }
 
-export async function getOrFetchUserByUsername(username, instance, options = {
+export async function getOrFetchUserByUsername(username, instanceName, options = {
   withTweets: false,
   token: null
 }) {
   let user = await getUserByUsername(username, instance, { withTweets: options.withTweets })
   if (!user) {
     // fetch them from the api; we must use webfinger because they aren't in the cache
-    let userData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/lookup?acct=${username + "@" + instance + "&skip_webfinger=false"}`, {
+    console.log("Calling GibN 1",instanceName)
+    let instance = await getOrCreateInstanceByName(instanceName)
+    let userData = await fetch(instance.url + `/api/v1/accounts/lookup?acct=${username + "@" + instance + "&skip_webfinger=false"}`, {
       method: "GET"
     })
     // get user data
@@ -55,19 +57,30 @@ export async function getOrFetchUserByUsername(username, instance, options = {
   return user
 }
 
-export async function getInstanceByName(instanceName) {
+// FIXME: we can be sure in any given call that this doesn't change
+// so we can set a global var and not hit the db every time
+export async function getOrCreateInstanceByName(instanceName) {
   let instance = await prisma.instance.findUnique({
     where: {
       name: instanceName
     }
   })
+  if(!instance) {
+    instance = await prisma.instance.create({
+      data: {
+        name: instanceName,
+        url: "https://" + instanceName
+      }
+    })
+  }
   return instance
 }
 
 export async function getUserById(userId, instanceName, options = {
   withTweets: false
 }) {
-  let instance = await getInstanceByName(instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
+  console.log("Calling GibN 2",instanceName,"got",instance.id)
 
   // see if they're in the database
   let conditions = {
@@ -126,11 +139,13 @@ function formatTweetUsers(tweets) {
 export async function getOrCreateUserFromData(userData, options = {
   withTweets: false
 }) {
-  console.log("getOrCreateUserFromData called with",userData)
+  console.log("getOrCreateUserFromData called for",userData.username,'@',userData.instance)
+  // first try fetching them from the database
   let user = await getUserById(userData.id, userData.instance, { withTweets: options.withTweets })
   // if so return, otherwise insert them first
   if (!user) {
-    let instance = await getInstanceByName(userData.instance)
+    console.log("Calling GibN 3",userData.instance)
+    let instance = await getOrCreateInstanceByName(userData.instance)
     user = await prisma.user.upsert({
       where: {
         instanceId_id: {
@@ -157,13 +172,19 @@ export async function getOrCreateUserFromData(userData, options = {
       }
     })
   }
-  return user
+  // since we want to return user.json and we already had it, just return userData
+  return userData
 }
 
-export const getTweetsByUserId = async (userId, options) => {
+export const getTweetsByUserId = async (userId, instanceName, options) => {
+  console.log("Calling GibN 4",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
   let query = {
     where: {
-      id: userId
+      viewerId_instanceId: {
+        viewerId: userId,
+        instanceId: instance.id
+      }
     },
     orderBy: {
       seenAt: "desc"
@@ -174,19 +195,21 @@ export const getTweetsByUserId = async (userId, options) => {
   return tweets
 }
 
-export const getOrFetchTweetsByUserId = async (userId, options) => {
+export const getOrFetchTweetsByUserId = async (userId, instanceName, options) => {
   // try to get them locally first
-  let tweets = await getTweetsByUserId(userId)
+  let tweets = await getTweetsByUserId(userId, instanceName)
   // if we get no tweets, we try to fetch them, but technically there might not be any
   if (tweets.length == 0) {
-    tweets = await fetchTweetsByUserId(userId, options)
+    tweets = await fetchTweetsByUserId(userId, instanceName, options)
   }
   if (tweets) tweets = formatTweetUsers(tweets)
   return tweets
 }
 
-export const fetchTweetsByUserId = async (userId, options) => {
-  let tweetData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${userId}/statuses`, {
+export const fetchTweetsByUserId = async (userId, instanceName, options) => {
+  console.log("Calling GibN 5",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
+  let tweetData = await fetch(instance.url + `/api/v1/accounts/${userId}/statuses`, {
     method: "GET"
     // TODO: might want to get private tweets with token if authed
   })
@@ -197,8 +220,10 @@ export const fetchTweetsByUserId = async (userId, options) => {
   return tweets
 }
 
-export const isFollowing = async (userToken, followingId) => {
-  let followingRequestUrl = new URL(process.env.MASTODON_INSTANCE + "/api/v1/accounts/relationships")
+export const isFollowing = async (userToken, instanceName, followingId) => {
+  console.log("Calling GibN 5a",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
+  let followingRequestUrl = new URL(instance.url + "/api/v1/accounts/relationships")
   followingRequestUrl.searchParams.set('id', followingId)
   let followingData = await fetch(followingRequestUrl.toString(), {
     method: "GET",
@@ -211,18 +236,24 @@ export const isFollowing = async (userToken, followingId) => {
   else return null
 }
 
-const getOrCreateTweet = async (tweetData) => {
+const getOrCreateTweet = async (tweetData,instanceId) => {
   // see if it's in the database
   let tweet = await prisma.tweet.findUnique({
     where: {
-      id: tweetData.id
+      id_instanceId: {
+        id: tweetData.id,
+        instanceId
+      }
     }
   })
   // if so return, otherwise insert them first
   if (!tweet) {
     tweet = await prisma.tweet.upsert({
       where: {
-        id: tweetData.id
+        id_instanceId: {
+          id: tweetData.id,
+          instanceId
+        }
       },
       update: {
         permalink: tweetData.url ? tweetData.url : tweetData.uri,
@@ -233,6 +264,7 @@ const getOrCreateTweet = async (tweetData) => {
       },
       create: {
         id: tweetData.id,
+        instanceId,
         permalink: tweetData.url ? tweetData.url : tweetData.uri,
         text: tweetData.content,
         createdAt: tweetData.created_at,
@@ -247,7 +279,7 @@ const getOrCreateTweet = async (tweetData) => {
 }
 
 // FIXME: increase efficiency with a createMany/ignoreDuplicates here
-const storeTweets = async (tweets) => {
+const storeTweets = async (tweets,instance) => {
   for (let i = 0; i < tweets.length; i++) {
     let tweetData = tweets[i]
     // reblogs are different
@@ -255,34 +287,43 @@ const storeTweets = async (tweets) => {
     // and separately store the tweet they reblogged
     if (tweetData.reblog && tweetData.reblog.length > 0) {
       let rbAuthor = await getOrCreateUserFromData(tweetData.reblog.account)
-      let rbTweet = await getOrCreateTweet(tweetData.reblog)
+      let rbInstance = await getOrCreateInstanceByName(getInstanceFromAccount(tweetData.reblog.account))
+      let rbTweet = await getOrCreateTweet(tweetData.reblog,rbInstance.id)
       tweetData.reblog = rbTweet.id
       // FIXME: we should add a reblogged field to the DB
       // and then we can fetch the reblogged tweets natively at fetch time
     }
     // TODO: can this be done totally async?
     let author = await getOrCreateUserFromData(tweetData.account)
-    let tweet = await getOrCreateTweet(tweetData)
+    let authorInstance = await getOrCreateInstanceByName(getInstanceFromAccount(tweetData.account))
+    let tweet = await getOrCreateTweet(tweetData,authorInstance.id)
   }
   // FIXME: some sort of error catching...
   // TODO: a return value would be nice
   return
 }
 
-const storeTimeline = async (viewerId, timeline) => {
-
+const storeTimeline = async (viewerId, instanceName, timeline) => {
+  console.log(`Called storeTimeline for viewed ${viewerId} instance name ${instanceName}`)
   // store the tweets themselves so we can satisfy db constraints
-  await storeTweets(timeline)
+  console.log("Calling GibN 6",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
+  await storeTweets(timeline,instance)
 
   // now store these timeline entries
   let timelineBatch = []
   for (let i = 0; i < timeline.length; i++) {
     let tweet = timeline[i]
+    // oh my god this is horribly inefficient
+    // we have to find an instance ID for each tweet individually
+    let tweetInstance = await getOrCreateInstanceByName(getInstanceFromAccount(tweet.account))
     timelineBatch.push({
       id: viewerId + ":" + tweet.id,
+      instanceId: instance.id,
       seenAt: tweet.created_at,
       viewerId,
-      tweetId: tweet.id
+      tweetId: tweet.id,
+      tweetInstanceId: tweetInstance.id
     })
   }
 
@@ -305,10 +346,15 @@ const storeTimeline = async (viewerId, timeline) => {
 export const getTimeline = async (userData, options = {
   hydrate: false
 }) => {
+  console.log("Calling GibN 7",userData.instance)
+  let instance = await getOrCreateInstanceByName(userData.instance)
 
   let query = {
     where: {
-      viewerId: userData.id
+      instanceId: instance.id,
+      AND: {
+        viewerId: userData.id
+      }
     },
     orderBy: {
       seenAt: "desc"
@@ -348,7 +394,9 @@ export async function fetchTimeline(userData, minId) {
   let token = userData.accessToken
   let timelineData
   try {
-    timelineData = await fetch(process.env.MASTODON_INSTANCE + `/api/v1/timelines/home${minId ? `?min_id=${minId}` : ""}`, {
+    console.log("Calling GibN 7a",userData.instance)
+    let instance = await getOrCreateInstanceByName(userData.instance)  
+    timelineData = await fetch(instance.url + `/api/v1/timelines/home${minId ? `?min_id=${minId}` : ""}`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
@@ -359,7 +407,7 @@ export async function fetchTimeline(userData, minId) {
     let timeline = formatTweetUsers(timelineRaw)
     try {
       // TODO: can we async this and just not wait?
-      await storeTimeline(userData.id, timeline)
+      await storeTimeline(userData.id, userData.instance, timeline)
     } catch (e) {
       console.log("Error storing timeline", e)
     }
@@ -370,8 +418,11 @@ export async function fetchTimeline(userData, minId) {
   }
 }
 
-export const followUserById = async (followId, userToken) => {
-  let followRequestUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${followId}/follow`)
+export const followUserById = async (followId, instanceName, userToken) => {
+  console.log("Calling GibN 7b",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
+
+  let followRequestUrl = new URL(instance.url + `/api/v1/accounts/${followId}/follow`)
   let followData = await fetch(followRequestUrl.toString(), {
     method: "POST",
     headers: {
@@ -382,9 +433,11 @@ export const followUserById = async (followId, userToken) => {
   return follow
 }
 
-export const unfollowUserById = async (followId, userToken) => {
+export const unfollowUserById = async (followId, instanceName, userToken) => {
+  console.log("Calling GibN 7c",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
   console.log("Unfollowing using token auth", userToken)
-  let followRequestUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/accounts/${followId}/unfollow`)
+  let followRequestUrl = new URL(instance.url + `/api/v1/accounts/${followId}/unfollow`)
   let followData = await fetch(followRequestUrl.toString(), {
     method: "POST",
     headers: {
@@ -397,7 +450,9 @@ export const unfollowUserById = async (followId, userToken) => {
 
 export const search = async (query, options = { token: null }) => {
   if (query === null) return false // why does mastodon search for null anyway?
-  let searchUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v2/search`)
+  console.log("Calling GibN 7d",options.instanceName)
+  let instance = await getOrCreateInstanceByName(options.instanceName)
+  let searchUrl = new URL(instance.url + `/api/v2/search`)
   searchUrl.searchParams.set('q', query)
   searchUrl.searchParams.set('resolve', true)
   let searchData = await fetch(searchUrl.toString(), {
@@ -411,13 +466,15 @@ export const search = async (query, options = { token: null }) => {
   return searchResults
 }
 
-export const storeNotifications = async (notifications, forWhom) => {
+export const storeNotifications = async (notifications, forWhom, instanceName) => {
   // store all the notifications in one big transaction
   let batchInsert = []
   for (let i = 0; i < notifications.length; i++) {
     let n = notifications[i]
+    let instance = await getOrCreateInstanceByName(instanceName)
     batchInsert.push({
       id: n.id,
+      instanceId: instance.id,
       createdAt: n.created_at,
       type: n.type,
       json: n,
@@ -437,8 +494,10 @@ const forceAuthRefresh = () => {
   throw redirect('/auth/mastodon')
 }
 
-export const fetchAndStoreNotifications = async (user, minId = null) => {
-  let notificationsUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/notifications`)
+export const fetchAndStoreNotifications = async (user, instanceId, minId = null) => {
+  console.log("Calling GibN 7e",user.instance)
+  let instance = await getOrCreateInstanceByName(user.instance)
+  let notificationsUrl = new URL(instance.url + `/api/v1/notifications`)
   notificationsUrl.searchParams.set('limit', 200)
   let notificationsData = await fetch(notificationsUrl.toString(), {
     method: "GET",
@@ -449,14 +508,19 @@ export const fetchAndStoreNotifications = async (user, minId = null) => {
   if (notificationsData.status != "200") forceAuthRefresh()
   notifications = await notificationsData.json()
   console.log("notifications feed got", notifications)
-  await storeNotifications(notifications, user.id)
+  await storeNotifications(notifications, user.id, user.instance)
   return notifications
 }
 
-export const getNotificationsByUserId = async (userId) => {
+export const getNotificationsByUserId = async (userId,instanceName) => {
+  console.log("Calling GibN 7e2",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
   let query = {
     where: {
-      userId
+      instanceId: instance.id,
+      AND: {
+        userId
+      }
     },
     orderBy: {
       createdAt: "desc"
@@ -474,7 +538,7 @@ export const getNotificationsByUserId = async (userId) => {
 }
 
 export const getOrFetchNotifications = async (user) => {
-  let notifications = await getNotificationsByUserId(user.id)
+  let notifications = await getNotificationsByUserId(user.id,user.instance)
   if (!notifications) {
     notifications = fetchAndStoreNotifications(user)
   }
@@ -482,7 +546,9 @@ export const getOrFetchNotifications = async (user) => {
 }
 
 export const createPost = async (user, data = {text:null}) => {
-  let postUrl = new URL(process.env.MASTODON_INSTANCE + `/api/v1/statuses`)
+  console.log("Calling GibN 8",user.instance)
+  let instance = await getOrCreateInstanceByName(user.instance)
+  let postUrl = new URL(instance.url + `/api/v1/statuses`)
   if (data.text === null || data.text === "") throw new Error("Text cannot be empty")
 
   var formData = new FormData();
