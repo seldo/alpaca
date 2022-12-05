@@ -32,7 +32,7 @@ export default function Index() {
   useEffect(() => {
     const interval = setInterval(() => {
       if(refreshInterval == 5) {
-        setRefresh(10)
+        setRefresh(20)
       }
       if (document.visibilityState === "visible") {
         // FIXME: is index 0 really the max ID of the current set, so the min of the fetch?

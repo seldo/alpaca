@@ -26,6 +26,7 @@ const getOrCreateInstance = async (instanceName) => {
     formData.append("scopes","read write")
     formData.append("website",process.env.OAUTH_APP_WEBSITE)
     let instanceUrl = "https://" + instanceName + "/api/v1/apps"
+    console.log("Registering instnace")
     
     let appData = await fetch(instanceUrl, {
       method: "POST",
