@@ -18,7 +18,7 @@ const getOrCreateInstance = async (instanceName) => {
   }
   let instanceData = await prisma.instance.findUnique(conditions)
   let callbackURI = process.env.THIS_HOST + "/auth/callback"
-  console.log("auth.server: callback URI is ",)
+  console.log("auth.server: callback URI is ",callbackURI)
   if (!instanceData) {
     let formData = new FormData();
     formData.append("client_name", process.env.OAUTH_APP_NAME)
