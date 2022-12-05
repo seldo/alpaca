@@ -17,12 +17,14 @@ const getOrCreateInstance = async (instanceName) => {
     }
   }
   let instanceData = await prisma.instance.findUnique(conditions)
+  let callbackURI = process.env.THIS_HOST + "/auth/callback"
+  console.log("auth.server: callback URI is ",)
   if (!instanceData) {
     let formData = new FormData();
     formData.append("client_name", process.env.OAUTH_APP_NAME)
-    formData.append("website",process.env.OAUTH_APP_WEBSITE)
+    formData.append("redirect_uris", callbackURI)
     formData.append("scopes","read write")
-    formData.append("redirect_uris", process.env.THIS_HOST + "/auth/callback")
+    formData.append("website",process.env.OAUTH_APP_WEBSITE)
     let instanceUrl = "https://" + instanceName + "/api/v1/apps"
     
     let appData = await fetch(instanceUrl, {
@@ -47,7 +49,7 @@ const getOrCreateInstance = async (instanceName) => {
         tokenURL: instanceData.url + "/oauth/token",
         clientID: instanceData.clientKey,
         clientSecret: instanceData.clientSecret,
-        callbackURL: process.env.THIS_HOST + "/auth/callback",
+        callbackURL: callbackURI,
         instanceName: instanceName
       },
       async ({ accessToken, refreshToken, extraParams, profile, context }) => {

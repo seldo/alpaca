@@ -6,6 +6,8 @@ import { OAuth2Strategy } from "remix-auth-oauth2";
 // extra params
 export class MastodonStrategy extends OAuth2Strategy {  
 
+  name = "Mastodon"
+
   // We receive our custom options and our verify callback
   constructor(
     options,
