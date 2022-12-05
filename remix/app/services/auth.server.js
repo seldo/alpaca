@@ -33,6 +33,7 @@ const getOrCreateInstance = async (instanceName) => {
     })
     let appCreated = await appData.json()
     // TODO: check for 200 etc.
+    console.log("auth.server: App created as",appCreated)
     instanceData = await prisma.instance.create({
       data: {
         name: instanceName,
