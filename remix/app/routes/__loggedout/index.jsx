@@ -7,7 +7,6 @@ export const loader = async ({request}) => {
   console.log("/ called")
   let user = await authenticateAndRefresh(request,{
       successRedirect: "/home",
-      failureRedirect: false,
       throwOnError: false
   })
   return null

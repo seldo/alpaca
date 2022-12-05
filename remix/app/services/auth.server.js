@@ -2,12 +2,15 @@ import { Authenticator } from "remix-auth";
 import { sessionStorage, getSession, commitSession } from "./session.server";
 import { MastodonStrategy } from "./mastodonstrategy.server"
 import { prisma } from "~/db.server";
+import { redirect } from "@remix-run/node";
 
-export let authenticator = new Authenticator(sessionStorage,{
-  throwOnError: true
-});
+export let authenticator
 
 const getOrCreateInstance = async (instanceName) => {
+  authenticator = new Authenticator(sessionStorage,{
+    throwOnError: true
+  });
+
   let conditions = {
     where: {
       name: instanceName
@@ -52,7 +55,7 @@ const getOrCreateInstance = async (instanceName) => {
         console.log(instanceName,"extra params",extraParams)
         let userResponse
         try {
-          userResponse = await fetch(process.env.MASTODON_INSTANCE + "/api/v1/accounts/verify_credentials", {
+          userResponse = await fetch(instanceData.url + "/api/v1/accounts/verify_credentials", {
             method: "GET",
             headers: {
               "Authorization": `Bearer ${accessToken}`
@@ -64,7 +67,7 @@ const getOrCreateInstance = async (instanceName) => {
         }
         // FIXME: verify that they are the user they say they are on the right instance
         let user = await userResponse.json()
-        user.instanceName = instanceName
+        user.instance = instanceName
         user.accessToken = accessToken
         user.tokenExpiry = extraParams
         return user
@@ -79,8 +82,15 @@ export const authenticateAnyInstance = async (instanceName,request,options) => {
 
   // get or create an application against this instance
   let authenticator = await getOrCreateInstance(instanceName)
-  await authenticator.authenticate(instanceName,request,options);
+  return await authenticator.authenticate(instanceName,request,options);
 
+}
+
+export const logoutAnyInstance = async(request,options) => {
+  let session = await getSession(request.headers.get("Cookie"))
+  let instanceName = session.get("oauth2:state")
+  let authenticator = await getOrCreateInstance(instanceName)
+  await authenticator.logout(request, { redirectTo: "/" });
 }
 
 // TODO: load instance name from session here?
@@ -89,7 +99,25 @@ export const authenticateAndRefresh = async (request,options = {
     throwOnError: true
   }) => {
   console.log("authenticateandrefresh called with options",options)
-  let authUser = await authenticator.isAuthenticated(request, options)
-  if(authUser) console.log("...and it found a valid user",authUser.accessToken)
-  return authUser
+  let session = await getSession(request.headers.get("Cookie"))
+  let instanceName = session.get("oauth2:state")
+  if(!instanceName) {
+    if (options.throwOnError) throw redirect(options.failureRedirect)
+    else return null
+  }
+  let authenticator = await getOrCreateInstance(instanceName)
+  console.log("instantiated authenticator for instance",authenticator)
+  try {
+    let authUser = await authenticator.isAuthenticated(request, options)
+    if(authUser.error) {
+      if(options.throwOnError) throw redirect(options.failureRedirect)
+      else return null
+    } else {
+      console.log("...and it found a valid user",authUser)
+      return authUser
+    }
+  } catch (e) {
+    console.log("authenticateandrefresh did not find valid user")
+    throw e
+  }
 }

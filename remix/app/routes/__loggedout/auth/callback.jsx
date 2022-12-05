@@ -12,12 +12,6 @@ export const loader = async ({ request }) => {
             successRedirect: "/home",
             failureRedirect: "/auth/login?failed",
         })
-        /*
-        await authenticator.authenticate("seldo.dev", request, {
-            successRedirect: "/home",
-            failureRedirect: "/auth/login?failed",
-        });
-        */
     } catch (e) {
         console.log("/callback threw redirect")
         //console.log(e)

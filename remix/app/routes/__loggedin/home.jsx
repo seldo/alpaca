@@ -8,7 +8,11 @@ import { ComposeBox } from "~/shared/components/compose"
 export const loader = async ({request, data}) => {
   // FIXME: it is gross, GROSS that I have to re-load the user here
   // see https://github.com/remix-run/react-router/issues/9188#issuecomment-1248180434
-  let authUser = await authenticateAndRefresh(request)
+  let authUser = await authenticateAndRefresh(request,{
+    failureRedirect: "/",
+    throwOnError: true
+  })
+  console.log("/home loader got authuser",authUser)
   let user = await mastodon.getOrCreateUserFromData(authUser)
   let timeline = await mastodon.getTimeline(user,{ hydrate: true })
   return { user, timeline }

@@ -8,7 +8,7 @@ export const loader = async ({ request, params }) => {
   console.log("/auth/mastodon called with instance",instanceName)
   return await authenticateAnyInstance(instanceName,request,{
     successRedirect: "/home",
-    failureRedirect: "/auth/login?frommasto"
+    failureRedirect: "/?failedauth"
   })
 
 };

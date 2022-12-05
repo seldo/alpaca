@@ -5,7 +5,10 @@ import * as mastodon from "~/models/tweets.server";
 import Globalnav from "~/shared/components/globalnav"
 
 export const loader = async ({request}) => {
-    let authUser = await authenticateAndRefresh(request)
+    let authUser = await authenticateAndRefresh(request,{
+        failureRedirect: "/",
+        throwOnError: true
+    })
     let user = await mastodon.getOrCreateUserFromData(authUser)
     return { user }
 }

@@ -6,7 +6,6 @@ export const loader = async ({request}) => {
     console.log("__loggedout called")
     let authUser = await authenticateAndRefresh(request,{
         successRedirect: "/home",
-        failureRedirect: false,
         throwOnError: false
     })
     // if we're logged in we'll redirect them

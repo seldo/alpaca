@@ -1,14 +1,15 @@
 import { useLoaderData, Form } from "@remix-run/react";
 import { sessionStorage } from "~/services/session.server";
-import { authenticator } from "~/services/auth.server";
+import { authenticateAndRefresh, logoutAnyInstance } from "~/services/auth.server";
 
 export async function action({ request }) {
-    await authenticator.logout(request, { redirectTo: "/auth/login?justloggedout" });
-};
+    //await authenticator.logout(request, { redirectTo: "/" });
+    await logoutAnyInstance(request,{redirectTo: "/"})
+}
 
 export const loader = async ({request}) => {
-    let user = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/auth/login?fromlogout"
+    let user = await authenticateAndRefresh(request,{
+        failureRedirect: "/?alreadyloggedout"
     })
     return { user }
 }  

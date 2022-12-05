@@ -55,13 +55,27 @@ export async function getOrFetchUserByUsername(username, instance, options = {
   return user
 }
 
-export async function getUserById(userId, options = {
+export async function getInstanceByName(instanceName) {
+  let instance = await prisma.instance.findUnique({
+    where: {
+      name: instanceName
+    }
+  })
+  return instance
+}
+
+export async function getUserById(userId, instanceName, options = {
   withTweets: false
 }) {
+  let instance = await getInstanceByName(instanceName)
+
   // see if they're in the database
   let conditions = {
     where: {
-      id: userId
+      instanceId_id: {
+        instanceId: instance.id,
+        id: userId
+      }
     }
   }
   if (options.withTweets) {
@@ -112,17 +126,21 @@ function formatTweetUsers(tweets) {
 export async function getOrCreateUserFromData(userData, options = {
   withTweets: false
 }) {
-  let user = await getUserById(userData.id, { withTweets: options.withTweets })
+  console.log("getOrCreateUserFromData called with",userData)
+  let user = await getUserById(userData.id, userData.instance, { withTweets: options.withTweets })
   // if so return, otherwise insert them first
   if (!user) {
-    let instance = getInstanceFromAccount(userData)
+    let instance = await getInstanceByName(userData.instance)
     user = await prisma.user.upsert({
       where: {
-        id: userData.id
+        instanceId_id: {
+          instanceId: instance.id,
+          id: userData.id
+        }
       },
       update: {
         username: userData.username,
-        instance: instance,
+        instanceId: instance.id,
         display_name: userData.display_name,
         avatar: userData.avatar,
         header: userData.header,
@@ -130,8 +148,8 @@ export async function getOrCreateUserFromData(userData, options = {
       },
       create: {
         id: userData.id,
+        instanceId: instance.id,
         username: userData.username,
-        instance: instance,
         display_name: userData.display_name,
         avatar: userData.avatar,
         header: userData.header,
