@@ -2,15 +2,18 @@ import { prisma } from "~/db.server";
 import { getInstanceFromAccount } from "~/shared/components/tweet";
 import { redirect } from "@remix-run/node";
 
-export async function getUserByUsername(username, instance, options = {
+export async function getUserByUsername(username, instanceName, options = {
   withTweets: false
 }) {
+  console.log("Calling GibN 0",instanceName)
+  let instance = await getOrCreateInstanceByName(instanceName)
+
   // see if they're in the database
   let conditions = {
     where: {
-      username_instance: {
+      username_instanceId: {
         username,
-        instance
+        instanceId: instance.id
       },
     }
   }
@@ -32,16 +35,18 @@ export async function getOrFetchUserByUsername(username, instanceName, options =
   withTweets: false,
   token: null
 }) {
-  let user = await getUserByUsername(username, instance, { withTweets: options.withTweets })
+  let user = await getUserByUsername(username, instanceName, { withTweets: options.withTweets })
   if (!user) {
     // fetch them from the api; we must use webfinger because they aren't in the cache
     console.log("Calling GibN 1",instanceName)
     let instance = await getOrCreateInstanceByName(instanceName)
-    let userData = await fetch(instance.url + `/api/v1/accounts/lookup?acct=${username + "@" + instance + "&skip_webfinger=false"}`, {
+    console.log("GoFuBu looking for",username,"@",instanceName)
+    let userData = await fetch(instance.url + `/api/v1/accounts/lookup?acct=${username + "@" + instanceName + "&skip_webfinger=false"}`, {
       method: "GET"
     })
     // get user data
     user = await userData.json()
+    console.log("GoFuBu user",user)
     // FIXME: ugly hack to match format of db
     user.json = JSON.parse(JSON.stringify(user))
     user.instance = getInstanceFromAccount(user)
@@ -52,7 +57,7 @@ export async function getOrFetchUserByUsername(username, instanceName, options =
   if (!user.tweets || (user.tweets && user.tweets.length == 0)) {
     // get + store (public) user tweets
     // TODO: if we've got a token and are the user we should fetch private tweets too
-    user.tweets = await getOrFetchTweetsByUserId(user.id)
+    user.tweets = await getOrFetchTweetsByUserId(user.id, instanceName)
   }
   return user
 }
@@ -181,8 +186,8 @@ export const getTweetsByUserId = async (userId, instanceName, options) => {
   let instance = await getOrCreateInstanceByName(instanceName)
   let query = {
     where: {
-      viewerId_instanceId: {
-        viewerId: userId,
+      viewerId: userId,
+      AND: {
         instanceId: instance.id
       }
     },
@@ -220,20 +225,23 @@ export const fetchTweetsByUserId = async (userId, instanceName, options) => {
   return tweets
 }
 
-export const isFollowing = async (userToken, instanceName, followingId) => {
-  console.log("Calling GibN 5a",instanceName)
-  let instance = await getOrCreateInstanceByName(instanceName)
+export const isFollowing = async (user, followingId, instanceName) => {
+  console.log("Calling GibN 5a",user.instance)
+  let instance = await getOrCreateInstanceByName(user.instance)
+  console.log("isFollowing looking for ",followingId)
   let followingRequestUrl = new URL(instance.url + "/api/v1/accounts/relationships")
   followingRequestUrl.searchParams.set('id', followingId)
+  console.log("Following request URL",followingRequestUrl.toString(),"token",user.accessToken)
   let followingData = await fetch(followingRequestUrl.toString(), {
     method: "GET",
     headers: {
-      "Authorization": `Bearer ${userToken}`
+      "Authorization": `Bearer ${user.accessToken}`
     }
   })
   let following = await followingData.json()
+  console.log("isFollowing data was",following)
   if (following[0]) return following[0]
-  else return null
+  else return {following:false}
 }
 
 const getOrCreateTweet = async (tweetData,instanceId) => {
@@ -506,8 +514,7 @@ export const fetchAndStoreNotifications = async (user, instanceId, minId = null)
     }
   })
   if (notificationsData.status != "200") forceAuthRefresh()
-  notifications = await notificationsData.json()
-  console.log("notifications feed got", notifications)
+  let notifications = await notificationsData.json()
   await storeNotifications(notifications, user.id, user.instance)
   return notifications
 }

@@ -30,16 +30,14 @@ export const action = async ({request,params}) => {
 }
 
 export const loader = async ({request, params}) => {
-    let authUser = await authenticator.isAuthenticated(request, {
-        throwOnError: true
-    })
+    let authUser = await authenticateAndRefresh(request)
     let handle = params['*']
     let [username,instance] = handle.split('@')
     let user = await mastodon.getOrFetchUserByUsername(username,instance,{
         withTweets: true,
         token: authUser.accessToken
     })
-    let following = await mastodon.isFollowing(authUser.accessToken,instance,user.id)
+    let following = await mastodon.isFollowing(authUser,user.id,instance)
     return { user, following }
 }
 
@@ -65,7 +63,7 @@ export default function Index() {
                 <img src={user.header} />
             </div>
             <div className="avatarContainer">
-                <Avatar user={user} />
+                <Avatar user={user.json} />
             </div>
         </div>
         <div className="buttonBar">
