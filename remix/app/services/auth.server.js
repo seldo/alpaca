@@ -7,6 +7,7 @@ import { redirect } from "@remix-run/node";
 export let authenticator
 
 const getOrCreateInstance = async (instanceName) => {
+  console.log("getOrCreateInstance")
   authenticator = new Authenticator(sessionStorage,{
     throwOnError: true
   });
@@ -18,7 +19,6 @@ const getOrCreateInstance = async (instanceName) => {
   }
   let instanceData = await prisma.instance.findUnique(conditions)
   let callbackURI = process.env.THIS_HOST + "/auth/callback"
-  console.log("auth.server: callback URI is ",callbackURI)
   if (!instanceData) {
     let formData = new FormData();
     formData.append("client_name", process.env.OAUTH_APP_NAME)
@@ -26,7 +26,6 @@ const getOrCreateInstance = async (instanceName) => {
     formData.append("scopes","read write")
     formData.append("website",process.env.OAUTH_APP_WEBSITE)
     let instanceUrl = "https://" + instanceName + "/api/v1/apps"
-    console.log("Registering instnace")
     
     let appData = await fetch(instanceUrl, {
       method: "POST",
@@ -34,7 +33,6 @@ const getOrCreateInstance = async (instanceName) => {
     })
     let appCreated = await appData.json()
     // TODO: check for 200 etc.
-    console.log("auth.server: App created as",appCreated)
     instanceData = await prisma.instance.upsert({
       where: {
         name: instanceName
@@ -109,7 +107,7 @@ export const authenticateAndRefresh = async (request,options = {
     failureRedirect: "/auth/mastodon?aar",
     throwOnError: true
   }) => {
-  console.log("authenticateandrefresh called with options",options)
+  console.log("authenticateAndRefresh")
   let session = await getSession(request.headers.get("Cookie"))
   let instanceName = session.get("oauth2:state")
   if(!instanceName) {
@@ -118,14 +116,14 @@ export const authenticateAndRefresh = async (request,options = {
     else return null
   }
   let authenticator = await getOrCreateInstance(instanceName)
-  console.log("instantiated authenticator for instance",instanceName)
+  //console.log("instantiated authenticator for instance",instanceName)
   try {
     let authUser = await authenticator.isAuthenticated(request, options)
     if(!authUser || authUser.error) {
       if(options.throwOnError) throw redirect(options.failureRedirect)
       else return null
     } else {
-      console.log("...and it found a valid user",authUser.username,'@',authUser.instance)
+      console.log("auth.server says:",authUser.username,'@',authUser.instance)
       return authUser
     }
   } catch (e) {

@@ -26,7 +26,8 @@ model Instance {
 model User {
   instance      Instance        @relation(fields: [instanceId], references: [id])
   instanceId    String          @db.Uuid // our internal instance ID
-  id            String // mastodon ref imp uses integer IDs but is that mandator?
+  id            String          // this is their ID on their home instance, this+instanceID unique
+  internalId    String?         // this is their ID in our logged-in instance, unique by itself
   username      String
   display_name  String?
   avatar        String?

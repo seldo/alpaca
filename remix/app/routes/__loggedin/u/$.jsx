@@ -14,7 +14,7 @@ import FollowButton from "~/shared/components/followbutton"
 export const action = async ({request,params}) => {
     let authUser = await authenticateAndRefresh(request)
     let handle = params['*']
-    let [username,instance] = handle.split('@')
+    let [username,theirInstanceName] = handle.split('@')
     let profileUrl = new URL(request.url)
     let optimisticFollow = null
     if(profileUrl.searchParams.get('followed')) {
@@ -23,7 +23,7 @@ export const action = async ({request,params}) => {
     if(profileUrl.searchParams.get('unfollowed')) {
         optimisticFollow = false
     }
-    let user = await mastodon.getOrFetchUserByUsername(username,instance)
+    let user = await mastodon.getOrFetchUserByUsername(username,theirInstanceName,authUser.instance)
     let follow = await mastodon.followUserById(user.id,authUser.accessToken)
     follow.following = optimisticFollow || follow.following
     return null
@@ -32,12 +32,12 @@ export const action = async ({request,params}) => {
 export const loader = async ({request, params}) => {
     let authUser = await authenticateAndRefresh(request)
     let handle = params['*']
-    let [username,instance] = handle.split('@')
-    let user = await mastodon.getOrFetchUserByUsername(username,instance,{
+    let [username,theirInstanceName] = handle.split('@')
+    let user = await mastodon.getOrFetchUserByUsername(username,theirInstanceName,authUser.instance,{
         withTweets: true,
         token: authUser.accessToken
     })
-    let following = await mastodon.isFollowing(authUser,user.id,instance)
+    let following = await mastodon.isFollowing(authUser,user.id,theirInstanceName)
     return { user, following }
 }
 
@@ -83,7 +83,7 @@ export default function Index() {
         <ul>
         {
           (user.tweets.length > 0) ? user.tweets.map( t=> {
-            return Tweet(t)      
+            return <li key={t.id}>{Tweet(t)}</li>
           }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
         }
         </ul>
