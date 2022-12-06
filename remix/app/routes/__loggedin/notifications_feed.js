@@ -7,7 +7,7 @@ export const loader = async ({request}) => {
     const url = new URL(request.url);
     let minId = url.searchParams.get("minId");    
     if(minId == "null") minId = null
-    let notifications = await mastodon.fetchAndStoreNotifications(authUser,minId)
+    let notifications = await mastodon.getNotificationsRemote(authUser,minId)
     let notificationString = JSON.stringify(notifications)
     return new Response(notificationString, {    
         status: 200

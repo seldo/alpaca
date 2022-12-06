@@ -5,11 +5,12 @@ import { Post, batchNotifications } from "~/shared/components/post"
 import { LinkToAccount } from "~/shared/components/post"
 import { useEffect, useState } from "react";
 
+const NOTIFICATONS_FETCH_INTERVAL = 7
+
 export const loader = async ({request}) => {
     let authUser = await authenticateAndRefresh(request)
     let user = await mastodon.getOrCreateUserFromData(authUser)
-    // TODO: we'll change this to just get and then use a fetcher to refresh
-    let notifications = await mastodon.getOrFetchNotifications(authUser)
+    let notifications = await mastodon.getNotificationsLocal(authUser)
     let batchedNotifications = batchNotifications(notifications)
 
     return {user, notifications, batchedNotifications}
@@ -28,11 +29,11 @@ const formatEvent = (event) => {
                         <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your post
                     </div>
                 }
-                {Tweet(event.status,{avatar:false})}
+                {Post(event.status,{avatar:false})}
             </div>
         case "mention":
             return <div className="notificationMessage notifyMention">
-                {Tweet(event.status)}
+                {Post(event.status)}
             </div>
         case "follow":
             return <div className="notificationMessage notifyFollow">
@@ -72,7 +73,7 @@ export default function Index() {
                 // TODO: calculate minId from within notifications
                 fetcher.load("/notifications_feed") // TODO: add minId as query param
             }
-        }, 5000)
+        }, NOTIFICATONS_FETCH_INTERVAL * 1000)
         // every time the fetcher is triggered (and also on first render) it creates a new timer
         return () => clearInterval(interval) // every time the timer goes off destroy the old one
     },[fetcher.data])

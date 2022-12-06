@@ -83,7 +83,7 @@ export const getInstanceFromAccount = (account) => {
 }
 
 export const createPostHash = async (post) => {
-    const encoder = new TextEncoder();
+    //const encoder = new TextEncoder();
     let hashMessage = post.account.username + ":" +
         post.account.instance + ":" +
         ((post.reblog && post.reblog.content) ? post.reblog.content : '') + ":" +
@@ -96,9 +96,12 @@ export const createPostHash = async (post) => {
     return hashMessage // FIXME: the above wasn't working in Chrome
 }
 
+export const getProfileLink = (account) => {
+    return `/u/${account.username}@${account.instance}`
+}
+
 export const LinkToAccount = (account, content) => {
-    account.instance = getInstanceFromAccount(account)
-    let profileLink = `/u/${account.username}@${account.instance}`
+    let profileLink = getProfileLink(account)
     return <Link to={profileLink}>{(account.display_name || "@" + account.username)}</Link>
 }
 
@@ -125,7 +128,7 @@ const Post = (t, options = {
             </div>
             <div className="postBody nextToAvatar grow">
                 <div className="author">
-                    <span className="displayName">{t.account.display_name}</span>
+                    <span className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></span>
                     <span className="username">@{t.account.acct}</span>
                     <span className="time">{timeAgo.format(Date.parse(t.created_at), 'twitter')}</span>
                 </div>

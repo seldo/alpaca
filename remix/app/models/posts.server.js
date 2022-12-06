@@ -10,28 +10,43 @@ export const getOrCreateUserFromData = async (userData, options = {
 }) => {
   console.log("getOrCreateUserFromData")
   // first try fetching them from the database
-  let user = await getOrCreateUserLocal(userData, { withTweets: options.withTweets })
+  let user = await getUserLocal(userData, { withTweets: options.withTweets })
   // if we don't find them we store them
   if (!user) {
-    console.log(`User ${userData.username}@${userData.instance} not found`)
-    user = await prisma.user.create({
-      data: {
-        username: userData.username,
-        userInstance: userData.instance,
-        display_name: userData.display_name,
-        json: userData
-      },
-      skipDuplicates: true
-    })
+    console.log(`getOrCreateUserFromData: ${userData.username}@${userData.instance} not found`)
+    await createUser(userData)
   }
   // since we want to return user.json and we already had it, just return userData
   return userData
 }
 
-export const getOrCreateUserLocal = async (user, options = {
+export const createUser = async (userData) => {
+  try {
+    let user = await prisma.user.create({
+      data: {
+        username: userData.username,
+        userInstance: userData.instance,
+        display_name: userData.display_name,
+        json: userData
+      }
+    })
+  } catch(e) {
+    if(e.code = 'P2002') {
+      // user already existed, no need to create
+      return userData
+    } else {
+      console.error(`Error storing user ${userData.username}@${userData.instance}`)
+      console.log(e)
+      return false
+    }
+  }
+  return user
+}
+
+export const getUserLocal = async (user, options = {
   withTweets: false
 }) => {
-  console.log("getUserLocal")
+  console.log(`getUserLocal ${user.username}@${user.instance}`)
 
   // see if they're in the database
   let conditions = {
@@ -42,9 +57,9 @@ export const getOrCreateUserLocal = async (user, options = {
       }
     }
   }
-  if (options.withTweets) {
+  if (options.withPosts) {
     conditions.include = {
-      tweets: {
+      posts: {
         orderBy: {
           createdAt: "desc"
         }
@@ -60,9 +75,12 @@ export const getOrCreateUserLocal = async (user, options = {
     console.error("getUserLocal: error fetching using",user)
     return false
   }
-  userData = formatUserPosts(user)
-  console.log("getUserLocal: found user " + user.username)
-  return userData
+  let foundUser = await userData.json
+  foundUser.posts = userData.posts
+  foundUser = formatUserPosts(foundUser)
+  foundUser.instance = getInstanceFromAccount(foundUser)
+  console.log(`getUserLocal: found user ${foundUser.username}@${foundUser.instance}`)
+  return foundUser
 }
 
 /**
@@ -78,6 +96,71 @@ export const getOrCreateUserLocal = async (user, options = {
     })
     user.posts = formattedPosts
   }
+  return user
+}
+
+export async function getOrCreateUser(username,userInstance,authUser,options = {
+  withPosts: false
+}) {
+  // first try local
+  let user = await getUserLocal({username,instance:userInstance},options)
+  // if not local then fetch
+  if (!user) {
+    user = await getUserRemote(username,userInstance,authUser,options)
+    // if they wanted posts we must remote-fetch those separately now
+    if (options.withPosts) {
+      // we make use of the fact that we just fetched the remote user so we have their id
+      user.tweets = await getPostsRemote(user,authUser)
+    }
+  }
+  // FIXME: there is probably some difference between the local and remote formats?
+  return user
+}
+
+export const getPostsRemote = async (remoteUser,authUser) => {
+  console.log("getPostsRemote")
+  // getting posts unfortunately requires knowing the user's internal ID
+  let postsUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/${remoteUser.id}/statuses`)
+  let postData = await fetch(postsUrl, {
+    method: "GET"
+    // TODO: might want to get private tweets with token if authed
+  })
+  let posts = await postData.json()
+  if(!posts) {
+    console.log(`getPostsRemote did not find any posts`)
+    return false
+  }
+  if(posts.error) {
+    throw new Error(`getRemotePosts hit error fetching posts for ${remoteUser.id}`)
+  }
+  // successfully fetched! Store them
+  await storePosts(posts)
+  // format them nicely
+  if (posts) posts = formatPostUsers(posts)
+  // and put them in the cache as we do on anything remote
+  return posts
+}
+
+export async function getUserRemote(username, userInstance, authUser) {
+  console.log("getUserRemote")
+  // we must use webfinger because they probably aren't in our cache
+  userUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/lookup`)
+  userUrl.searchParams.append("acct",`${username}@${userInstance}`)
+  userUrl.searchParams.append("skip_webfinger",false)
+  let userData = await fetch(userUrl, {
+    method: "GET"
+  })
+  user = await userData.json()
+  if(!user) {
+    console.log(`getUserRemote did not find ${username}@${userInstance}`)
+    return false
+  }
+  if(user.error) {
+    throw new Error(`getUserRemote hit error fetching ${username}@${userInstance}`)
+  }
+  user.instance = userInstance
+  // fetched, so store, as with all remote calls
+  await createUser(user)
   return user
 }
 
@@ -321,6 +404,151 @@ export const search = async (query, user, options = { token: null }) => {
   return searchResults
 }
 
+export const getNotificationsLocal = async (user,instanceName) => {
+  console.log("GetNotificationsLocal")
+  let query = {
+    where: {
+      viewerName: user.username,
+      AND: {
+        viewerInstance: user.instance
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  }
+
+  let notificationsRaw = await prisma.notification.findMany(query)
+
+  // turn them back into the mastodon format
+  let notifications = notificationsRaw.map(n => {
+    return n.json
+  })
+
+  return notifications
+}
+
+export const getNotificationsRemote = async (user, minId = null) => {
+  console.log("fetchNotificationsRemote")
+  let notificationsUrl = new URL(getInstanceUrl(user.instance) + `/api/v1/notifications`)
+  notificationsUrl.searchParams.set('limit', 200)
+  let notificationsData = await fetch(notificationsUrl.toString(), {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${user.accessToken}`
+    }
+  })
+  // FIXME: everyone should be doing this probably
+  if (notificationsData.status != "200") forceAuthRefresh()
+  let notifications = await notificationsData.json()
+  if (notifications.error) forceAuthRefresh()
+  // format the notifications
+  notifications = notifications.map( (n) => {
+    n.account.instance = getInstanceFromAccount(n.account)
+    return n
+  })
+  let storedNotifications = await storeNotifications(notifications, user)
+  return notifications
+}
+
+const forceAuthRefresh = () => {
+  throw redirect('/auth/mastodon')
+}
+
+export const storeNotifications = async (notifications, user) => {
+  console.log("storeNotifications")
+  // store all the notifications in one big transaction
+  let batchInsert = []
+  for (let i = 0; i < notifications.length; i++) {
+    let n = notifications[i]
+    batchInsert.push({
+      createdAt: n.created_at,
+      type: n.type,
+      json: n,
+      hash: createNotificationHash(n),
+      viewerName: user.username,
+      viewerInstance: user.instance
+    })
+  }
+
+  const storedNotifications = await prisma.notification.createMany({
+    data: batchInsert,
+    skipDuplicates: true
+  })
+
+  return storedNotifications
+}
+
+const createNotificationHash = (n) => {
+  // FIXME: when we figure out in-browser crypto we should do some
+  // until then...
+  let hashMessage = n.account.username + ":" +
+        n.account.instance + ":" +
+        n.type + ":" +
+        n.created_at
+  return hashMessage
+}
+
+export const isFollowing = async (username, userInstance,authUser) => {
+  console.log(`isFollowing looking for ${username}@${userInstance}`)
+  // we need their internal id; local doesn't have this
+  // that's because the same user can have infinity internal IDs
+  // depending which server you're logged into when you look them up
+  // bummer!
+  let user = await getUserRemote(username,userInstance,authUser)
+  let followingRequestUrl = new URL(getInstanceUrl(authUser.instance) + "/api/v1/accounts/relationships")
+  followingRequestUrl.searchParams.set('id', user.id)
+  let followingData = await fetch(followingRequestUrl.toString(), {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${authUser.accessToken}`
+    }
+  })
+  let following = await followingData.json()
+  // unlike most remotes, we don't store the user graph so we don't store this.
+  if (following[0]) return following[0]
+  else return {
+    following:false
+  }
+}
+
+export const followUser = async (username, userInstance, authUser) => {
+  console.log("FollowUser")
+  // we need their local instance ID for this
+  let user = await getUserRemote(username,userInstance,authUser)
+
+  let followRequestUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/${user.id}/follow`)
+
+  let followData = await fetch(followRequestUrl.toString(), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${authUser.accessToken}`
+    }
+  })
+  let follow = await followData.json()
+  return follow
+}
+
+export const unfollowUser = async (username, userInstance, authUser) => {
+  console.log("UnfollowUser")
+  // we need their local instance ID for this
+  let user = await getUserRemote(username,userInstance,authUser)
+
+  let unfollowRequestUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/${user.id}/unfollow`)
+
+  let unfollowData = await fetch(unfollowRequestUrl.toString(), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${authUser.accessToken}`
+    }
+  })
+  let unfollow = await unfollowData.json()
+  return unfollow
+}
+
+
+
+
 
 
 
@@ -345,249 +573,6 @@ export const search = async (query, user, options = { token: null }) => {
 
 /////////////////////// refactor boundary ////////////////////////
 
-export async function getUserByUsername(username, instanceName, options = {
-  withTweets: false
-}) {
-  console.log("getUserByUsername")
-  let instance = await getOrCreateInstanceByName(instanceName)
-
-  // see if they're in the database
-  let conditions = {
-    where: {
-      username_instanceId: {
-        username,
-        instanceId: instance.id
-      },
-    }
-  }
-  if (options.withTweets) {
-    conditions.include = {
-      tweets: {
-        orderBy: {
-          createdAt: "desc"
-        }
-      }
-    }
-  }
-  let user
-  try {
-    user = await prisma.user.findUnique(conditions)
-    if (user) user = formatUserTweets(user)
-    console.log("Getuserbyusername found " + username)
-    return user
-  } catch (e) {
-    console.error("getUserByUsername threw error while fetching " + username)
-    return user
-  }
-}
-
-export async function getOrFetchUserByUsername(username, theirInstanceName, ourInstanceName, options = {
-  withTweets: false,
-  token: null
-}) {
-  console.log("getOrFetchUserByUsername")
-  // first look in the database
-  let user = await getUserByUsername(username, theirInstanceName, { withTweets: options.withTweets })
-  // if we don't have them (unlikely) or we've never looked them up on our local instance (likely)
-  // then we fetch them from the API and update their local id
-  if (!user || !user.internalId) {
-    // we must use webfinger because they probably aren't in our cache
-    let instance = await getOrCreateInstanceByName(ourInstanceName)
-    let userData = await fetch(instance.url + `/api/v1/accounts/lookup?acct=${username + "@" + theirInstanceName + "&skip_webfinger=false"}`, {
-      method: "GET"
-    })
-    // get user data
-    user = await userData.json()
-    //console.log("GoFuBu user",user)
-    // FIXME: ugly hack to match format of db
-    user.json = JSON.parse(JSON.stringify(user))
-    user.instance = theirInstanceName
-    user.internalId = user.id
-    // store user data
-    await getOrCreateUserFromData(user)
-  }
-  // they might have never tweeted, we might never have fetched their tweets, let's do it either way
-  if (!user.tweets || (user.tweets && user.tweets.length == 0)) {
-    // get + store (public) user tweets
-    // TODO: if we've got a token and are the user we should fetch private tweets too
-    user.tweets = await getOrFetchTweetsByUserId(user.id, theirInstanceName)
-  }
-  return user
-}
-
-const instanceCache = {}
-
-// FIXME: we can be sure in any given call that this doesn't change
-// so we can set a global var and not hit the db every time
-export async function getOrCreateInstanceByName(instanceName) {
-  //console.log("getOrCreateInstanceByName")
-  // first look in the cache
-  if (instanceCache[instanceName]) return instanceCache[instanceName]
-  // then look in the db
-  let instance = await prisma.instance.findUnique({
-    where: {
-      name: instanceName
-    }
-  })
-  // if not in the db then put it there
-  if(!instance) {
-    instance = await prisma.instance.create({
-      data: {
-        name: instanceName,
-        url: "https://" + instanceName
-      }
-    })
-  }
-  // either way store it in the cache for next time
-  instanceCache[instanceName] = instance
-  return instance
-}
-
-export const getTimelineEntriesByUserId = async (userId, instanceName, options) => {
-  console.log("getTimelineEntriesByUserId")
-  let instance = await getOrCreateInstanceByName(instanceName)
-  let query = {
-    where: {
-      viewerId: userId,
-      AND: {
-        instanceId: instance.id
-      }
-    },
-    orderBy: {
-      seenAt: "desc"
-    }
-  }
-
-  let tweets = await prisma.timelineEntry.findMany(query)
-  return tweets
-}
-
-export const getTweetsByUserId = async (userId, theirInstanceName) => {
-  console.log("getTweetsByUserId")
-  let instance = await getOrCreateInstanceByName(theirInstanceName)
-  let query = {
-    where: {
-      authorId: userId,
-      AND: {
-        instanceId: instance.id
-      }
-    },
-    orderBy: {
-      createdAt: "desc"
-    }
-  }
-  let tweetData = await prisma.tweet.findMany(query)
-  // hydrate them
-  let tweets = tweetData.map( t => {
-    return t.json
-  })
-  return tweets
-}
-
-export const getOrFetchTweetsByUserId = async (userId, instanceName, options) => {
-  console.log(`getOrFetchTweetsByUserId looking for tweets by user ${userId}@${instanceName}`)
-  // try to get them locally first
-  let tweets = await getTweetsByUserId(userId, instanceName)
-  // if we get no tweets, we try to fetch them, but technically there might not be any
-  if (tweets.length == 0) {
-    console.log("Didn't find any tweets, so fetching")
-    tweets = await fetchTweetsByUserId(userId, instanceName, options)
-  }
-  if (tweets) tweets = formatTweetUsers(tweets)
-  return tweets
-}
-
-export const fetchTweetsByUserId = async (userId, instanceName, options) => {
-  console.log("FetchTweetsByUserId")
-  let instance = await getOrCreateInstanceByName(instanceName)
-  let tweetData = await fetch(instance.url + `/api/v1/accounts/${userId}/statuses`, {
-    method: "GET"
-    // TODO: might want to get private tweets with token if authed
-  })
-  let tweets = await tweetData.json()
-  if (tweets) tweets = formatTweetUsers(tweets)
-  // now store them for later
-  await storeTweets(tweets,instance)
-  return tweets
-}
-
-export const isFollowing = async (user, followingId, instanceName) => {
-  console.log("isFollowing")
-  let instance = await getOrCreateInstanceByName(user.instance)
-  console.log("isFollowing looking for ",followingId)
-  let followingRequestUrl = new URL(instance.url + "/api/v1/accounts/relationships")
-  followingRequestUrl.searchParams.set('id', followingId)
-  console.log("Following request URL",followingRequestUrl.toString(),"token",user.accessToken)
-  let followingData = await fetch(followingRequestUrl.toString(), {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${user.accessToken}`
-    }
-  })
-  let following = await followingData.json()
-  //console.log("isFollowing data was",following)
-  if (following[0]) return following[0]
-  else return {following:false}
-}
-
-const getOrCreateTweet = async (tweetData,instanceId) => {
-  console.log("getOrCreateTweet")
-  // see if it's in the database
-  let tweet = await prisma.tweet.findUnique({
-    where: {
-      id_instanceId: {
-        id: tweetData.id,
-        instanceId
-      }
-    }
-  })
-  // if so return, otherwise insert them first
-  if (!tweet) {
-    tweet = await prisma.tweet.upsert({
-      where: {
-        id_instanceId: {
-          id: tweetData.id,
-          instanceId
-        }
-      },
-      update: {
-        permalink: tweetData.url ? tweetData.url : tweetData.uri,
-        text: tweetData.content,
-        createdAt: tweetData.created_at,
-        authorId: tweetData.account.id,
-        json: tweetData
-      },
-      create: {
-        id: tweetData.id,
-        instanceId,
-        permalink: tweetData.url ? tweetData.url : tweetData.uri,
-        text: tweetData.content,
-        createdAt: tweetData.created_at,
-        authorId: tweetData.account.id,
-        json: tweetData
-      }
-    })
-  } else {
-    console.log(`Tweet ${tweetData.id} exists already, fast path.`)
-  }
-  return tweet
-}
-
-export const followUserById = async (followId, instanceName, userToken) => {
-  console.log("FollowUserById")
-  let instance = await getOrCreateInstanceByName(instanceName)
-
-  let followRequestUrl = new URL(instance.url + `/api/v1/accounts/${followId}/follow`)
-  let followData = await fetch(followRequestUrl.toString(), {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${userToken}`
-    }
-  })
-  let follow = await followData.json()
-  return follow
-}
-
 export const unfollowUserById = async (followId, instanceName, userToken) => {
   console.log("UnfollowUserById")
   let instance = await getOrCreateInstanceByName(instanceName)
@@ -601,86 +586,6 @@ export const unfollowUserById = async (followId, instanceName, userToken) => {
   })
   let follow = await followData.json()
   return follow
-}
-
-export const storeNotifications = async (notifications, forWhom, instanceName) => {
-  console.log("storeNotifications")
-  // store all the notifications in one big transaction
-  let batchInsert = []
-  for (let i = 0; i < notifications.length; i++) {
-    let n = notifications[i]
-    let instance = await getOrCreateInstanceByName(instanceName)
-    batchInsert.push({
-      id: n.id,
-      instanceId: instance.id,
-      createdAt: n.created_at,
-      type: n.type,
-      json: n,
-      userId: forWhom
-    })
-  }
-
-  const storedNotifications = await prisma.notification.createMany({
-    data: batchInsert,
-    skipDuplicates: true
-  })
-
-  return storedNotifications
-}
-
-const forceAuthRefresh = () => {
-  throw redirect('/auth/mastodon')
-}
-
-export const fetchAndStoreNotifications = async (user, instanceId, minId = null) => {
-  console.log("FetchAndStoreNotifications")
-  let instance = await getOrCreateInstanceByName(user.instance)
-  let notificationsUrl = new URL(instance.url + `/api/v1/notifications`)
-  notificationsUrl.searchParams.set('limit', 200)
-  let notificationsData = await fetch(notificationsUrl.toString(), {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${user.accessToken}`
-    }
-  })
-  if (notificationsData.status != "200") forceAuthRefresh()
-  let notifications = await notificationsData.json()
-  await storeNotifications(notifications, user.id, user.instance)
-  return notifications
-}
-
-export const getNotificationsByUserId = async (userId,instanceName) => {
-  console.log("GetNotificationsByUserId")
-  let instance = await getOrCreateInstanceByName(instanceName)
-  let query = {
-    where: {
-      instanceId: instance.id,
-      AND: {
-        userId
-      }
-    },
-    orderBy: {
-      createdAt: "desc"
-    }
-  }
-
-  let notificationsRaw = await prisma.notification.findMany(query)
-
-  // turn them back into the mastodon format
-  let notifications = notificationsRaw.map(n => {
-    return n.json
-  })
-
-  return notifications
-}
-
-export const getOrFetchNotifications = async (user) => {
-  console.log("getOrFetchNotifications")
-  let notifications = await getNotificationsByUserId(user.id,user.instance)
-  if (!notifications) {
-    notifications = fetchAndStoreNotifications(user)
-  }
-  return notifications
 }
 
 export const createPost = async (user, data = {text:null}) => {
