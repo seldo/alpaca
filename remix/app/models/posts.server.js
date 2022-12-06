@@ -150,7 +150,7 @@ export async function getUserRemote(username, userInstance, authUser) {
   let userData = await fetch(userUrl, {
     method: "GET"
   })
-  user = await userData.json()
+  let user = await userData.json()
   if(!user) {
     console.log(`getUserRemote did not find ${username}@${userInstance}`)
     return false
