@@ -144,7 +144,7 @@ export const getPostsRemote = async (remoteUser,authUser) => {
 export async function getUserRemote(username, userInstance, authUser) {
   console.log("getUserRemote")
   // we must use webfinger because they probably aren't in our cache
-  userUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/lookup`)
+  let userUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/lookup`)
   userUrl.searchParams.append("acct",`${username}@${userInstance}`)
   userUrl.searchParams.append("skip_webfinger",false)
   let userData = await fetch(userUrl, {
