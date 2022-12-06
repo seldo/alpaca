@@ -1,6 +1,6 @@
-import {Outlet} from "@remix-run/react";
+import { Outlet } from "@remix-run/react";
 import { useLoaderData } from "@remix-run/react";
-import { authenticator, authenticateAndRefresh } from "~/services/auth.server";
+import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import Globalnav from "~/shared/components/globalnav"
 

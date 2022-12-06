@@ -2,6 +2,68 @@ import { prisma } from "~/db.server";
 import { getInstanceFromAccount } from "~/shared/components/tweet";
 import { redirect } from "@remix-run/node";
 
+// FIXME: it's sort of debatable that we need this except as a cache for later?
+// we already have all the data from the verification call
+export async function getOrCreateUserFromData(userData, options = {
+  withTweets: false
+}) {
+  console.log("getOrCreateUserFromData")
+  // first try fetching them from the database
+  let user = await getOrCreateUserLocal(userData, { withTweets: options.withTweets })
+  // if we don't find them we store them
+  if (!user) {
+    console.log(`User ${userData.username}@${userData.instance} not found`)
+    user = await prisma.user.create({
+      data: {
+        username: userData.username,
+        userInstance: userData.instance,
+        display_name: userData.display_name,
+        json: userData
+      }
+    })
+  }
+  // since we want to return user.json and we already had it, just return userData
+  return userData
+}
+
+export async function getOrCreateUserLocal(user, options = {
+  withTweets: false
+}) {
+  console.log("getUserLocal")
+
+  // see if they're in the database
+  let conditions = {
+    where: {
+      username_userInstance: {
+        username: user.username,
+        userInstance: user.instance
+      }
+    }
+  }
+  if (options.withTweets) {
+    conditions.include = {
+      tweets: {
+        orderBy: {
+          createdAt: "desc"
+        }
+      }
+    }
+  }
+  let userData = await prisma.user.findUnique(conditions)
+  if (!userData) {
+    console.log("getUserLocal: user not found")
+    return false
+  }
+  if (userData.error) {
+    console.error("getUserLocal: error fetching using",user)
+    return false
+  }
+  userData = formatUserTweets(user)
+  console.log("getUserLocal: found user " + user.username)
+  return userData
+}
+
+
 export async function getUserByUsername(username, instanceName, options = {
   withTweets: false
 }) {
@@ -100,38 +162,6 @@ export async function getOrCreateInstanceByName(instanceName) {
   return instance
 }
 
-export async function getUserById(userId, instanceName, options = {
-  withTweets: false
-}) {
-  console.log("getUserById")
-  let instance = await getOrCreateInstanceByName(instanceName)
-
-  // see if they're in the database
-  let conditions = {
-    where: {
-      instanceId_id: {
-        instanceId: instance.id,
-        id: userId
-      }
-    }
-  }
-  if (options.withTweets) {
-    conditions.include = {
-      tweets: {
-        orderBy: {
-          createdAt: "desc"
-        }
-      }
-    }
-  }
-  let user = await prisma.user.findUnique(conditions)
-  if (!user) return false
-  if(user.error) return false
-  if (user) user = formatUserTweets(user)
-  console.log("Found user " + user.username)
-  return user
-}
-
 /**
  * Transform a user object's tweets into mastodon's richer format
  * @param {} user 
@@ -161,48 +191,6 @@ function formatTweetUsers(tweets) {
   } else {
     return tweets
   }
-}
-
-export async function getOrCreateUserFromData(userData, options = {
-  withTweets: false
-}) {
-  console.log("getOrCreateUserFromData")
-  // first try fetching them from the database
-  let user = await getUserById(userData.username, userData.instance, { withTweets: options.withTweets })
-  // if we don't find them we put them into our db
-  if (!user) {
-    console.log("User not found, id",userData.username,"instance ",userData.instance)
-    let theirInstance = await getOrCreateInstanceByName(userData.instance)
-    user = await prisma.user.upsert({
-      where: {
-        instanceId_id: {
-          instanceId: theirInstance.id,
-          id: userData.username
-        }
-      },
-      update: {
-        username: userData.username, // FIXME
-        instanceId: theirInstance.id,
-        internalId: userData.internalId,
-        display_name: userData.display_name,
-        avatar: userData.avatar,
-        header: userData.header,
-        json: userData
-      },
-      create: {
-        id: userData.username, // FIXME
-        instanceId: theirInstance.id,
-        internalId: userData.internalId,
-        username: userData.username,
-        display_name: userData.display_name,
-        avatar: userData.avatar,
-        header: userData.header,
-        json: userData
-      }
-    })
-  }
-  // since we want to return user.json and we already had it, just return userData
-  return userData
 }
 
 export const getTimelineEntriesByUserId = async (userId, instanceName, options) => {
