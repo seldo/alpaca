@@ -6,6 +6,56 @@ import { redirect } from "@remix-run/node";
 
 export let authenticator
 
+// performs authenticate() after figuring out what instance to use
+export const authenticateAnyInstance = async (instanceName,request,options) => {
+  if (!authenticator) authenticator = await getOrCreateInstance(instanceName)
+  return await authenticator.authenticate(instanceName,request,options);
+}
+
+// performs logout() after figuring out what instance you're logged into
+export const logoutAnyInstance = async(request,options) => {
+  if (!authenticator) {
+    let session = await getSession(request.headers.get("Cookie"))
+    let instanceName = session.get("oauth2:state")  
+    authenticator = await getOrCreateInstance(instanceName)
+  }
+  await authenticator.logout(request, { redirectTo: "/" });
+}
+
+// confirms you are authenticated, refreshes your token if it expires
+export const authenticateAndRefresh = async (request,options = {
+    failureRedirect: "/auth/mastodon?aar",
+    throwOnError: true
+  }) => {
+  console.log("authenticateAndRefresh")
+  if(!authenticator) {
+    let session = await getSession(request.headers.get("Cookie"))
+    let instanceName = session.get("oauth2:state")
+    if(!instanceName) {
+      console.log("AAR didn't find instance name")
+      if (options.throwOnError) throw redirect(options.failureRedirect)
+      else return null
+    }
+    authenticator = await getOrCreateInstance(instanceName)
+    console.log("instantiated authenticator for instance",instanceName)
+  }
+  console.log("authenticator exists")
+  try {
+    let authUser = await authenticator.isAuthenticated(request, options)
+    if(!authUser || authUser.error) {
+      if(options.throwOnError) throw redirect(options.failureRedirect)
+      else return null
+    } else {
+      console.log("auth.server says:",authUser.username,'@',authUser.instance)
+      return authUser
+    }
+  } catch (e) {
+    console.log("authenticateandrefresh did not find valid user")
+    throw e
+  }
+}
+
+
 const getOrCreateInstance = async (instanceName) => {
   console.log("getOrCreateInstance called with instance",instanceName)
   authenticator = new Authenticator(sessionStorage,{
@@ -88,47 +138,3 @@ const getOrCreateInstance = async (instanceName) => {
   return authenticator
 }
 
-export const authenticateAnyInstance = async (instanceName,request,options) => {
-
-  // get or create an application against this instance
-  let authenticator = await getOrCreateInstance(instanceName)
-  return await authenticator.authenticate(instanceName,request,options);
-
-}
-
-export const logoutAnyInstance = async(request,options) => {
-  let session = await getSession(request.headers.get("Cookie"))
-  let instanceName = session.get("oauth2:state")
-  let authenticator = await getOrCreateInstance(instanceName)
-  await authenticator.logout(request, { redirectTo: "/" });
-}
-
-// TODO: load instance name from session here?
-export const authenticateAndRefresh = async (request,options = {
-    failureRedirect: "/auth/mastodon?aar",
-    throwOnError: true
-  }) => {
-  console.log("authenticateAndRefresh")
-  let session = await getSession(request.headers.get("Cookie"))
-  let instanceName = session.get("oauth2:state")
-  if(!instanceName) {
-    console.log("AAR didn't find instance name")
-    if (options.throwOnError) throw redirect(options.failureRedirect)
-    else return null
-  }
-  let authenticator = await getOrCreateInstance(instanceName)
-  //console.log("instantiated authenticator for instance",instanceName)
-  try {
-    let authUser = await authenticator.isAuthenticated(request, options)
-    if(!authUser || authUser.error) {
-      if(options.throwOnError) throw redirect(options.failureRedirect)
-      else return null
-    } else {
-      console.log("auth.server says:",authUser.username,'@',authUser.instance)
-      return authUser
-    }
-  } catch (e) {
-    console.log("authenticateandrefresh did not find valid user")
-    throw e
-  }
-}

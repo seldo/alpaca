@@ -3,7 +3,7 @@ import { authenticateAndRefresh } from "~/services/auth.server";
 
 export let loader = async ({request}) => {
 
-  let user = await authenticateAndRefresh(request)
+  let user = await authenticateAndRefresh(request,{throwOnError:false})
   if( user ) {
     console.log("Login says: authenticated!")
     console.log(user)

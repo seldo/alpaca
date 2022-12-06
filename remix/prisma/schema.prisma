@@ -15,72 +15,76 @@ model Instance {
   clientKey       String?
   clientSecret    String?
   users           User[]
-  tweets          Tweet[]
-  timelineEntries TimelineEntry[]
+  posts           Post[]
   notifications   Notification[]
+  timelineEntries TimelineEntry[]
 
   @@unique([name])
   @@index([name], map: "names")
 }
 
 model User {
-  instance      Instance        @relation(fields: [instanceId], references: [id])
-  instanceId    String          @db.Uuid // our internal instance ID
-  id            String          // this is their ID on their home instance, this+instanceID unique
-  internalId    String?         // this is their ID in our logged-in instance, unique by itself
-  username      String
-  display_name  String?
-  avatar        String?
-  header        String?
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // internal only
+  username      String // external
+  userInstance  String // external
+  instance      Instance        @relation(fields: [userInstance], references: [name])
+  display_name  String? // just to aid review; real data is in JSON
   json          Json            @db.JsonB
-  tweets        Tweet[]
+  posts         Post[]
   timeline      TimelineEntry[]
   notifications Notification[]
 
-  @@id([instanceId, id])
-  @@unique([username, instanceId])
-  @@index([id], map: "user_ids")
-  @@index([username, instanceId], map: "usernames")
+  @@unique([username, userInstance])
+  @@index([username, userInstance], map: "external_accounts")
 }
 
-model Tweet {
-  id            String
-  permalink     String
-  text          String
-  createdAt     DateTime
-  author        User            @relation(fields: [authorId, instanceId], references: [id, instanceId])
-  authorId      String // same id as User table so mastodon ID, needs instance to be unique
-  instance      Instance        @relation(fields: [instanceId], references: [id])
-  instanceId    String          @db.Uuid // internal instance ID from Instance table
-  json          Json            @db.JsonB
-  timelineEntry TimelineEntry[]
+model Post {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // internal only
+  permalink      String // the data doesn't have this one
+  text           String // just to aid review
+  hash           String // derived from text, avoids dupes, makes for unique ID
+  createdAt      DateTime // allows for sorting
+  json           Json            @db.JsonB // most data in here
+  author         User            @relation(fields: [authorName, authorInstance], references: [username, userInstance])
+  authorName     String
+  authorInstance String
+  instance       Instance        @relation(fields: [authorInstance], references: [name])
+  timelineEntry  TimelineEntry[]
 
-  @@id([id, instanceId])
+  @@unique([authorName, authorInstance, hash])
+  @@index([authorName, authorInstance], map: "posts_by_author")
+  @@index([authorName, authorInstance, hash], map: "post_by_author")
 }
 
 model TimelineEntry {
-  id              String // mastodon ID, needs instance to be unique
-  instance        Instance @relation(fields: [instanceId], references: [id])
-  instanceId      String   @db.Uuid // this is the instance of the view
-  seenAt          DateTime @default(now())
-  viewer          User     @relation(fields: [viewerId, instanceId], references: [id, instanceId])
-  viewerId        String
-  tweet           Tweet    @relation(fields: [tweetId, tweetInstanceId], references: [id, instanceId])
-  tweetId         String
-  tweetInstanceId String   @db.Uuid
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // internal only
+  seenAt         DateTime @default(now())
+  post           Post     @relation(fields: [authorName, authorInstance, postHash], references: [authorName, authorInstance, hash])
+  authorName     String
+  authorInstance String
+  postHash       String
+  viewer         User     @relation(fields: [viewerName, viewerInstance], references: [username, userInstance])
+  instance       Instance @relation(fields: [viewerInstance], references: [name])
+  viewerName     String
+  viewerInstance String
 
-  @@id([id, instanceId])
+  @@unique([viewerName, viewerInstance, authorName, authorInstance, seenAt])
+  @@index([viewerName, viewerInstance], map: "entries_for_viewer")
+  @@index([viewerName, viewerInstance, seenAt], map: "entries_for_viewer_by_time")
 }
 
 model Notification {
-  id             String // mastodon ID, needs instance to be unique
-  instance       Instance @relation(fields: [instanceId], references: [id]) // this is the instance of the event
-  instanceId     String   @db.Uuid
-  createdAt      DateTime
-  type           String
-  json           Json     @db.JsonB
-  user           User     @relation(fields: [userId, instanceId], references: [id, instanceId])
-  userId         String
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // internal only
+  createdAt      DateTime // when were they notified
+  type           String // what kind of notification
+  json           Json     @db.JsonB // the notification itself
+  hash           String // used to prevent dupes, hashes notification data
+  viewer         User     @relation(fields: [viewerName, viewerInstance], references: [username, userInstance])
+  viewerName     String // who was notified
+  viewerInstance String // who was notified
+  instance       Instance @relation(fields: [viewerInstance], references: [name])
 
-  @@id([id, instanceId])
+  @@unique([viewerName, viewerInstance, hash])
+  @@index([viewerName, viewerInstance], map: "notifications_for_viewer")
+  @@index([viewerName, viewerInstance, createdAt], map: "notifications_for_viewer_by_time")
 }
