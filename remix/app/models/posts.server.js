@@ -21,8 +21,9 @@ export const getOrCreateUserFromData = async (userData, options = {
 }
 
 export const createUser = async (userData) => {
+  let user
   try {
-    let user = await prisma.user.create({
+    user = await prisma.user.create({
       data: {
         username: userData.username,
         userInstance: userData.instance,
