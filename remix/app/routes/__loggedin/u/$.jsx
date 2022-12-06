@@ -7,7 +7,7 @@ import {
 import { Link } from "react-router-dom";
 import { authenticator, authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Tweet } from "~/shared/components/tweet"
+import { Post } from "~/shared/components/post"
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 

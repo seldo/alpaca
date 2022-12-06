@@ -15,8 +15,7 @@ export const loader = async ({request, params}) => {
     let authUser = await authenticateAndRefresh(request)
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
-    let results = await mastodon.search(q,{
-        instanceName: authUser.instance,
+    let results = await mastodon.search(q,authUser,{
         token: authUser.accessToken
     })
     console.log("masto search returned",results)
@@ -28,14 +27,6 @@ export const meta = ({data}) => {
         title: `Search | Alpaca Blue: a Mastodon client`,
     }
 }
-
-// FIXME: *3* copies of this?
-function getInstanceFromData(userData) {
-    let acctInstance = userData.acct.split('@')[1]
-    if (acctInstance) return acctInstance
-    let urlInstance = userData.url.split('//')[1].split('/')[0]
-    return urlInstance
-  }
 
 export default function Index() {
     let {q,results} = useLoaderData()
@@ -64,14 +55,14 @@ export default function Index() {
                                         <div className="words nextToAvatar grow">
                                             <div className="name">
                                                 <span className="displayName">{r.display_name}</span>
-                                                <span className="username">{r.username}@{getInstanceFromData(r)}</span>
+                                                <span className="username">{r.username}@{r.instance}</span>
                                             </div>
                                             <div 
                                                 className="note" 
                                                 dangerouslySetInnerHTML={{__html: r.note}} 
                                             />
                                         </div>
-                                        <FollowButton username={r.username} instance={getInstanceFromData(r)} following={r.following} />
+                                        <FollowButton username={r.username} instance={r.instance} following={r.following} />
                                     </div>
                                 </li>
                             })

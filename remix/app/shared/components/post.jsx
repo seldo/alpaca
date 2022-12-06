@@ -3,6 +3,9 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
 import { Form } from "@remix-run/react";
+// import { Crypto } from "@peculiar/webcrypto";
+
+// const crypto = new Crypto();
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -79,13 +82,27 @@ export const getInstanceFromAccount = (account) => {
     return urlInstance
 }
 
+export const createPostHash = async (post) => {
+    const encoder = new TextEncoder();
+    let hashMessage = post.account.username + ":" +
+        post.account.instance + ":" +
+        ((post.reblog && post.reblog.content) ? post.reblog.content : '') + ":" +
+        post.content    
+    // //console.log("Hash message",hashMessage)
+    // const data = encoder.encode(hashMessage);
+    // const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    // const hashArray = Array.from(new Uint8Array(hashBuffer));
+    // const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    return hashMessage // FIXME: the above wasn't working in Chrome
+}
+
 export const LinkToAccount = (account, content) => {
     account.instance = getInstanceFromAccount(account)
     let profileLink = `/u/${account.username}@${account.instance}`
     return <Link to={profileLink}>{(account.display_name || "@" + account.username)}</Link>
 }
 
-const Tweet = (t, options = {
+const Post = (t, options = {
     avatar: true
 }) => {
     //console.log(t)
@@ -94,7 +111,7 @@ const Tweet = (t, options = {
             <div className="reblogNotice">
                 {LinkToAccount(t.account)} reblogged
             </div>
-            {Tweet(t.reblog)}
+            {Post(t.reblog)}
         </div>
     } else {
         //console.log(t)
@@ -131,5 +148,5 @@ const Tweet = (t, options = {
     }
 }
 
-export { Tweet }
-export default Tweet
+export { Post }
+export default Post

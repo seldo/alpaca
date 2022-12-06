@@ -2,69 +2,74 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Tweet } from "~/shared/components/tweet"
+import { Post } from "~/shared/components/post"
 import { ComposeBox } from "~/shared/components/compose"
 
+// time in seconds between refreshes
+const INITIAL_LOAD_DELAY = 5
+const ONGOING_LOAD_PERIOD = 10
+
 export const loader = async ({request, data}) => {
-  // FIXME: it is gross, GROSS that I have to re-load the user here
-  // see https://github.com/remix-run/react-router/issues/9188#issuecomment-1248180434
   let authUser = await authenticateAndRefresh(request,{
     failureRedirect: "/",
     throwOnError: true
   })
-  console.log("/home loader got authuser",authUser.username,"@",authUser.instance)
+  console.log(`/home got ${authUser.username}@${authUser.instance}`)
   let user = await mastodon.getOrCreateUserFromData(authUser)
-  let timeline = await mastodon.getTimeline(user,{ hydrate: true })
-  return { user, timeline }
+  let localPosts = await mastodon.getTimelineLocal(user,{ hydrate: true })
+  return { user, localPosts }
 }
 
 export default function Index() {
   const loaderData = useLoaderData();
-  const {user, timeline } = loaderData
+  const {user, localPosts } = loaderData
 
-  const [newTweets,setTweets] = useState(timeline);
-  useEffect(() => setTweets(newTweets), [newTweets]);
+  const [allPosts,setPosts] = useState(localPosts);
+  useEffect(() => setPosts(allPosts), [allPosts]);
   const fetcher = useFetcher();
 
-  const [refreshInterval,setRefresh] = useState(5)
+  const [refreshInterval,setRefresh] = useState(INITIAL_LOAD_DELAY)
 
-  // Get fresh data after 5 seconds and then every 20 seconds thereafter
+  // Get fresh data after x seconds and then every y seconds thereafter
   useEffect(() => {
     const interval = setInterval(() => {
-      if(refreshInterval == 5) {
-        setRefresh(20)
+      if(refreshInterval == INITIAL_LOAD_DELAY) {
+        setRefresh(ONGOING_LOAD_PERIOD)
       }
       if (document.visibilityState === "visible") {
         // FIXME: is index 0 really the max ID of the current set, so the min of the fetch?
-        let minId = newTweets[0] ? newTweets[0].id : null
+        let minId = allPosts[0] ? allPosts[0].id : null
         fetcher.load("/timeline?minId="+minId);
       }
     }, refreshInterval * 1000);
     return () => clearInterval(interval);
-    // FIXME: making this dependent on fetcher.data means it checks every 1 second until it gets some data, which is a thundering herd waiting to happen
+    // FIXME: because this depends on fetcher.data, initial load is true until we get our first data
   }, [fetcher.data]);
 
-  // When the fetcher comes back with new data,
-  // update our `data` state.
+  let makePostId = (post) => {
+    return `${post.authorName}:${post.authorInstance}:${post.hash}`
+  }
+
+  // When the fetcher comes back with new data, update state
   useEffect(() => {
     if (fetcher.data) {
       let incoming = JSON.parse(fetcher.data)
-      // dedupe and merge incoming tweets since this is not guaranteed
+      // dedupe and merge incoming posts since this is not guaranteed
       let seenIds = []
-      for(let i = 0; i < newTweets.length; i++) {
-        seenIds.push(newTweets[i].id)
+      for(let i = 0; i < allPosts.length; i++) {
+        seenIds.push(makePostId(allPosts[i]))
       }
       for(let i = 0; i < incoming.length; i++) {
-        let tweet = incoming[i]
-        if (!seenIds.includes(tweet.id)) {
-          newTweets.push(tweet)
+        let post = incoming[i]
+        if (!seenIds.includes(makePostId(post))) {
+          allPosts.push(post)
         }
       }
-      newTweets.sort( (a,b) => {
+      allPosts.sort( (a,b) => {
         if(b.created_at > a.created_at) return 1
         else return -1
       })
-      setTweets(newTweets)
+      setPosts(allPosts)
   }
   }, [fetcher.data]);
 
@@ -78,9 +83,9 @@ export default function Index() {
       </div>
       <ul>
         {
-          (newTweets.length > 0) ? newTweets.map( t=> {
-            return <li key={t.id}>{Tweet(t)}</li>
-          }) : <li key="noTweets">No tweets yet. Give it a sec.</li>
+          (allPosts.length > 0) ? allPosts.map( t=> {
+            return <li key={t.id}>{Post(t)}</li>
+          }) : <li key="noTweets">No posts yet. Give it a sec.</li>
         }
       </ul>
     </div>

@@ -1,12 +1,13 @@
 import { prisma } from "~/db.server";
-import { getInstanceFromAccount } from "~/shared/components/tweet";
+import { getInstanceFromAccount, createPostHash } from "~/shared/components/post";
 import { redirect } from "@remix-run/node";
+import { authenticator } from "~/services/auth.server"
 
 // FIXME: it's sort of debatable that we need this except as a cache for later?
 // we already have all the data from the verification call
-export async function getOrCreateUserFromData(userData, options = {
+export const getOrCreateUserFromData = async (userData, options = {
   withTweets: false
-}) {
+}) => {
   console.log("getOrCreateUserFromData")
   // first try fetching them from the database
   let user = await getOrCreateUserLocal(userData, { withTweets: options.withTweets })
@@ -19,16 +20,17 @@ export async function getOrCreateUserFromData(userData, options = {
         userInstance: userData.instance,
         display_name: userData.display_name,
         json: userData
-      }
+      },
+      skipDuplicates: true
     })
   }
   // since we want to return user.json and we already had it, just return userData
   return userData
 }
 
-export async function getOrCreateUserLocal(user, options = {
+export const getOrCreateUserLocal = async (user, options = {
   withTweets: false
-}) {
+}) => {
   console.log("getUserLocal")
 
   // see if they're in the database
@@ -58,11 +60,290 @@ export async function getOrCreateUserLocal(user, options = {
     console.error("getUserLocal: error fetching using",user)
     return false
   }
-  userData = formatUserTweets(user)
+  userData = formatUserPosts(user)
   console.log("getUserLocal: found user " + user.username)
   return userData
 }
 
+/**
+ * Transform a user object's posts into mastodon's richer format
+ * @param {} user 
+ * @returns 
+ */
+ function formatUserPosts(user) {
+  // only reformat if we haven't already done so
+  if (user.posts && user.posts.length > 0 && user.posts[0].json) {
+    let formattedPosts = user.posts.map((t) => {
+      return t.json
+    })
+    user.posts = formattedPosts
+  }
+  return user
+}
+
+/**
+ * Gets the most recent tweets in the user's timeline
+ * @param {} userData   User object must include username and instance
+ * @param {*} options 
+ *    hydrate   boolean Whether to hydrate the tweets 
+ * @returns array of tweet IDs (default) or full tweets (if hydrate=true)
+ */
+ export const getTimelineLocal = async (userData, options = {
+  hydrate: false
+}) => {
+  console.log("getTimelineLocal")
+
+  let query = {
+    where: {
+      viewerName: userData.username,
+      AND: {
+        viewerInstance: userData.instance
+      }
+    },
+    orderBy: {
+      seenAt: "desc"
+    }
+  }
+  if (options.hydrate) {
+    query.include = {
+      post: true
+    }
+  }
+
+  let timelineEntries = await prisma.timelineEntry.findMany(query)
+
+  // transform into full tweets
+  if (options.hydrate) {
+    let entries = timelineEntries.map((entry) => {
+      return entry.post.json
+    })
+    let timeline = formatPostUsers(entries)
+    return timeline
+  } else {
+    return timelineEntries
+  }
+
+}
+
+/**
+ * Transform mastodon's account object on each post to include an instance
+ * @param {} tweets 
+ */
+ function formatPostUsers(posts) {
+  if (posts && posts.length > 0) {
+    return posts.map((t) => {
+      t.account.instance = getInstanceFromAccount(t.account)
+      return t
+    })
+  } else {
+    return posts
+  }
+}
+
+/**
+ * Fetches a user's timeline from the remote Mastodon instance. 
+ * Stores the timeline entries in the timeline cache, and stores 
+ * any tweets and authors we haven't seen before into those caches.
+ * @param {}      userData  Must contain an .id and .accessToken property
+ * @param String  minId     Tweets before this ID will not be fetched
+ * @returns array of fully-hydrated tweets including RTs.
+ */
+ export async function getTimelineRemote(user, minId = null) {
+  console.log("getTimelineRemote")
+  let timelineData
+  try {
+    let timelineUrl = new URL(getInstanceUrl(user.instance) + `/api/v1/timelines/home`)
+    if(minId) {
+      timelineUrl.searchParams.append("min_id",minId)
+    }    
+    timelineData = await fetch(timelineUrl, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${user.accessToken}`
+      }
+    })
+    let timelineRaw = await timelineData.json()
+    // format it
+    let timeline = formatPostUsers(timelineRaw)
+    try {
+      // TODO: can we async this and just not wait?
+      await storeTimeline(user, timeline)
+    } catch (e) {
+      console.log("Error storing timeline", e)
+    }
+    return timeline
+  } catch (e) {
+    console.log("Error fetching timeline", e)
+    return []
+  }
+}
+
+// FIXME: be smarter than this
+const getInstanceUrl = (instanceName) => {
+  return "https://" + instanceName
+}
+
+const storeTimeline = async (viewer, timeline) => {
+  console.log(`storeTimeline`)
+  // store the posts themselves so we can satisfy db constraints
+  let storedPosts = await storePosts(timeline)
+
+  // now store these timeline entries
+  let batchData = []
+  for (let i = 0; i < timeline.length; i++) {
+    let entry = timeline[i]
+    batchData.push({
+      seenAt: entry.created_at,
+      authorName: entry.account.username,
+      authorInstance: entry.account.instance,
+      postHash: await createPostHash(entry),
+      viewerName: viewer.username,
+      viewerInstance: viewer.instance
+    })
+  }
+
+  let storedTimelineEntries = await prisma.timelineEntry.createMany({
+    data: batchData,
+    skipDuplicates: true
+  })
+
+  return storedTimelineEntries
+
+}
+
+const storePosts = async (posts) => {
+  console.log("storePosts")
+  let postsToStore = []  
+  let authorsToStore = []
+  for (let i = 0; i < posts.length; i++) {
+    let postData = posts[i]
+    // if there's a reblog in the post
+    // we store the reblog itself as a post
+    // and separately the post containing the reblog
+    // TODO: we can pull the reblog out of the data and hydrate it probably
+    // FIXME: .length is not quite right but it will do for now
+    if (postData.reblog && postData.reblog.length > 0) {
+      let reblog = postData.reblog
+      reblog.account.instance = getInstanceFromAccount(reblog.account)
+      authorsToStore.push(reblog.account)
+      reblog.hash = await createPostHash(reblog)
+      postsToStore.push(reblog)
+      postData.reblog = reblog.hash
+    }
+    postData.account.instance = getInstanceFromAccount(postData.account)
+    authorsToStore.push(postData.account)
+    postData.hash = await createPostHash(postData)
+    postsToStore.push(postData)
+  }
+  // have to store the authors
+  let storedUsers = storeUsers(authorsToStore)
+  // now we can store the posts
+  let batchData = postsToStore.map( (p) => {
+    return {
+      permalink: p.hash,
+      text: p.content,
+      hash: p.hash,
+      createdAt: p.created_at,
+      json: p,
+      authorName: p.account.username,
+      authorInstance: p.account.instance
+    }  
+  })
+  const storedPosts = await prisma.post.createMany({
+    data: batchData,
+    skipDuplicates: true
+  })
+  return storedPosts  
+}
+
+const storeUsers = async (users) => {
+  console.log("storeUsers")
+  // before we can store users we need to store their instances
+  let instances = []
+  for(let i = 0; i < users.length; i++) {
+    instances.push(users[i].instance)
+  }
+  let storedInstances = storeInstances(instances)
+  // now we can store the users
+  let batchData = users.map( (u) => {
+    return {
+      username: u.username,
+      userInstance: u.instance,
+      display_name: u.display_name,
+      json: u
+    }  
+  })
+  const storedUsers = await prisma.user.createMany({
+    data: batchData,
+    skipDuplicates: true
+  })
+  return storedUsers  
+}
+
+const storeInstances = async (instances) => {
+  let batchData = instances.map( (u) => {
+    return {
+      name: u,
+      url: "https://" + u // FIXME: be smarter
+    }  
+  })
+  const storedInstances = await prisma.instance.createMany({
+    data: batchData,
+    skipDuplicates: true
+  })
+  return storedInstances
+}
+
+export const search = async (query, user, options = { token: null }) => {
+  console.log("search")
+  if (query === null) return false // why does mastodon search for null anyway?
+  let searchUrl = new URL(getInstanceUrl(user.instance) + `/api/v2/search`)
+  searchUrl.searchParams.set('q', query)
+  searchUrl.searchParams.set('resolve', true)
+  let searchData = await fetch(searchUrl.toString(), {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${options.token}`
+    }
+  })
+  let searchResults = await searchData.json()
+  if (searchResults.error) return false
+  // format search results
+  if(searchResults.accounts && searchResults.accounts.length > 0) {
+    // accounts need instance names
+    searchResults.accounts = searchResults.accounts.map( (a) => {
+      a.instance = getInstanceFromAccount(a)
+      return a
+    })
+    // FIXME: following data is slow af so let's do it async on the client, later
+  }
+
+  return searchResults
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////// refactor boundary ////////////////////////
 
 export async function getUserByUsername(username, instanceName, options = {
   withTweets: false
@@ -160,37 +441,6 @@ export async function getOrCreateInstanceByName(instanceName) {
   // either way store it in the cache for next time
   instanceCache[instanceName] = instance
   return instance
-}
-
-/**
- * Transform a user object's tweets into mastodon's richer format
- * @param {} user 
- * @returns 
- */
-function formatUserTweets(user) {
-  // only reformat if we haven't already done so
-  if (user.tweets && user.tweets.length > 0 && user.tweets[0].json) {
-    let formattedTweets = user.tweets.map((t) => {
-      return t.json
-    })
-    user.tweets = formattedTweets
-  }
-  return user
-}
-
-/**
- * Transform mastodon's account object on each tweet to include an instance
- * @param {} tweets 
- */
-function formatTweetUsers(tweets) {
-  if (tweets && tweets.length > 0) {
-    return tweets.map((t) => {
-      t.account.instance = getInstanceFromAccount(t.account)
-      return t
-    })
-  } else {
-    return tweets
-  }
 }
 
 export const getTimelineEntriesByUserId = async (userId, instanceName, options) => {
@@ -323,146 +573,6 @@ const getOrCreateTweet = async (tweetData,instanceId) => {
   return tweet
 }
 
-// FIXME: increase efficiency with a createMany/ignoreDuplicates here
-const storeTweets = async (tweets,instance) => {
-  console.log("StoreTweets")
-  for (let i = 0; i < tweets.length; i++) {
-    let tweetData = tweets[i]
-    // reblogs are different
-    // we store the reblog itself
-    // and separately store the tweet they reblogged
-    if (tweetData.reblog && tweetData.reblog.length > 0) {
-      let rbAuthor = await getOrCreateUserFromData(tweetData.reblog.account,instance.name)
-      let rbInstance = await getOrCreateInstanceByName(getInstanceFromAccount(tweetData.reblog.account))
-      let rbTweet = await getOrCreateTweet(tweetData.reblog,rbInstance.id)
-      tweetData.reblog = rbTweet.id
-      // FIXME: we should add a reblogged field to the DB
-      // and then we can fetch the reblogged tweets natively at fetch time
-    }
-    // TODO: can this be done totally async?
-    let author = await getOrCreateUserFromData(tweetData.account,instance.name)
-    let authorInstance = await getOrCreateInstanceByName(getInstanceFromAccount(tweetData.account))
-    let tweet = await getOrCreateTweet(tweetData,authorInstance.id)
-  }
-  // FIXME: some sort of error catching...
-  // TODO: a return value would be nice
-  return
-}
-
-const storeTimeline = async (viewerId, instanceName, timeline) => {
-  console.log(`storeTimeline`)
-  // store the tweets themselves so we can satisfy db constraints
-  let instance = await getOrCreateInstanceByName(instanceName)
-  await storeTweets(timeline,instance)
-
-  // now store these timeline entries
-  let timelineBatch = []
-  for (let i = 0; i < timeline.length; i++) {
-    let tweet = timeline[i]
-    // oh my god this is horribly inefficient
-    // we have to find an instance ID for each tweet individually
-    let tweetInstance = await getOrCreateInstanceByName(getInstanceFromAccount(tweet.account))
-    timelineBatch.push({
-      id: viewerId + ":" + tweet.id,
-      instanceId: instance.id,
-      seenAt: tweet.created_at,
-      viewerId,
-      tweetId: tweet.id,
-      tweetInstanceId: tweetInstance.id
-    })
-  }
-
-  const storedTimelineEntries = await prisma.timelineEntry.createMany({
-    data: timelineBatch,
-    skipDuplicates: true
-  })
-
-  return
-
-}
-
-/**
- * Gets the most recent tweets in the user's timeline
- * @param {} userData   User object must include .id
- * @param {*} options 
- *    hydrate   boolean Whether to hydrate the tweets 
- * @returns array of tweet IDs (default) or full tweets (if hydrate=true)
- */
-export const getTimeline = async (userData, options = {
-  hydrate: false
-}) => {
-  console.log("getTimeline")
-  let instance = await getOrCreateInstanceByName(userData.instance)
-
-  let query = {
-    where: {
-      instanceId: instance.id,
-      AND: {
-        viewerId: userData.id
-      }
-    },
-    orderBy: {
-      seenAt: "desc"
-    }
-  }
-  if (options.hydrate) {
-    query.include = {
-      tweet: true
-    }
-  }
-
-  let timelineEntries = await prisma.timelineEntry.findMany(query)
-
-  if (options.hydrate) {
-    // transform into full tweets
-    let entries = timelineEntries.map((entry) => {
-      return entry.tweet.json
-    })
-    let timeline = formatTweetUsers(entries)
-    return timeline
-  } else {
-    return timelineEntries
-  }
-
-}
-
-/**
- * Fetches a user's timeline from the remote Mastodon instance. 
- * Stores the timeline entries in the timeline cache, and stores 
- * any tweets and authors we haven't seen before into those caches.
- * @param {}      userData  Must contain an .id and .accessToken property
- * @param String  minId     Tweets before this ID will not be fetched
- * @returns array of fully-hydrated tweets including RTs.
- */
-export async function fetchTimeline(userData, minId) {
-  console.log("FetchTimeline")
-  // FIXME: surely there is going to be a smarter way than passing the userData around
-  let token = userData.accessToken
-  let timelineData
-  try {
-    let instance = await getOrCreateInstanceByName(userData.instance)  
-    timelineData = await fetch(instance.url + `/api/v1/timelines/home${minId ? `?min_id=${minId}` : ""}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
-    let timelineRaw = await timelineData.json()
-    // format it
-    let timeline = formatTweetUsers(timelineRaw)
-    try {
-      // TODO: can we async this and just not wait?
-      await storeTimeline(userData.id, userData.instance, timeline)
-    } catch (e) {
-      console.log("Error storing timeline", e)
-    }
-    return timeline
-  } catch (e) {
-    console.log("Error fetching new tweets", e)
-    return []
-  }
-}
-
 export const followUserById = async (followId, instanceName, userToken) => {
   console.log("FollowUserById")
   let instance = await getOrCreateInstanceByName(instanceName)
@@ -491,24 +601,6 @@ export const unfollowUserById = async (followId, instanceName, userToken) => {
   })
   let follow = await followData.json()
   return follow
-}
-
-export const search = async (query, options = { token: null }) => {
-  console.log("search")
-  if (query === null) return false // why does mastodon search for null anyway?
-  let instance = await getOrCreateInstanceByName(options.instanceName)
-  let searchUrl = new URL(instance.url + `/api/v2/search`)
-  searchUrl.searchParams.set('q', query)
-  searchUrl.searchParams.set('resolve', true)
-  let searchData = await fetch(searchUrl.toString(), {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${options.token}`
-    }
-  })
-  let searchResults = await searchData.json()
-  if (searchResults.error) return false
-  return searchResults
 }
 
 export const storeNotifications = async (notifications, forWhom, instanceName) => {

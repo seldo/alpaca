@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@netlify/functions": "^1.3.0",
+    "@peculiar/webcrypto": "^1.4.1",
     "@prisma/client": "^4.7.1",
     "@remix-run/netlify": "^1.8.0",
     "@remix-run/node": "^1.8.0",

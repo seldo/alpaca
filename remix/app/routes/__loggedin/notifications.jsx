@@ -1,8 +1,8 @@
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Tweet, batchNotifications } from "~/shared/components/tweet"
-import { LinkToAccount } from "~/shared/components/tweet"
+import { Post, batchNotifications } from "~/shared/components/post"
+import { LinkToAccount } from "~/shared/components/post"
 import { useEffect, useState } from "react";
 
 export const loader = async ({request}) => {
