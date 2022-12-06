@@ -788,18 +788,18 @@ h2 {
   right: 0px;
 }
 
-.tweet {
+.post {
   padding-top: 10px;
   padding-bottom: 10px;
   border-bottom: 0.5px solid #ccc;
   padding-right: 10px;
 }
 
-.tweet .reactions {
+.post .reactions {
   padding-top: 10px;
 }
 
-.tweet .reactions>div {
+.post .reactions>div {
   color: #888;
   width: 20px;
   height: 20px;
@@ -809,23 +809,23 @@ h2 {
   padding-left: 25px;
 }
 
-.tweet .reactions .replies {
+.post .reactions .replies {
   background-image: url("/images/reply-icon.svg")
 }
 
-.tweet .reactions .reblogs {
-  background-image: url("/images/retweet-icon.svg")
+.post .reactions .reblogs {
+  background-image: url("/images/repost-icon.svg")
 }
 
-.tweet .reactions .favorites {
+.post .reactions .favorites {
   background-image: url("/images/heart-icon.svg")
 }
 
-.tweet .reactions .share {
+.post .reactions .share {
   background-image: url("/images/share-icon.svg")
 }
 
-.tweet .reactions .share span {
+.post .reactions .share span {
   display: none;
 }
 
@@ -833,7 +833,7 @@ h2 {
   font-size: 80%;
   font-weight: bold;
   color: #666;
-  background-image: url("/images/retweet-icon.svg");
+  background-image: url("/images/repost-icon.svg");
   background-size: contain;
   background-repeat: no-repeat;
   background-position-y: 1.5px;
@@ -863,7 +863,7 @@ h2 {
   font-weight: bold;
 }
 
-.profileTopNav .tweetCount {
+.profileTopNav .postCount {
   font-size: 80%;
   color: #666;
 }
@@ -990,14 +990,14 @@ h2 {
   margin-top: 10px;
 }
 
-.notificationMessage .tweet .gutter {
+.notificationMessage .post .gutter {
   min-width: 70px;
   background-position:center;
   background-repeat: no-repeat;
   background-size: 30px;
 }
 
-.notificationMessage.notifyLike .tweet .gutter {
+.notificationMessage.notifyLike .post .gutter {
   background-image: url("/images/heart-icon.svg");
 }
 

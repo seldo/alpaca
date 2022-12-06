@@ -97,7 +97,7 @@ const Tweet = (t, options = {
         </div>
     } else {
         //console.log(t)
-        return <div className="tweet flex flex-row w-full">
+        return <div className="post flex flex-row w-full">
             <div className="gutter">
                 {
                     (options.avatar) ? <div className="authorAvatar">
@@ -105,7 +105,7 @@ const Tweet = (t, options = {
                     </div> : <div />
                 }
             </div>
-            <div className="tweetBody nextToAvatar grow">
+            <div className="postBody nextToAvatar grow">
                 <div className="author">
                     <span className="displayName">{t.account.display_name}</span>
                     <span className="username">@{t.account.acct}</span>

@@ -1,5 +1,5 @@
 import { authenticator, authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 
 export const loader = async ({request}) => {
     console.log("/notifications_feed called")

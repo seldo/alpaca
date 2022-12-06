@@ -1,7 +1,7 @@
 import {Outlet} from "@remix-run/react";
 import { useLoaderData } from "@remix-run/react";
 import { authenticator, authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 import Globalnav from "~/shared/components/globalnav"
 
 export const loader = async ({request}) => {

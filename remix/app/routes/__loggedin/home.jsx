@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 import { Tweet } from "~/shared/components/tweet"
 import { ComposeBox } from "~/shared/components/compose"
 

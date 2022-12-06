@@ -1,6 +1,6 @@
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 import { Tweet, batchNotifications } from "~/shared/components/tweet"
 import { LinkToAccount } from "~/shared/components/tweet"
 import { useEffect, useState } from "react";
@@ -21,11 +21,11 @@ const formatEvent = (event) => {
             return <div className="notificationMessage notifyLike">
                 {
                     (event.accounts.length == 1) ? <div className="notifyText">
-                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> liked your tweet
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> liked your post
                     </div> : (event.accounts.length == 2) ? <div className="notifyText">
-                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and <span className="displayName">{LinkToAccount(event.accounts[1])}</span> liked your tweet
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and <span className="displayName">{LinkToAccount(event.accounts[1])}</span> liked your post
                     </div> : <div className="notifyText">
-                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your tweet
+                        <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your post
                     </div>
                 }
                 {Tweet(event.status,{avatar:false})}

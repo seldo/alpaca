@@ -6,7 +6,7 @@ import {
 } from "@remix-run/react";
 import { Link } from "react-router-dom";
 import { authenticator, authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 import { Tweet } from "~/shared/components/tweet"
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"

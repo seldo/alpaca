@@ -5,7 +5,7 @@ import {
 } from "@remix-run/react";
 import { useState } from "react"
 import { authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 
@@ -48,7 +48,7 @@ export default function Index() {
     return <div className="searchPage">
         <div className="searchBox">
             <Form className="flex flow-row" reloadDocument method="get">
-                <input className="grow" type="text" name="q" placeholder="People, tweets, whatever" value={value} onChange={onChange} />
+                <input className="grow" type="text" name="q" placeholder="People, posts, whatever" value={value} onChange={onChange} />
                 <button className="grow-0 genericButton">Search</button>
             </Form>
         </div>

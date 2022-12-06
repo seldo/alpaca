@@ -1,5 +1,5 @@
 import { authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 import { redirect } from "@remix-run/node";
 
 export const action = async ({request,params}) => {

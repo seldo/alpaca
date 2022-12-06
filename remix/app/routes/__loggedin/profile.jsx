@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node"; 
 import { authenticateAndRefresh } from "~/services/auth.server";
-import * as mastodon from "~/models/tweets.server";
+import * as mastodon from "~/models/posts.server";
 
 export const loader = async ({request}) => {
     let authUser = await authenticateAndRefresh(request)
