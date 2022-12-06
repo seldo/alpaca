@@ -2,6 +2,7 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
+import { Form } from "@remix-run/react";
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -115,7 +116,14 @@ const Tweet = (t, options = {
                 <div className="reactions flex flex-row place-content-between w-full">
                     <div className="replies">{t.replies_count ? t.replies_count : ''}</div>
                     <div className="reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
-                    <div className="favorites">{t.favourites_count ? t.favourites_count : ''}</div>
+                    <div className="likes">
+                        <Form method="post" action="/post/like" reloadDocument>
+                            <input type="hidden" name="instanceName" value={t.account.instance} />
+                            <input type="hidden" name="userId" value={t.account.id} />
+                            <input type="hidden" name="postId" value={t.id} />
+                            {t.favourites_count ? t.favourites_count : ''}
+                        </Form>
+                    </div>
                     <div className="share"><span>Share</span></div>
                 </div>
             </div>

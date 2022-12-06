@@ -168,20 +168,20 @@ export async function getOrCreateUserFromData(userData, options = {
 }) {
   console.log("getOrCreateUserFromData")
   // first try fetching them from the database
-  let user = await getUserById(userData.id, userData.instance, { withTweets: options.withTweets })
+  let user = await getUserById(userData.username, userData.instance, { withTweets: options.withTweets })
   // if we don't find them we put them into our db
   if (!user) {
-    console.log("User not found")
+    console.log("User not found, id",userData.username,"instance ",userData.instance)
     let theirInstance = await getOrCreateInstanceByName(userData.instance)
     user = await prisma.user.upsert({
       where: {
         instanceId_id: {
           instanceId: theirInstance.id,
-          id: userData.id
+          id: userData.username
         }
       },
       update: {
-        username: userData.username,
+        username: userData.username, // FIXME
         instanceId: theirInstance.id,
         internalId: userData.internalId,
         display_name: userData.display_name,
@@ -190,7 +190,7 @@ export async function getOrCreateUserFromData(userData, options = {
         json: userData
       },
       create: {
-        id: userData.id,
+        id: userData.username, // FIXME
         instanceId: theirInstance.id,
         internalId: userData.internalId,
         username: userData.username,

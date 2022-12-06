@@ -10,8 +10,8 @@ export const action = async ({request,params}) => {
     let instance = formData.get('instance')
     console.log("Trying to fetch user",username,instance)
     let user = await mastodon.getOrFetchUserByUsername(username,instance)
-    console.log("Trying to follow user ID",user.id)
-    let follow = await mastodon.followUserById(user.id,instance,authUser.accessToken)
+    console.log("Trying to follow user ID",username)
+    let follow = await mastodon.followUserById(username,instance,authUser.accessToken)
     console.log("Follow result",follow)
     return redirect(`/u/${username}@${instance}?followed`)
 }

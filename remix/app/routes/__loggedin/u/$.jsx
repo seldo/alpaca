@@ -24,7 +24,7 @@ export const action = async ({request,params}) => {
         optimisticFollow = false
     }
     let user = await mastodon.getOrFetchUserByUsername(username,theirInstanceName,authUser.instance)
-    let follow = await mastodon.followUserById(user.id,authUser.accessToken)
+    let follow = await mastodon.followUserById(username,authUser.accessToken)
     follow.following = optimisticFollow || follow.following
     return null
 }

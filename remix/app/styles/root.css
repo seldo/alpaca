@@ -817,7 +817,7 @@ h2 {
   background-image: url("/images/repost-icon.svg")
 }
 
-.post .reactions .favorites {
+.post .reactions .likes {
   background-image: url("/images/heart-icon.svg")
 }
 

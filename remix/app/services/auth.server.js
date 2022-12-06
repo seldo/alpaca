@@ -7,7 +7,7 @@ import { redirect } from "@remix-run/node";
 export let authenticator
 
 const getOrCreateInstance = async (instanceName) => {
-  console.log("getOrCreateInstance")
+  console.log("getOrCreateInstance called with instance",instanceName)
   authenticator = new Authenticator(sessionStorage,{
     throwOnError: true
   });
@@ -19,7 +19,7 @@ const getOrCreateInstance = async (instanceName) => {
   }
   let instanceData = await prisma.instance.findUnique(conditions)
   let callbackURI = process.env.THIS_HOST + "/auth/callback"
-  if (!instanceData) {
+  if (!instanceData || !instanceData.clientKey || !instanceData.clientSecret) {
     let formData = new FormData();
     formData.append("client_name", process.env.OAUTH_APP_NAME)
     formData.append("redirect_uris", callbackURI)
@@ -32,6 +32,7 @@ const getOrCreateInstance = async (instanceName) => {
       body: formData
     })
     let appCreated = await appData.json()
+    console.log("App created",appCreated)
     // TODO: check for 200 etc.
     instanceData = await prisma.instance.upsert({
       where: {
