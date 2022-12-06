@@ -546,52 +546,9 @@ export const unfollowUser = async (username, userInstance, authUser) => {
   return unfollow
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/////////////////////// refactor boundary ////////////////////////
-
-export const unfollowUserById = async (followId, instanceName, userToken) => {
-  console.log("UnfollowUserById")
-  let instance = await getOrCreateInstanceByName(instanceName)
-  console.log("Unfollowing using token auth", userToken)
-  let followRequestUrl = new URL(instance.url + `/api/v1/accounts/${followId}/unfollow`)
-  let followData = await fetch(followRequestUrl.toString(), {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${userToken}`
-    }
-  })
-  let follow = await followData.json()
-  return follow
-}
-
 export const createPost = async (user, data = {text:null}) => {
   console.log("createPost")
-  let instance = await getOrCreateInstanceByName(user.instance)
-  let postUrl = new URL(instance.url + `/api/v1/statuses`)
+  let postUrl = new URL(getInstanceUrl(user.instance) + `/api/v1/statuses`)
   if (data.text === null || data.text === "") throw new Error("Text cannot be empty")
 
   var formData = new FormData();
