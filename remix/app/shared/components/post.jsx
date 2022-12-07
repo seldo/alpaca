@@ -2,9 +2,6 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
-import { Form, useFetcher } from "@remix-run/react";
-import { useState, useEffect } from "react"
-import heartIcon from "~/shared/icons/heart-icon"
 import HeartIcon from "~/shared/icons/heart-icon";
 
 // FIXME: this gets called lots of times, call it once.

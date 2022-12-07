@@ -1012,13 +1012,16 @@ h2 {
 
 .notificationMessage .post .gutter {
   min-width: 70px;
-  background-position:center;
+  background-position-x:center;
+  background-position-y: top;
   background-repeat: no-repeat;
   background-size: 30px;
 }
 
 .notificationMessage.notifyLike .post .gutter {
-  background-image: url("/images/heart-icon.svg");
+  position: relative;
+  top: -30px;
+  background-image: url("/images/reactify/heart-icon.svg");
 }
 
 .notificationMessage.notifyFollow {
@@ -1026,7 +1029,7 @@ h2 {
   background-repeat: no-repeat;
   background-size: 30px;
   background-position-x: 20px;
-  background-position-y: 10px;
+  background-position-y: top;
   margin-bottom: 10px;
   border-bottom: 0.5px solid #ccc;
   min-height: 50px;
