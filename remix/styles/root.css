@@ -143,7 +143,6 @@ h2 {
     padding-left: 25px;
 }
 .post .reactions .replies { background-image: url("/images/reply-icon.svg")}
-.post .reactions .reblogs { background-image: url("/images/repost-icon.svg")}
 .post .reactions .share { background-image: url("/images/share-icon.svg")}
 
 .post .reactions .share span {

@@ -821,10 +821,6 @@ h2 {
   background-image: url("/images/reply-icon.svg")
 }
 
-.post .reactions .reblogs {
-  background-image: url("/images/repost-icon.svg")
-}
-
 .post .reactions .share {
   background-image: url("/images/share-icon.svg")
 }

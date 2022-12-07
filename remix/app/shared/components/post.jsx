@@ -115,6 +115,8 @@ export const reactionClick = function(e) {
 export const reactionState = function() {
     //console.log("Handler says state changed for this post; do animation here")
     if(whichOne) {
+        let classes = whichOne.getElementsByClassName('reactionCount')[0].getAttribute('class').split(" ")
+        if(classes.includes("likes") || classes.includes("repost"))
         whichOne.getElementsByTagName('svg')[0].style.transition = "1.5s"
         whichOne.getElementsByTagName('svg')[0].style.transform = "rotate(720deg)"
         whichOne.getElementsByTagName('svg')[0].style.fill = 'red'
@@ -163,7 +165,7 @@ const Post = (t, options = {
                     <fetcher.Form method="post" action="/post/repost" reloadDocument>
                         <input type="hidden" name="postUrl" value={t.url} />
                         <button className="postReaction" type="submit" onClick={options.handleLike}>
-                            <div className="reactionCount reblogs">
+                            <div className="reactionCount reposts">
                                 <RepostIcon></RepostIcon>
                                 <span>{t.reblogs_count ? t.reblogs_count : ''}</span>
                             </div>
@@ -178,7 +180,7 @@ const Post = (t, options = {
                             </div>
                         </button>
                     </fetcher.Form>
-                    <div className="share"><span>Share</span></div>
+                    <div className="reactionButton share"><span>Share</span></div>
                 </div>
             </div>
         </div>

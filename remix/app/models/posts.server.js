@@ -625,3 +625,30 @@ export const likePost = async (postUrlString, authUser) => {
   // this is the entire post
   return liked
 }
+
+export const rePost = async (postUrlString, authUser) => {
+  
+  let searchResults = await search(postUrlString,authUser,{
+    type: 'statuses',
+    resolve: true
+  })
+  if(!searchResults.statuses[0]) {
+    throw new Error(`Like could not find post ${postUrlString} to like it`)
+  }
+  let post = searchResults.statuses[0]
+
+  let repostUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/statuses/${post.id}/reblog`)
+  let repostData = await fetch(repostUrl.toString(), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${authUser.accessToken}`
+    }
+  })
+  let reposted = await repostData.json()
+  if(reposted.error) {
+    console.log(`Reposting ${postUrlString} resulted in an error`,reposted.error)
+    return false
+  }
+  // this is the entire post
+  return reposted
+}
