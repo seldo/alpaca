@@ -75,6 +75,19 @@ h2 {
 .menuItems .home { background-image: url("/images/home-icon.svg"); }    
 .menuItems .search { background-image: url("/images/search-icon.svg"); }    
 .menuItems .notifications { background-image: url("/images/bell-icon.svg"); }    
+.notificationsBadge {
+    position: absolute;
+    background-color: red;
+    border-radius: 100%;
+    color: #fff;
+    width: 18px;
+    height: 18px;
+    top: 170px;
+    left: 34px;
+    text-align: center;
+    font-size: 70%;
+    padding-top: 1px;
+}
 .menuItems .messages { background-image: url("/images/email-icon.svg"); }    
 .menuItems .profile { background-image: url("/images/profile-icon.svg"); }    
 .menuItems .settings { background-image: url("/images/settings-icon.svg"); }    

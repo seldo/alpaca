@@ -6,46 +6,52 @@ import { Post, reactionClick, reactionState, reactionData } from "~/shared/compo
 import { ComposeBox } from "~/shared/components/compose"
 
 // time in seconds between refreshes
-const INITIAL_LOAD_DELAY = 5
+const INITIAL_LOAD_DELAY = 1
 const ONGOING_LOAD_PERIOD = 10
+const MIN_ID = "notifications_most_recent_id"
 
-export const loader = async ({request, data}) => {
-  let authUser = await authenticateAndRefresh(request,{
+export const loader = async ({ request, data }) => {
+  let authUser = await authenticateAndRefresh(request, {
     failureRedirect: "/",
     throwOnError: true
   })
   console.log(`/home got ${authUser.username}@${authUser.instance}`)
   let user = await mastodon.getOrCreateUserFromData(authUser)
-  let localPosts = await mastodon.getTimelineLocal(user,{ hydrate: true })
+  let localPosts = await mastodon.getTimelineLocal(user, { hydrate: true })
   return { user, localPosts }
 }
 
 export default function Index() {
   const loaderData = useLoaderData();
-  const {user, localPosts } = loaderData
+  const { user, localPosts } = loaderData
 
-  const [allPosts,setPosts] = useState(localPosts);
+  const [allPosts, setPosts] = useState(localPosts);
   useEffect(() => setPosts(allPosts), [allPosts]);
   const fetcher = useFetcher();
+  const fetcher2 = useFetcher();
 
-  const [refreshInterval,setRefresh] = useState(INITIAL_LOAD_DELAY)
+  const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
 
   // Get fresh data after x seconds and then every y seconds thereafter
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log("Fetcher.data happened")
-      if(refreshInterval == INITIAL_LOAD_DELAY) {
+      if (window && window.localStorage) {
+        if (window.localStorage[MIN_ID]) {
+          fetcher2.load("/notifications_count?minId=" + window.localStorage[MIN_ID])
+        }
+      }
+      if (refreshInterval == INITIAL_LOAD_DELAY) {
         setRefresh(ONGOING_LOAD_PERIOD)
       }
       if (document.visibilityState === "visible") {
         // FIXME: is index 0 really the max ID of the current set, so the min of the fetch?
         let minId = allPosts[0] ? allPosts[0].id : null
-        fetcher.load("/timeline?minId="+minId);
+        fetcher.load("/timeline?minId=" + minId);
       }
     }, refreshInterval * 1000);
     return () => clearInterval(interval);
     // FIXME: because this depends on fetcher.data, initial load is true until we get our first data
-  }, [fetcher.data]);
+  }, [fetcher.data, fetcher2.data]);
 
   // Get fresh data after x seconds and then every y seconds thereafter
   useEffect(() => {
@@ -56,48 +62,65 @@ export default function Index() {
     return `${post.account.username}:${post.account.instance}:${post.hash}`
   }
 
-  // When the fetcher comes back with new data, update state
+  // When the fetcher comes back with new posts, update timeline
   useEffect(() => {
     if (fetcher.data) {
       reactionData()
       let incoming
       try {
         incoming = JSON.parse(fetcher.data)
-      } catch(e) {
+      } catch (e) {
         // FIXME: there must be a better way of identifying our response than this
         return
       }
       // dedupe and merge incoming posts since this is not guaranteed
       let seenIds = []
-      for(let i = 0; i < allPosts.length; i++) {
+      for (let i = 0; i < allPosts.length; i++) {
         seenIds.push(makePostId(allPosts[i]))
       }
-      for(let i = 0; i < incoming.length; i++) {
+      for (let i = 0; i < incoming.length; i++) {
         let post = incoming[i]
         if (!seenIds.includes(makePostId(post))) {
           allPosts.push(post)
         }
       }
-      allPosts.sort( (a,b) => {
-        if(b.created_at > a.created_at) return 1
+      allPosts.sort((a, b) => {
+        if (b.created_at > a.created_at) return 1
         else return -1
       })
       setPosts(allPosts)
-  }
+    }
   }, [fetcher.data]);
+
+  const [notificationsCount, setNotificationsCount] = useState(false);
+  // When the fetcher comes back with notifications count, update that
+  useEffect(() => {
+    if (fetcher2.data) {
+      console.log("Fetcher saw data", fetcher2.data)
+      setNotificationsCount(JSON.parse(fetcher2.data)['unreadCount'])
+    }
+  }, [fetcher2.data]);
+
+  useEffect(() => {
+    console.log("new count", notificationsCount)
+    if(window && window.document) {
+      window.document.title = (notificationsCount ? `(${notificationsCount}) ` : ``) + `Alpaca Blue: a Mastodon client`
+    }
+  }, [notificationsCount])
 
   return (
     <div>
       <div className="latest">
         <h2>Latest posts</h2>
       </div>
+      {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
       <div className="composeTop">
         <ComposeBox user={user} />
       </div>
       <ul>
         {
-          (allPosts.length > 0) ? allPosts.map( t=> {
-            return <li key={makePostId(t)}>{Post(t,{avatar:true,fetcher,handleLike:reactionClick})}</li>
+          (allPosts.length > 0) ? allPosts.map(t => {
+            return <li key={makePostId(t)}>{Post(t, { avatar: true, fetcher, handleLike: reactionClick })}</li>
           }) : <li key="noTweets">No posts yet. Give it a sec.</li>
         }
       </ul>

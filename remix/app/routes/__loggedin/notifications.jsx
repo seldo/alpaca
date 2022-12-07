@@ -5,7 +5,8 @@ import { Post, batchNotifications, reactionClick, reactionState, reactionData } 
 import { LinkToAccount } from "~/shared/components/post"
 import { useEffect, useState } from "react";
 
-const NOTIFICATONS_FETCH_INTERVAL = 7
+const NOTIFICATONS_FETCH_INTERVAL = 5
+const MIN_ID = "notifications_most_recent_id" // FIXME: exists in two places
 
 export const loader = async ({request}) => {
     let authUser = await authenticateAndRefresh(request)
@@ -70,8 +71,13 @@ export default function Index() {
         const interval = setInterval( () => {
             // only refresh if the page is being viewed
             if(document.visibilityState === "visible") {
-                // TODO: calculate minId from within notifications
-                fetcher.load("/notifications_feed") // TODO: add minId as query param
+                let feedUrl = "/notifications_feed"
+                if(window && window.localStorage) {
+                    if(window.localStorage[MIN_ID]) {
+                        feedUrl += "?minId=" + window.localStorage[MIN_ID]
+                    }
+                }
+                fetcher.load(feedUrl)
             }
         }, NOTIFICATONS_FETCH_INTERVAL * 1000)
         // every time the fetcher is triggered (and also on first render) it creates a new timer
@@ -88,7 +94,7 @@ export default function Index() {
                 // ignore it because it's coming from a like button or summat
                 return
             }
-            console.log("Incoming notification",incoming)
+            //console.log("Incoming notification",incoming)
             let seenIds = []
             for(let i = 0; i < newNotifications.length; i++) {
               seenIds.push(newNotifications[i].id)
@@ -103,6 +109,10 @@ export default function Index() {
               if(b.created_at > a.created_at) return 1
               else return -1
             })
+            // storing state across pages
+            if(window && window.localStorage) {
+                window.localStorage[MIN_ID] = newNotifications[0].id   
+            }
             setNotifications(newNotifications)
         }
     },[fetcher.data])
@@ -118,7 +128,7 @@ export default function Index() {
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher)}</li>
+                    return <li key={`notifications_${n.id}_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher)}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }

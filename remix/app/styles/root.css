@@ -730,6 +730,20 @@ h2 {
   background-image: url("/images/bell-icon.svg");
 }
 
+.notificationsBadge {
+  position: absolute;
+  background-color: red;
+  border-radius: 100%;
+  color: #fff;
+  width: 18px;
+  height: 18px;
+  top: 170px;
+  left: 34px;
+  text-align: center;
+  font-size: 70%;
+  padding-top: 1px;
+}
+
 .menuItems .messages {
   background-image: url("/images/email-icon.svg");
 }

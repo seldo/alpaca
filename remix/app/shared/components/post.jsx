@@ -124,7 +124,7 @@ export const reactionState = function() {
 }
 
 export const reactionData = function() {
-    console.log("Handler says data changed so it probably should do stuff with that")
+    //console.log("Handler says data changed so it probably should do stuff with that")
 }
 
 const Post = (t, options = {
