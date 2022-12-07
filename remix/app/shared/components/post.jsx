@@ -2,10 +2,8 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
-import { Form } from "@remix-run/react";
-// import { Crypto } from "@peculiar/webcrypto";
-
-// const crypto = new Crypto();
+import { useFetcher } from "@remix-run/react";
+import { useState, useEffect } from "react"
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -108,6 +106,36 @@ export const LinkToAccount = (account, content) => {
 const Post = (t, options = {
     avatar: true
 }) => {
+
+    const [target,setTarget] = useState();
+    const fetcher = useFetcher();
+
+    // when fetcher.data is modified this will trigger, including when the form returns
+    useEffect(() => {
+        if(fetcher.data) {
+            // like completed, but I guess we can be optimistic
+        }
+    }, [fetcher.data]);
+
+    // when fetcher.state is modified this will trigger, including during loading
+    useEffect(() => {
+        if(fetcher.state == "submitting") {
+            console.log("I can do something about",target)
+            target.style.backgroundColor = "red"
+        }
+    }, [fetcher.state]);
+
+    // handle likes
+    const handleLike = async (e) => {
+        e.preventDefault()
+        // by submitting the form with the data declared
+        let r = fetcher.submit(e.currentTarget)
+        setTarget(e.currentTarget)
+    }
+
+    
+
+    // TODO: the "done" value needs to come from request
     //console.log(t)
     if (t.reblog !== null) {
         return <div className="reblog">
@@ -134,16 +162,17 @@ const Post = (t, options = {
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
                 <div className="reactions flex flex-row place-content-between w-full">
-                    <div className="replies">{t.replies_count ? t.replies_count : ''}</div>
-                    <div className="reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
-                    <div className="likes">
-                        <Form method="post" action="/post/like" reloadDocument>
-                            <input type="hidden" name="instanceName" value={t.account.instance} />
-                            <input type="hidden" name="userId" value={t.account.id} />
-                            <input type="hidden" name="postId" value={t.id} />
+                    <div className="reactionButton replies">{t.replies_count ? t.replies_count : ''}</div>
+                    <div className="reactionButton reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
+                    <fetcher.Form method="post" action="/post/like" reloadDocument>
+                        <input type="hidden" name="postUrl" value={t.url} />
+                        <input type="hidden" name="done" value={getProfileLink(t.account)} />
+                        <button type="submit" onClick={handleLike}>
+                            <div className="reactionButton likes">
                             {t.favourites_count ? t.favourites_count : ''}
-                        </Form>
-                    </div>
+                            </div>
+                        </button>
+                    </fetcher.Form>
                     <div className="share"><span>Share</span></div>
                 </div>
             </div>

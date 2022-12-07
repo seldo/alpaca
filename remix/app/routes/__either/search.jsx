@@ -15,10 +15,7 @@ export const loader = async ({request, params}) => {
     let authUser = await authenticateAndRefresh(request)
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
-    let results = await mastodon.search(q,authUser,{
-        token: authUser.accessToken
-    })
-    console.log("masto search returned",results)
+    let results = await mastodon.searchAll(q,authUser)
     return {q,results}
 }
 

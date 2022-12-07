@@ -111,7 +111,7 @@ export async function getOrCreateUser(username,userInstance,authUser,options = {
     // if they wanted posts we must remote-fetch those separately now
     if (options.withPosts) {
       // we make use of the fact that we just fetched the remote user so we have their id
-      user.tweets = await getPostsRemote(user,authUser)
+      user.posts = await getPostsRemote(user,authUser)
     }
   }
   // FIXME: there is probably some difference between the local and remote formats?
@@ -378,20 +378,48 @@ const storeInstances = async (instances) => {
   return storedInstances
 }
 
-export const search = async (query, user, options = { token: null }) => {
-  console.log("search")
-  if (query === null) return false // why does mastodon search for null anyway?
+export const search = async(query,user,options = {
+  // type
+  // resolve
+  // following
+  // account_id
+  // max_id
+  // min_id
+}) => {
   let searchUrl = new URL(getInstanceUrl(user.instance) + `/api/v2/search`)
   searchUrl.searchParams.set('q', query)
-  searchUrl.searchParams.set('resolve', true)
-  let searchData = await fetch(searchUrl.toString(), {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${options.token}`
+  if(options.resolve) {
+    searchUrl.searchParams.set('resolve', true)
+  }
+  if(options.type) {
+    searchUrl.searchParams.set('type',options.type)
+  }
+  // TODO the rest of those
+  try {
+    let searchData = await fetch(searchUrl.toString(), {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${user.accessToken}`
+      }
+    })
+    let searchResults = await searchData.json()
+    if (searchResults.error) {
+      console.log(`Search results for "${query}" returned error`,searchResults.error)
+      return false
     }
+    return searchResults
+  } catch(e) {
+    console.log(`Search method threw error`,e)
+    return false
+  }
+}
+
+export const searchAll = async (query, user) => {
+  console.log("search")
+  if (query === null) return false // why does mastodon search for null anyway?
+  let searchResults = search(query, user, {
+    resolve: true
   })
-  let searchResults = await searchData.json()
-  if (searchResults.error) return false
   // format search results
   if(searchResults.accounts && searchResults.accounts.length > 0) {
     // accounts need instance names
@@ -565,4 +593,31 @@ export const createPost = async (user, data = {text:null}) => {
   let posted = await postedData.json()
   return posted
 
+}
+
+export const likePost = async (postUrlString, authUser) => {
+  
+  let searchResults = await search(postUrlString,authUser,{
+    type: 'statuses',
+    resolve: true
+  })
+  if(!searchResults.statuses[0]) {
+    throw new Error(`Like could not find post ${postUrlString} to like it`)
+  }
+  let post = searchResults.statuses[0]
+
+  let likeUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/statuses/${post.id}/favourite`)
+  let likedData = await fetch(likeUrl.toString(), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${authUser.accessToken}`
+    }
+  })
+  let liked = await likedData.json()
+  if(liked.error) {
+    console.log(`Liking post ${postUrlString} resulted in an error`,liked.error)
+    return false
+  }
+  // this is the entire post
+  return liked
 }

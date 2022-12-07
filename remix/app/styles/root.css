@@ -799,7 +799,7 @@ h2 {
   padding-top: 10px;
 }
 
-.post .reactions>div {
+.post .reactions .reactionButton {
   color: #888;
   width: 20px;
   height: 20px;
