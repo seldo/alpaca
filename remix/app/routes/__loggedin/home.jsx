@@ -47,6 +47,11 @@ export default function Index() {
     // FIXME: because this depends on fetcher.data, initial load is true until we get our first data
   }, [fetcher.data]);
 
+  // Get fresh data after x seconds and then every y seconds thereafter
+  useEffect(() => {
+    reactionState()
+  }, [fetcher.state]);
+
   let makePostId = (post) => {
     return `${post.account.username}:${post.account.instance}:${post.hash}`
   }
@@ -54,8 +59,14 @@ export default function Index() {
   // When the fetcher comes back with new data, update state
   useEffect(() => {
     if (fetcher.data) {
-      let incoming = JSON.parse(fetcher.data)
-      console.log(incoming)
+      reactionData()
+      let incoming
+      try {
+        incoming = JSON.parse(fetcher.data)
+      } catch(e) {
+        // FIXME: there must be a better way of identifying our response than this
+        return
+      }
       // dedupe and merge incoming posts since this is not guaranteed
       let seenIds = []
       for(let i = 0; i < allPosts.length; i++) {
@@ -86,7 +97,7 @@ export default function Index() {
       <ul>
         {
           (allPosts.length > 0) ? allPosts.map( t=> {
-            return <li key={makePostId(t)}>{Post(t,{avatar:true,handleLike,fetcher})}</li>
+            return <li key={makePostId(t)}>{Post(t,{avatar:true,fetcher,handleLike:reactionClick})}</li>
           }) : <li key="noTweets">No posts yet. Give it a sec.</li>
         }
       </ul>
