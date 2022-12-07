@@ -152,11 +152,13 @@ h2 {
 .postReaction {
     color: #888;
 }
+.postReaction .reactionCount svg {
+    display: inline-block;
+    margin-right: 5px;
+}
 .postReaction .likes svg {
     width: 16px;
     height: 16px;
-    display: inline-block;
-    margin-right: 5px;
 }
 .postReaction span {
     position: relative;

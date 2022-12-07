@@ -2,7 +2,7 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
-import HeartIcon from "~/shared/icons/heart-icon";
+import { HeartIcon, RepostIcon } from "~/shared/icons";
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -115,11 +115,10 @@ export const reactionClick = function(e) {
 export const reactionState = function() {
     //console.log("Handler says state changed for this post; do animation here")
     if(whichOne) {
-        whichOne.style.transition = "1.5s"
-        whichOne.style.transform = "rotate(720deg)"
+        whichOne.getElementsByTagName('svg')[0].style.transition = "1.5s"
+        whichOne.getElementsByTagName('svg')[0].style.transform = "rotate(720deg)"
         whichOne.getElementsByTagName('svg')[0].style.fill = 'red'
-    }
-    
+    }    
 }
 
 export const reactionData = function() {
@@ -161,13 +160,21 @@ const Post = (t, options = {
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
                 <div className="reactions flex flex-row place-content-between w-full">
                     <div className="reactionButton replies">{t.replies_count ? t.replies_count : ''}</div>
-                    <div className="reactionButton reblogs">{t.reblogs_count ? t.reblogs_count : ''}</div>
+                    <fetcher.Form method="post" action="/post/repost" reloadDocument>
+                        <input type="hidden" name="postUrl" value={t.url} />
+                        <button className="postReaction" type="submit" onClick={options.handleLike}>
+                            <div className="reactionCount reblogs">
+                                <RepostIcon></RepostIcon>
+                                <span>{t.reblogs_count ? t.reblogs_count : ''}</span>
+                            </div>
+                        </button>
+                    </fetcher.Form>
                     <fetcher.Form method="post" action="/post/like" reloadDocument>
                         <input type="hidden" name="postUrl" value={t.url} />
-                        <input type="hidden" name="done" value={getProfileLink(t.account)} />
                         <button className="postReaction" type="submit" onClick={options.handleLike}>
-                            <div className="likes {loadingState ? 'loading' : ''">
-                            <HeartIcon></HeartIcon><span>{t.favourites_count ? t.favourites_count : ''}</span>
+                            <div className="reactionCount likes">
+                                <HeartIcon></HeartIcon>
+                                <span>{t.favourites_count ? t.favourites_count : ''}</span>
                             </div>
                         </button>
                     </fetcher.Form>
