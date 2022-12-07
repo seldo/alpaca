@@ -105,47 +105,31 @@ export const LinkToAccount = (account, content) => {
     return <Link to={profileLink}>{(account.display_name || "@" + account.username)}</Link>
 }
 
-export const cb = function() {
-    console.log("cb called")
+let fetcher // blows my mind that I can successfully hoist this up here
+
+export const reactionClick = function(e) {
+    console.log("they clicked the button so we submit the fetcher")
+    e.preventDefault()
+    fetcher.submit(e.currentTarget)
+}
+
+export const reactionState = function() {
+    console.log("Handler says state changed for this post; do animation here")
+    console.log(fetcher.state)
+}
+
+let woo = "hoo"
+export const reactionData = function() {
+    console.log("Handler says data changed so it probably should do stuff with that")
+    woo = "bar"
 }
 
 const Post = (t, options = {
     avatar: true
 }) => {
 
-    let fetcher = options.fetcher
-
-    // handle likes
-    const handleLike = async (e) => {
-        console.log("Handling like")
-        e.preventDefault()
-        fetcher.submit(e.currentTarget)
-        //setTarget(e.currentTarget)
-    }
-
-    /*
-    const [target,setTarget] = useState();
-    const fetcher2 = useFetcher();
-
-    // when fetcher.data is modified this will trigger, including when the form returns
-    useEffect(() => {
-        if(fetcher2.data) {
-            // like completed, but I guess we can be optimistic
-        }
-    }, [fetcher2.data]);
-
-    // when fetcher.state is modified this will trigger, including during loading
-    useEffect(() => {
-        if(fetcher2.state == "submitting") {
-            console.log("I can do something about",target)
-            target.style.transition = "2s"
-            target.style.transform = "rotate(720deg)"
-            let svg = target.getElementsByTagName("svg")[0]
-            svg.style.fill = "red"
-        }
-    }, [fetcher2.state]);
-    */
-
+    // can I do this?
+    fetcher = options.fetcher
 
     // TODO: the "done" value needs to come from request
     //console.log(t)
@@ -180,6 +164,7 @@ const Post = (t, options = {
                         <input type="hidden" name="postUrl" value={t.url} />
                         <input type="hidden" name="done" value={getProfileLink(t.account)} />
                         <button className="postReaction" type="submit" onClick={options.handleLike}>
+                            Uh.{woo}
                             <div className="likes">
                             <HeartIcon>woo</HeartIcon>{t.favourites_count ? t.favourites_count : ''}
                             </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Post, cb } from "~/shared/components/post"
+import { Post, reactionClick, reactionState, reactionData } from "~/shared/components/post"
 import { ComposeBox } from "~/shared/components/compose"
 
 // time in seconds between refreshes

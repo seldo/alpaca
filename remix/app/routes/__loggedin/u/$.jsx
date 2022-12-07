@@ -7,9 +7,13 @@ import {
 import { Link } from "react-router-dom";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Post, addReaction } from "~/shared/components/post"
+import { Post, reactionClick, reactionState, reactionData } from "~/shared/components/post"
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
+
+// time in seconds between refreshes
+const INITIAL_LOAD_DELAY = 3
+const ONGOING_LOAD_PERIOD = 5
 
 export const loader = async ({request, params}) => {
     let authUser = await authenticateAndRefresh(request)
@@ -40,6 +44,24 @@ export default function Index() {
     const {user, following, optimisticFollow} = useLoaderData();
     const navigate = useNavigate();
     const fetcher = useFetcher();
+
+    const [refreshInterval,setRefresh] = useState(INITIAL_LOAD_DELAY)
+
+    // Get fresh data after x seconds and then every y seconds thereafter
+    useEffect(() => {
+        reactionData()
+        const interval = setInterval(() => {
+            console.log("/u/$.jsx: Fetcher.data happened")
+            if(refreshInterval == INITIAL_LOAD_DELAY) {
+                setRefresh(ONGOING_LOAD_PERIOD)
+            }
+        }, refreshInterval * 1000);
+        return () => clearInterval(interval);
+    }, [fetcher.data]);
+
+    useEffect(() => {
+        reactionState()
+    }, [fetcher.state])
 
     //console.log("u/$.jsx user",user)
     return <div className="profilePage">
@@ -75,7 +97,7 @@ export default function Index() {
         <ul>
         {
           (user.posts && user.posts.length > 0) ? user.posts.map( t=> {
-            return <li key={t.id}>{Post(t,{avatar: true, fetcher})}</li>
+            return <li key={t.id}>{Post(t,{avatar: true, fetcher, handleLike: reactionClick})}</li>
           }) : <li key="noTweets">No posts yet. Give it a sec.</li>
         }
         </ul>
