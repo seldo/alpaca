@@ -825,8 +825,6 @@ h2 {
   background-image: url("/images/repost-icon.svg")
 }
 
-/* .post .reactions .likes { background-image: url("/images/heart-icon.svg")} */
-
 .post .reactions .share {
   background-image: url("/images/share-icon.svg")
 }
@@ -835,9 +833,20 @@ h2 {
   display: none;
 }
 
+.postReaction {
+  color: #888;
+}
+
 .postReaction .likes svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.postReaction span {
+  position: relative;
+  top: 1.5px;
 }
 
 .reblog .reblogNotice {

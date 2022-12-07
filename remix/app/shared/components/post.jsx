@@ -106,25 +106,17 @@ export const LinkToAccount = (account, content) => {
 }
 
 let fetcher // blows my mind that I can successfully hoist this up here
-let loadingState = false
 let whichOne = null
 
 export const reactionClick = function(e) {
-    console.log("they clicked the button so we submit the fetcher")
+    //console.log("they clicked the button so we submit the fetcher")
     e.preventDefault()
     fetcher.submit(e.currentTarget)
     whichOne = e.currentTarget
 }
 
 export const reactionState = function() {
-    console.log("Handler says state changed for this post; do animation here")
-    if(fetcher.state == "submitting") {
-        loadingState = true
-    }
-    if(fetcher.state == "loading") {
-        loadingState = false
-    }
-    console.log("the one was",whichOne)
+    //console.log("Handler says state changed for this post; do animation here")
     if(whichOne) {
         whichOne.style.transition = "1.5s"
         whichOne.style.transform = "rotate(720deg)"
@@ -178,7 +170,7 @@ const Post = (t, options = {
                         <input type="hidden" name="done" value={getProfileLink(t.account)} />
                         <button className="postReaction" type="submit" onClick={options.handleLike}>
                             <div className="likes {loadingState ? 'loading' : ''">
-                            <HeartIcon></HeartIcon>{t.favourites_count ? t.favourites_count : ''}
+                            <HeartIcon></HeartIcon><span>{t.favourites_count ? t.favourites_count : ''}</span>
                             </div>
                         </button>
                     </fetcher.Form>

@@ -144,15 +144,23 @@ h2 {
 }
 .post .reactions .replies { background-image: url("/images/reply-icon.svg")}
 .post .reactions .reblogs { background-image: url("/images/repost-icon.svg")}
-/* .post .reactions .likes { background-image: url("/images/heart-icon.svg")} */
 .post .reactions .share { background-image: url("/images/share-icon.svg")}
 
 .post .reactions .share span {
     display: none;
 }
+.postReaction {
+    color: #888;
+}
 .postReaction .likes svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    margin-right: 5px;
+}
+.postReaction span {
+    position: relative;
+    top: 1.5px;
 }
 .reblog .reblogNotice {
     font-size: 80%;
