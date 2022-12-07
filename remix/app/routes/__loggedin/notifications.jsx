@@ -1,7 +1,7 @@
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Post, batchNotifications } from "~/shared/components/post"
+import { Post, batchNotifications, reactionClick, reactionState, reactionData } from "~/shared/components/post"
 import { LinkToAccount } from "~/shared/components/post"
 import { useEffect, useState } from "react";
 
@@ -16,7 +16,7 @@ export const loader = async ({request}) => {
     return {user, notifications, batchedNotifications}
 }
 
-const formatEvent = (event) => {
+const formatEvent = (event,fetcher) => {
     switch(event.type) {
         case "favourite":
             return <div className="notificationMessage notifyLike">
@@ -29,11 +29,11 @@ const formatEvent = (event) => {
                         <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your post
                     </div>
                 }
-                {Post(event.status,{avatar:false})}
+                {Post(event.status,{avatar:false,fetcher,handleLike:reactionClick})}
             </div>
         case "mention":
             return <div className="notificationMessage notifyMention">
-                {Post(event.status)}
+                {Post(event.status,{fetcher,handleLike:reactionClick})}
             </div>
         case "follow":
             return <div className="notificationMessage notifyFollow">
@@ -81,7 +81,13 @@ export default function Index() {
     // when the fetcher comes back with new data, parse it and push state
     useEffect( () => {
         if(fetcher.data) {
-            let incoming = JSON.parse(fetcher.data)
+            let incoming
+            try {
+                incoming = JSON.parse(fetcher.data)
+            } catch(e) {
+                // ignore it because it's coming from a like button or summat
+                return
+            }
             console.log("Incoming notification",incoming)
             let seenIds = []
             for(let i = 0; i < newNotifications.length; i++) {
@@ -101,6 +107,9 @@ export default function Index() {
         }
     },[fetcher.data])
 
+    useEffect(() => {
+        reactionState()
+    }, [fetcher.state])
     
     return <div className="notificationsPage">
         <div className="notificationsHeader">
@@ -109,7 +118,7 @@ export default function Index() {
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n)}</li>
+                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher)}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }
