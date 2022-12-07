@@ -7,7 +7,7 @@ import {
 import { Link } from "react-router-dom";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Post } from "~/shared/components/post"
+import { Post, addReaction } from "~/shared/components/post"
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 
@@ -39,6 +39,8 @@ export const meta = ({data}) => {
 export default function Index() {
     const {user, following, optimisticFollow} = useLoaderData();
     const navigate = useNavigate();
+    const fetcher = useFetcher();
+
     //console.log("u/$.jsx user",user)
     return <div className="profilePage">
         <div className="profileTopNav flex flex-row">
@@ -73,7 +75,7 @@ export default function Index() {
         <ul>
         {
           (user.posts && user.posts.length > 0) ? user.posts.map( t=> {
-            return <li key={t.id}>{Post(t)}</li>
+            return <li key={t.id}>{Post(t,{avatar: true, fetcher})}</li>
           }) : <li key="noTweets">No posts yet. Give it a sec.</li>
         }
         </ul>

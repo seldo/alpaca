@@ -2,8 +2,10 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
-import { useFetcher } from "@remix-run/react";
+import { Form, useFetcher } from "@remix-run/react";
 import { useState, useEffect } from "react"
+import heartIcon from "~/shared/icons/heart-icon"
+import HeartIcon from "~/shared/icons/heart-icon";
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -103,37 +105,47 @@ export const LinkToAccount = (account, content) => {
     return <Link to={profileLink}>{(account.display_name || "@" + account.username)}</Link>
 }
 
+export const cb = function() {
+    console.log("cb called")
+}
+
 const Post = (t, options = {
     avatar: true
 }) => {
 
-    const [target,setTarget] = useState();
-    const fetcher = useFetcher();
-
-    // when fetcher.data is modified this will trigger, including when the form returns
-    useEffect(() => {
-        if(fetcher.data) {
-            // like completed, but I guess we can be optimistic
-        }
-    }, [fetcher.data]);
-
-    // when fetcher.state is modified this will trigger, including during loading
-    useEffect(() => {
-        if(fetcher.state == "submitting") {
-            console.log("I can do something about",target)
-            target.style.backgroundColor = "red"
-        }
-    }, [fetcher.state]);
+    let fetcher = options.fetcher
 
     // handle likes
     const handleLike = async (e) => {
+        console.log("Handling like")
         e.preventDefault()
-        // by submitting the form with the data declared
-        let r = fetcher.submit(e.currentTarget)
-        setTarget(e.currentTarget)
+        fetcher.submit(e.currentTarget)
+        //setTarget(e.currentTarget)
     }
 
-    
+    /*
+    const [target,setTarget] = useState();
+    const fetcher2 = useFetcher();
+
+    // when fetcher.data is modified this will trigger, including when the form returns
+    useEffect(() => {
+        if(fetcher2.data) {
+            // like completed, but I guess we can be optimistic
+        }
+    }, [fetcher2.data]);
+
+    // when fetcher.state is modified this will trigger, including during loading
+    useEffect(() => {
+        if(fetcher2.state == "submitting") {
+            console.log("I can do something about",target)
+            target.style.transition = "2s"
+            target.style.transform = "rotate(720deg)"
+            let svg = target.getElementsByTagName("svg")[0]
+            svg.style.fill = "red"
+        }
+    }, [fetcher2.state]);
+    */
+
 
     // TODO: the "done" value needs to come from request
     //console.log(t)
@@ -142,7 +154,7 @@ const Post = (t, options = {
             <div className="reblogNotice">
                 {LinkToAccount(t.account)} reblogged
             </div>
-            {Post(t.reblog)}
+            {Post(t.reblog,options)}
         </div>
     } else {
         //console.log(t)
@@ -157,7 +169,7 @@ const Post = (t, options = {
             <div className="postBody nextToAvatar grow">
                 <div className="author">
                     <span className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></span>
-                    <span className="username">@{t.account.acct}</span>
+                    <span className="username">@{t.account.username}@{t.account.instance}</span>
                     <span className="time">{timeAgo.format(Date.parse(t.created_at), 'twitter')}</span>
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
@@ -167,9 +179,9 @@ const Post = (t, options = {
                     <fetcher.Form method="post" action="/post/like" reloadDocument>
                         <input type="hidden" name="postUrl" value={t.url} />
                         <input type="hidden" name="done" value={getProfileLink(t.account)} />
-                        <button type="submit" onClick={handleLike}>
-                            <div className="reactionButton likes">
-                            {t.favourites_count ? t.favourites_count : ''}
+                        <button className="postReaction" type="submit" onClick={options.handleLike}>
+                            <div className="likes">
+                            <HeartIcon>woo</HeartIcon>{t.favourites_count ? t.favourites_count : ''}
                             </div>
                         </button>
                     </fetcher.Form>

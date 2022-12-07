@@ -217,9 +217,13 @@ export async function getUserRemote(username, userInstance, authUser) {
   if (posts && posts.length > 0) {
     return posts.map((t) => {
       t.account.instance = getInstanceFromAccount(t.account)
+      if(t.reblog) {
+        t.reblog.account.instance = getInstanceFromAccount(t.account)
+      }
       return t
     })
   } else {
+    console.log("Did not format posts")
     return posts
   }
 }

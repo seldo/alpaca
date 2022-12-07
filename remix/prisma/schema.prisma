@@ -68,7 +68,7 @@ model TimelineEntry {
   viewerName     String
   viewerInstance String
 
-  @@unique([viewerName, viewerInstance, authorName, authorInstance, seenAt])
+  @@unique([viewerName, viewerInstance, authorName, authorInstance, postHash])
   @@index([viewerName, viewerInstance], map: "entries_for_viewer")
   @@index([viewerName, viewerInstance, seenAt], map: "entries_for_viewer_by_time")
 }

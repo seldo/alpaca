@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Post } from "~/shared/components/post"
+import { Post, cb } from "~/shared/components/post"
 import { ComposeBox } from "~/shared/components/compose"
 
 // time in seconds between refreshes
@@ -33,6 +33,7 @@ export default function Index() {
   // Get fresh data after x seconds and then every y seconds thereafter
   useEffect(() => {
     const interval = setInterval(() => {
+      console.log("Fetcher.data happened")
       if(refreshInterval == INITIAL_LOAD_DELAY) {
         setRefresh(ONGOING_LOAD_PERIOD)
       }
@@ -47,13 +48,14 @@ export default function Index() {
   }, [fetcher.data]);
 
   let makePostId = (post) => {
-    return `${post.authorName}:${post.authorInstance}:${post.hash}`
+    return `${post.account.username}:${post.account.instance}:${post.hash}`
   }
 
   // When the fetcher comes back with new data, update state
   useEffect(() => {
     if (fetcher.data) {
       let incoming = JSON.parse(fetcher.data)
+      console.log(incoming)
       // dedupe and merge incoming posts since this is not guaranteed
       let seenIds = []
       for(let i = 0; i < allPosts.length; i++) {
@@ -84,7 +86,7 @@ export default function Index() {
       <ul>
         {
           (allPosts.length > 0) ? allPosts.map( t=> {
-            return <li key={t.id}>{Post(t)}</li>
+            return <li key={makePostId(t)}>{Post(t,{avatar:true,handleLike,fetcher})}</li>
           }) : <li key="noTweets">No posts yet. Give it a sec.</li>
         }
       </ul>

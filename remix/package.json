@@ -8,7 +8,8 @@
     "dev:css": "tailwindcss -w -i ./styles/root.css -o app/styles/root.css",
     "start": "cross-env NODE_ENV=production netlify dev",
     "dbclient": "prisma generate ",
-    "dbmigrate": "prisma migrate dev --name "
+    "dbmigrate": "prisma migrate dev --name ",
+    "icons": "npx @svgr/cli --out-dir app/shared/icons -- public/images/reactify"
   },
   "dependencies": {
     "@netlify/functions": "^1.3.0",
@@ -29,6 +30,8 @@
     "@remix-run/dev": "^1.8.0",
     "@remix-run/eslint-config": "^1.8.0",
     "@remix-run/serve": "^1.8.0",
+    "@svgr/cli": "^6.5.1",
+    "@svgr/webpack": "^6.5.1",
     "autoprefixer": "^10.4.13",
     "concurrently": "^7.6.0",
     "eslint": "^8.27.0",
