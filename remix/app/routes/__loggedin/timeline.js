@@ -8,9 +8,9 @@ export const loader = async ({request}) => {
     const url = new URL(request.url);
     let minId = url.searchParams.get("minId");    
     if(minId == "null") minId = null // FIXME: why does this happen?
-    let tweets = await mastodon.getTimelineRemote(authUser,minId)
-    let tweetString = JSON.stringify(tweets)
-    return new Response(tweetString, {    
+    let posts = await mastodon.getTimelineRemote(authUser,minId)
+    let postString = JSON.stringify(posts)
+    return new Response(postString, {    
         status: 200
     });
 }

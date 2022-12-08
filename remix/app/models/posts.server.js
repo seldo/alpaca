@@ -6,11 +6,11 @@ import { authenticator } from "~/services/auth.server"
 // FIXME: it's sort of debatable that we need this except as a cache for later?
 // we already have all the data from the verification call
 export const getOrCreateUserFromData = async (userData, options = {
-  withTweets: false
+  withPosts: false
 }) => {
   console.log("getOrCreateUserFromData")
   // first try fetching them from the database
-  let user = await getUserLocal(userData, { withTweets: options.withTweets })
+  let user = await getUserLocal(userData, { withPosts: options.withPosts })
   // if we don't find them we store them
   if (!user) {
     console.log(`getOrCreateUserFromData: ${userData.username}@${userData.instance} not found`)
@@ -45,7 +45,7 @@ export const createUser = async (userData) => {
 }
 
 export const getUserLocal = async (user, options = {
-  withTweets: false
+  withPosts: false
 }) => {
   console.log(`getUserLocal ${user.username}@${user.instance}`)
 
@@ -124,7 +124,7 @@ export const getPostsRemote = async (remoteUser,authUser) => {
   let postsUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/${remoteUser.id}/statuses`)
   let postData = await fetch(postsUrl, {
     method: "GET"
-    // TODO: might want to get private tweets with token if authed
+    // TODO: might want to get private posts with token if authed
   })
   let posts = await postData.json()
   if(!posts) {
@@ -166,11 +166,11 @@ export async function getUserRemote(username, userInstance, authUser) {
 }
 
 /**
- * Gets the most recent tweets in the user's timeline
+ * Gets the most recent posts in the user's timeline
  * @param {} userData   User object must include username and instance
  * @param {*} options 
- *    hydrate   boolean Whether to hydrate the tweets 
- * @returns array of tweet IDs (default) or full tweets (if hydrate=true)
+ *    hydrate   boolean Whether to hydrate the posts
+ * @returns array of post IDs (default) or full posts (if hydrate=true)
  */
  export const getTimelineLocal = async (userData, options = {
   hydrate: false
@@ -196,7 +196,7 @@ export async function getUserRemote(username, userInstance, authUser) {
 
   let timelineEntries = await prisma.timelineEntry.findMany(query)
 
-  // transform into full tweets
+  // transform into full posts
   if (options.hydrate) {
     let entries = timelineEntries.map((entry) => {
       return entry.post.json
@@ -211,7 +211,7 @@ export async function getUserRemote(username, userInstance, authUser) {
 
 /**
  * Transform mastodon's account object on each post to include an instance
- * @param {} tweets 
+ * @param {} posts
  */
  function formatPostUsers(posts) {
   if (posts && posts.length > 0) {
@@ -231,10 +231,10 @@ export async function getUserRemote(username, userInstance, authUser) {
 /**
  * Fetches a user's timeline from the remote Mastodon instance. 
  * Stores the timeline entries in the timeline cache, and stores 
- * any tweets and authors we haven't seen before into those caches.
+ * any posts and authors we haven't seen before into those caches.
  * @param {}      userData  Must contain an .id and .accessToken property
- * @param String  minId     Tweets before this ID will not be fetched
- * @returns array of fully-hydrated tweets including RTs.
+ * @param String  minId     Posts before this ID will not be fetched
+ * @returns array of fully-hydrated posts including RPs.
  */
  export async function getTimelineRemote(user, minId = null) {
   console.log("getTimelineRemote")
@@ -652,4 +652,60 @@ export const rePost = async (postUrlString, authUser) => {
   }
   // this is the entire post
   return reposted
+}
+
+export const getPostRemote = async(postId = {
+  postUrl,       //   either
+  username,      //}
+  userInstance,  // } or
+  postId         //}
+},authUser) => {
+  // we don't know the internal ID so we have to resolve that first via search
+  let postUrlString
+  if(postId.postUrl) { // TODO: regex
+    postUrlString = postId.postUrl
+  } else if (postId.username && postId.userInstance && postId.postId) {
+    postUrlString = `${getInstanceUrl(postId.userInstance)}/@${postId.username}/${postId.postId}`
+    console.log(postUrlString)
+  } else {
+    console.log("got post identity",postId)
+    throw new Error("getPostRemote could not format a postUrlString")
+  }
+  let searchResults = await search(postUrlString,authUser,{
+    type: 'statuses',
+    resolve: true
+  })
+  if(!searchResults.statuses[0]) {
+    throw new Error(`getPostRemote could not find post ${postUrlString}`)
+  }
+  return searchResults.statuses[0]
+  
+}
+
+export const getThreadRemote = async(postId = {
+    postUrl,       //   either
+    username,      //}
+    userInstance,  // } or
+    postId         //}
+  },authUser) => {
+    let post = await getPostRemote(postId,authUser)
+    // now we have the internal ID so we can get all the goodies
+    let postUrl = new URL(getInstanceUrl(authUser.instance))
+    let threadUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/statuses/${post.id}/context`)
+    let threadData = await fetch(threadUrl, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${authUser.accessToken}`
+      }
+    })
+    let thread = await threadData.json()
+    if(!thread) {
+      throw new Error("Did not find thread for post ID " + post.id)
+    }
+    if(thread.error) {
+      throw new Error(`Error retrieving thread for ${post.id}`)
+    }
+    thread.post = post
+    return thread
+
 }

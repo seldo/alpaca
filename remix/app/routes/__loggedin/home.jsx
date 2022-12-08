@@ -98,7 +98,7 @@ export default function Index() {
         {
           (allPosts.length > 0) ? allPosts.map(t => {
             return <li key={makePostId(t)}>{Post(t, { avatar: true, fetcher, handleLike: reactionClick })}</li>
-          }) : <li key="noTweets">No posts yet. Give it a sec.</li>
+          }) : <li key="noPosts">No posts yet. Give it a sec.</li>
         }
       </ul>
     </div>

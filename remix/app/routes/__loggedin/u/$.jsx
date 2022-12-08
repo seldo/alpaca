@@ -69,7 +69,7 @@ export default function Index() {
             <Link to="/" onClick={() => navigate(-1)}><div className="backButton"></div></Link>
             <div>
                 <div className="displayName">{user.display_name || user.username}</div>
-                <div className="tweetCount">{user.statuses_count} posts</div>
+                <div className="postCount">{user.statuses_count} posts</div>
             </div>
         </div>
         <div className="profileHeader">
@@ -98,7 +98,7 @@ export default function Index() {
         {
           (user.posts && user.posts.length > 0) ? user.posts.map( t=> {
             return <li key={t.id}>{Post(t,{avatar: true, fetcher, handleLike: reactionClick})}</li>
-          }) : <li key="noTweets">No posts yet. Give it a sec.</li>
+          }) : <li key="noPosts">No posts yet. Give it a sec.</li>
         }
         </ul>
         </div>

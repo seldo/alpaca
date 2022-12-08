@@ -96,6 +96,26 @@ export const getProfileLink = (account) => {
     return `/u/${account.username}@${account.instance}`
 }
 
+export const getPostData = (post) => {
+    const regex = /https:\/\/(.*)\/@(.*)\/(.*)/gm;
+    try {
+        let [,userInstance,username,postId] = regex.exec(post.url)
+        return {
+            username,
+            userInstance,
+            postId
+        }        
+    } catch(e) {
+        console.error("Got a non-mastodon URL",post.url)
+        return null
+    }
+}
+export const getPostLink = (post) => {
+    let postData = getPostData(post)
+    if(!postData) return "/can/not/parse/post"
+    return `/s/${postData.username}@${postData.userInstance}/${postData.postId}`
+}
+
 export const LinkToAccount = (account, content) => {
     let profileLink = getProfileLink(account)
     return <Link to={profileLink}>{(account.display_name || "@" + account.username)}</Link>
@@ -163,7 +183,7 @@ const Post = (t, options = {
                 <div className="author">
                     <span className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></span>
                     <span className="username">@{t.account.username}@{t.account.instance}</span>
-                    <span className="time">{timeAgo.format(Date.parse(t.created_at), 'twitter')}</span>
+                    <span className="time"><Link to={getPostLink(t)}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></span>
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
                 <div className="reactions flex flex-row place-content-between w-full">
