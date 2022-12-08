@@ -106,13 +106,16 @@ export const getPostData = (post) => {
             postId
         }        
     } catch(e) {
-        console.error("Got a non-mastodon URL",post.url)
+        //console.error("Got a non-mastodon URL",post.url)
         return null
     }
 }
 export const getPostLink = (post) => {
     let postData = getPostData(post)
-    if(!postData) return "/can/not/parse/post"
+    if(!postData) {
+        // best effort
+        return `/s/nonstandard/` + post.url.replace("https://","")
+    }
     return `/s/${postData.username}@${postData.userInstance}/${postData.postId}`
 }
 

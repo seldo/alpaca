@@ -682,15 +682,16 @@ export const getPostRemote = async(postId = {
   
 }
 
+// FIXME: we should be storing every tweet in the thread and loading local-first
 export const getThreadRemote = async(postId = {
     postUrl,       //   either
     username,      //}
     userInstance,  // } or
     postId         //}
   },authUser) => {
+    console.log("getThreadRemote")
     let post = await getPostRemote(postId,authUser)
     // now we have the internal ID so we can get all the goodies
-    let postUrl = new URL(getInstanceUrl(authUser.instance))
     let threadUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/statuses/${post.id}/context`)
     let threadData = await fetch(threadUrl, {
       method: "GET",
