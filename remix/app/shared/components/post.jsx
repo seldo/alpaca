@@ -2,7 +2,6 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
-import { HeartIcon, RepostIcon } from "~/shared/icons";
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -108,6 +107,7 @@ let whichOne = null
 export const reactionClick = function(e) {
     //console.log("they clicked the button so we submit the fetcher")
     e.preventDefault()
+    e.stopPropagation()
     fetcher.submit(e.currentTarget)
     whichOne = e.currentTarget
 }
@@ -115,16 +115,22 @@ export const reactionClick = function(e) {
 export const reactionState = function() {
     //console.log("Handler says state changed for this post; do animation here")
     if(whichOne) {
-        let classes = whichOne.getElementsByClassName('reactionCount')[0].getAttribute('class').split(" ")
-        if(classes.includes("likes") || classes.includes("repost"))
-        whichOne.getElementsByTagName('svg')[0].style.transition = "1.5s"
-        whichOne.getElementsByTagName('svg')[0].style.transform = "rotate(720deg)"
-        whichOne.getElementsByTagName('svg')[0].style.fill = 'red'
+        let containerState = whichOne.getElementsByClassName('reactionCount')[0].classList
+        if(containerState.contains("likes") || containerState.contains("reposts")) {
+            let icon = whichOne.getElementsByClassName('reactionIcon')[0]
+            icon.classList.add("active")
+            icon.style.transition = "1.5s"
+            icon.style.transform = "rotate(720deg)"
+        }
     }    
 }
 
 export const reactionData = function() {
     //console.log("Handler says data changed so it probably should do stuff with that")
+}
+
+let nuffin = () => {
+    console.log("Nuffin")
 }
 
 const Post = (t, options = {
@@ -134,7 +140,6 @@ const Post = (t, options = {
     // can I do this?
     fetcher = options.fetcher
 
-    // TODO: the "done" value needs to come from request
     //console.log(t)
     if(!t.account.instance) t.account.instance = getInstanceFromAccount(t.account)
     if (t.reblog !== null) {
@@ -146,7 +151,7 @@ const Post = (t, options = {
         </div>
     } else {
         //console.log(t)
-        return <div className="post flex flex-row w-full">
+        return <div className="post flex flex-row w-full" onClick={nuffin}>
             <div className="gutter">
                 {
                     (options.avatar) ? <div className="authorAvatar">
@@ -167,7 +172,7 @@ const Post = (t, options = {
                         <input type="hidden" name="postUrl" value={t.url} />
                         <button className="postReaction" type="submit" onClick={options.handleLike}>
                             <div className="reactionCount reposts">
-                                <RepostIcon></RepostIcon>
+                                <div className="reactionIcon"></div>
                                 <span>{t.reblogs_count ? t.reblogs_count : ''}</span>
                             </div>
                         </button>
@@ -176,7 +181,7 @@ const Post = (t, options = {
                         <input type="hidden" name="postUrl" value={t.url} />
                         <button className="postReaction" type="submit" onClick={options.handleLike}>
                             <div className="reactionCount likes">
-                                <HeartIcon></HeartIcon>
+                                <div className="reactionIcon"></div>
                                 <span>{t.favourites_count ? t.favourites_count : ''}</span>
                             </div>
                         </button>

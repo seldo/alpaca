@@ -3,7 +3,9 @@ import * as mastodon from "~/models/posts.server";
 
 export const loader = async ({request}) => {
     console.log("/notifications_count called")
-    let authUser = await authenticateAndRefresh(request)
+    let authUser = await authenticateAndRefresh(request,{
+        failureRedirect: "/"
+    })
     const url = new URL(request.url);
     let minId = url.searchParams.get("minId");    
     if(minId == "null") minId = null

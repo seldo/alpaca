@@ -632,6 +632,11 @@ video {
   transition-duration: 150ms;
 }
 
+:root {
+  --white: rgb(255, 255, 255)
+
+}
+
 .floof {
   min-height: 20px;
   max-height: 50px;
@@ -648,7 +653,7 @@ h2 {
   font-weight: bold;
   padding: 7px 12px;
   border-radius: 20px;
-  color: #fff;
+  color: var(--white);
   background-color: #ccc;
 }
 
@@ -671,10 +676,18 @@ h2 {
   font-weight: bold;
 }
 
+.displayName a:hover {
+  text-decoration: underline;
+}
+
 .username {
   color: #888;
   font-size: 90%;
   margin-left: 5px;
+}
+
+.reblogNotice a:hover {
+  text-decoration: underline;
 }
 
 .time {
@@ -817,6 +830,10 @@ h2 {
   padding-right: 10px;
 }
 
+.post:hover {
+  background-color: #fafafa;
+}
+
 .post .reactions {
   padding-top: 10px;
 }
@@ -847,19 +864,33 @@ h2 {
   color: #888;
 }
 
-.postReaction .reactionCount svg {
+.postReaction .reactionIcon {
+  width: 22px;
+  height: 22px;
+  background-size: contain;
   display: inline-block;
-  margin-right: 5px;
 }
 
-.postReaction .likes svg {
-  width: 16px;
-  height: 16px;
+.postReaction .reposts .reactionIcon {
+  background-image: url("/images/reactify/icon-repost.svg");
+}
+
+.postReaction .reposts .reactionIcon.active {
+  background-image: url("/images/reactify/icon-repost-active.svg");
+}
+
+.postReaction .likes .reactionIcon {
+  background-image: url("/images/reactify/icon-heart.svg");
+}
+
+.postReaction .likes .reactionIcon.active {
+  background-image: url("/images/reactify/icon-heart-active.svg");
 }
 
 .postReaction span {
   position: relative;
-  top: 1.5px;
+  top: -6px;
+  left: 2px;
 }
 
 .reblog .reblogNotice {
