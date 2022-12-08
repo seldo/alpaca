@@ -136,6 +136,7 @@ const Post = (t, options = {
 
     // TODO: the "done" value needs to come from request
     //console.log(t)
+    if(!t.account.instance) t.account.instance = getInstanceFromAccount(t.account)
     if (t.reblog !== null) {
         return <div className="reblog">
             <div className="reblogNotice">

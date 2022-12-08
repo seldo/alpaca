@@ -5,7 +5,7 @@ import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import Globalnav from "~/shared/components/globalnav"
 
-const INITIAL_LOAD_DELAY = 1
+const INITIAL_LOAD_DELAY = 5
 const ONGOING_LOAD_PERIOD = 10
 const MIN_ID = "notifications_most_recent_id"
 
