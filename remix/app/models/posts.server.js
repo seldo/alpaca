@@ -218,7 +218,7 @@ export async function getUserRemote(username, userInstance, authUser) {
     return posts.map((t) => {
       t.account.instance = getInstanceFromAccount(t.account)
       if(t.reblog) {
-        t.reblog.account.instance = getInstanceFromAccount(t.account)
+        t.reblog.account.instance = getInstanceFromAccount(t.reblog.account)
       }
       return t
     })
