@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
-import { Post, reactionClick, reactionState, reactionData } from "~/shared/components/post"
+import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/shared/components/post"
 import { ComposeBox } from "~/shared/components/compose"
 
 // time in seconds between refreshes
@@ -51,10 +51,6 @@ export default function Index() {
   useEffect(() => {
     reactionState()
   }, [fetcher.state]);
-
-  let makePostId = (post) => {
-    return `${post.account.username}:${post.account.instance}:${post.hash}`
-  }
 
   // When the fetcher comes back with new posts, update timeline
   useEffect(() => {

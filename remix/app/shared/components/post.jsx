@@ -7,6 +7,10 @@ import { Link } from "react-router-dom";
 TimeAgo.addLocale(en)
 const timeAgo = new TimeAgo('en-US')
 
+export const makePostId = (post) => {
+    return `${post.account.username}:${post.account.instance}:${post.hash}`
+  }
+
 const parseThingId = (n) => {
     switch (n.type) {
         case "mention": return "mentioned_" + n.status.id
