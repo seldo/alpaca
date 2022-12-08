@@ -2,7 +2,7 @@ import Avatar from "~/shared/components/avatar"
 import { Link } from "react-router-dom";
 
 export default function Globalnav({user}) {
-    return <div className="menu-bar flex flex-col place-content-between h-full">
+    return <div className="globalNav menu-bar flex flex-col place-content-between h-full">
         <div className="menu">
             <div className="logo py-2">
                 <img className="floof" src="/images/floof-with-border.svg" />

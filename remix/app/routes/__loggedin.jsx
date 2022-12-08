@@ -5,8 +5,8 @@ import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import Globalnav from "~/shared/components/globalnav"
 
-const INITIAL_LOAD_DELAY = 5
-const ONGOING_LOAD_PERIOD = 10
+const INITIAL_LOAD_DELAY = 10
+const ONGOING_LOAD_PERIOD = 30
 const MIN_ID = "notifications_most_recent_id"
 
 export const loader = async ({request}) => {
@@ -57,9 +57,7 @@ export default function Index() {
     }, [notificationsCount])
 
     return <div>
-        <div className="main-gutter h-screen fixed top-0">
-            <Globalnav user={user} />
-        </div>
+        <Globalnav user={user} />
         {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
         <div className="content">
             <Outlet context={{user}}/>

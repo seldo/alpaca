@@ -89,7 +89,7 @@ const getOrCreateInstance = async (instanceName) => {
         return user
       }
     ),
-    "Mastodon"
+    instanceName
   )
   return authenticator
 }

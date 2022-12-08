@@ -6,8 +6,8 @@ import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/
 import { ComposeBox } from "~/shared/components/compose"
 
 // time in seconds between refreshes
-const INITIAL_LOAD_DELAY = 5
-const ONGOING_LOAD_PERIOD = 10
+const INITIAL_LOAD_DELAY = 10
+const ONGOING_LOAD_PERIOD = 30
 const MIN_ID = "notifications_most_recent_id"
 
 export const loader = async ({ request, data }) => {
