@@ -28,18 +28,12 @@ export default function Index() {
   const [allPosts, setPosts] = useState(localPosts);
   useEffect(() => setPosts(allPosts), [allPosts]);
   const fetcher = useFetcher();
-  const fetcher2 = useFetcher();
 
   const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
 
   // Get fresh data after x seconds and then every y seconds thereafter
   useEffect(() => {
     const interval = setInterval(() => {
-      if (window && window.localStorage) {
-        if (window.localStorage[MIN_ID]) {
-          fetcher2.load("/notifications_count?minId=" + window.localStorage[MIN_ID])
-        }
-      }
       if (refreshInterval == INITIAL_LOAD_DELAY) {
         setRefresh(ONGOING_LOAD_PERIOD)
       }
@@ -51,7 +45,7 @@ export default function Index() {
     }, refreshInterval * 1000);
     return () => clearInterval(interval);
     // FIXME: because this depends on fetcher.data, initial load is true until we get our first data
-  }, [fetcher.data, fetcher2.data]);
+  }, [fetcher.data]);
 
   // Get fresh data after x seconds and then every y seconds thereafter
   useEffect(() => {
@@ -92,28 +86,11 @@ export default function Index() {
     }
   }, [fetcher.data]);
 
-  const [notificationsCount, setNotificationsCount] = useState(false);
-  // When the fetcher comes back with notifications count, update that
-  useEffect(() => {
-    if (fetcher2.data) {
-      console.log("Fetcher saw data", fetcher2.data)
-      setNotificationsCount(JSON.parse(fetcher2.data)['unreadCount'])
-    }
-  }, [fetcher2.data]);
-
-  useEffect(() => {
-    console.log("new count", notificationsCount)
-    if(window && window.document) {
-      window.document.title = (notificationsCount ? `(${notificationsCount}) ` : ``) + `Alpaca Blue: a Mastodon client`
-    }
-  }, [notificationsCount])
-
   return (
     <div>
       <div className="latest">
         <h2>Latest posts</h2>
       </div>
-      {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
       <div className="composeTop">
         <ComposeBox user={user} />
       </div>

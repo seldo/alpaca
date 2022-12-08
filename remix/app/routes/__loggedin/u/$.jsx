@@ -69,7 +69,7 @@ export default function Index() {
             <Link to="/" onClick={() => navigate(-1)}><div className="backButton"></div></Link>
             <div>
                 <div className="displayName">{user.display_name || user.username}</div>
-                <div className="tweetCount">{user.statuses_count} tweets</div>
+                <div className="tweetCount">{user.statuses_count} posts</div>
             </div>
         </div>
         <div className="profileHeader">
