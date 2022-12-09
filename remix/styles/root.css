@@ -21,6 +21,7 @@
     --blue-container: #EFF5FB;
     --grey-inactive: #6E7077;
     --grey-primary: #1A1B1C;
+    --grey-primary-5pc: rgba(26, 27, 28, 0.05);
     --grey-primary-10pc: rgba(26, 27, 28, 0.1);
     --grey-primary-20pc: rgba(26, 27, 28, 0.2);
     --grey-secondary: #38376B;
@@ -234,6 +235,9 @@
     font-size: 15.5px;
     line-height: 24px;    
 }
+.postOrRepost:hover {
+    background-color: var(--grey-primary-5pc);
+}
 .post .author {
     display: flex;
     flex-direction: row;
@@ -286,8 +290,50 @@
 }
 .replies .reactionIcon { background-image: url('/images/icon-reply.svg') }
 .reposts .reactionIcon { background-image: url('/images/icon-repost.svg') }
+.reposts .reactionIcon.active { 
+    background-image: url("/images/icon-repost-active.svg"); 
+}
 .likes .reactionIcon { background-image: url('/images/icon-heart.svg') }
+.likes .reactionIcon.active {
+    background-image: url("/images/icon-heart-active.svg");
+}
 .share .reactionIcon { background-image: url('/images/icon-share.svg') }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /********************************* old UI **************************************/
 

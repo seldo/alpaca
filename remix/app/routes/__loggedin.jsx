@@ -15,12 +15,12 @@ export const loader = async ({request}) => {
         throwOnError: true
     })
     let user = await mastodon.getOrCreateUserFromData(authUser)
-    return { user }
+    return { user, request }
 }
 
 export default function Index() {
     const loaderData = useLoaderData();
-    const {user} = loaderData  
+    const {user, request} = loaderData  
     const fetcher = useFetcher();
     const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
 
@@ -57,7 +57,7 @@ export default function Index() {
     }, [notificationsCount])
 
     return <div className="loggedIn">
-        <Globalnav user={user} />
+        <Globalnav user={user} request={request} />
         {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
         <div className="content">
             <Outlet context={{user}}/>

@@ -125,7 +125,7 @@ export const authenticateAndRefresh = async (request,options = {
     authenticator = await getOrCreateInstance(instanceName)
     console.log("instantiated authenticator for instance",instanceName)
   }
-  console.log("authenticator exists",authenticator)
+  console.log("authenticator exists")
   try {
     let authUser = await authenticator.isAuthenticated(request, options)
     if(!authUser || authUser.error) {

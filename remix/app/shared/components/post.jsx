@@ -137,12 +137,13 @@ export const reactionClick = function(e) {
     e.stopPropagation()
     fetcher.submit(e.currentTarget)
     whichOne = e.currentTarget
+    console.log("I have found The One",whichOne)
 }
 
 export const reactionState = function() {
     //console.log("Handler says state changed for this post; do animation here")
     if(whichOne) {
-        let containerState = whichOne.getElementsByClassName('reactionCount')[0].classList
+        let containerState = whichOne.parentNode.parentNode.classList
         if(containerState.contains("likes") || containerState.contains("reposts")) {
             let icon = whichOne.getElementsByClassName('reactionIcon')[0]
             icon.classList.add("active")
@@ -161,7 +162,8 @@ let nuffin = () => {
 }
 
 const Post = (t, options = {
-    avatar: true
+    avatar: true,
+    isRepost: false
 }) => {
 
     // can I do this?
@@ -170,15 +172,18 @@ const Post = (t, options = {
     //console.log(t)
     if(!t.account.instance) t.account.instance = getInstanceFromAccount(t.account)
     if (t.reblog !== null) {
-        return <div className="repost">
+        return <div className="postOrRepost repost">
             <div className="repostNotice">
                 <span className="repostDisplayName">{LinkToAccount(t.account)}</span> reblogged
             </div>
-            {Post(t.reblog,options)}
+            {Post(t.reblog,{
+                isRepost: true,
+                ...options
+            })}
         </div>
     } else {
         //console.log(t)
-        return <div className="post" onClick={nuffin}>
+        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} onClick={nuffin}>
             <div className="postBody">
                 <div className="author">
                     {

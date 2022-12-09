@@ -1,12 +1,25 @@
 import Avatar from "~/shared/components/avatar"
 import { Link } from "react-router-dom";
+import { useMatches } from "@remix-run/react";
+import { useNavigate } from "react-router-dom";
 
 export default function Globalnav({user}) {
+    const matches = useMatches();
+    const navigate = useNavigate();
+    let pathname = matches[matches.length-1].pathname
+    console.log("pathname",pathname)
+    let isHome = false
+    if (pathname == "/home") isHome = true;
+
     return <div className="globalNav">
-        <div className="logo">
-            <img className="floof" src="/images/ab-logomark.svg" />
-            <img className="logoType" src="/images/ab-logotype.svg" />
-        </div>
+        {
+            (isHome) ? <div className="logo">
+                <img className="floof" src="/images/ab-logomark.svg" />
+                <img className="logoType" src="/images/ab-logotype.svg" />
+            </div> : <div>
+                <Link to="/" onClick={() => navigate(-1)}>Back</Link>
+            </div>
+        }
         <div className="profileMenu">
             <Avatar user={user} />
         </div>
