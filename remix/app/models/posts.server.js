@@ -466,7 +466,7 @@ export const getNotificationsRemote = async (user, minId = null) => {
   console.log("fetchNotificationsRemote")
   let notificationsUrl = new URL(getInstanceUrl(user.instance) + `/api/v1/notifications`)
   notificationsUrl.searchParams.set('limit', 200)
-  notificationsUrl.searchParams.set('min_id', minId)
+  if (minId !== null) notificationsUrl.searchParams.set('min_id', minId)
   let notificationsData = await fetch(notificationsUrl.toString(), {
     method: "GET",
     headers: {

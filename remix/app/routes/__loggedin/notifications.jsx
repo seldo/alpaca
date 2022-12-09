@@ -5,7 +5,7 @@ import { Post, batchNotifications, reactionClick, reactionState, reactionData } 
 import { LinkToAccount } from "~/shared/components/post"
 import { useEffect, useState } from "react";
 
-const NOTIFICATONS_FETCH_INTERVAL = 5
+const NOTIFICATONS_FETCH_INTERVAL = 15
 const MIN_ID = "notifications_most_recent_id" // FIXME: exists in two places
 
 export const loader = async ({request}) => {
@@ -110,7 +110,7 @@ export default function Index() {
               else return -1
             })
             // storing state across pages
-            if(window && window.localStorage) {
+            if(window && window.localStorage && newNotifications.length > 0) {
                 window.localStorage[MIN_ID] = newNotifications[0].id   
             }
             setNotifications(newNotifications)
@@ -128,7 +128,7 @@ export default function Index() {
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.id}_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher)}</li>
+                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher)}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }
