@@ -84,9 +84,6 @@ export default function Index() {
 
   return (
     <div>
-      <div className="latest">
-        <h2>Latest posts</h2>
-      </div>
       <div className="composeTop">
         <ComposeBox user={user} />
       </div>

@@ -14,15 +14,17 @@ export const loader = async ({request}) => {
 
 export default function Index() {
   return (
-    <div className="container mx-auto px-4">
-      <h1>Alpaca Blue</h1>
-      <h2>An open source Mastodon client</h2>
-      <div>
+    <div className="container">
+      <h2>It's an open source Mastodon client.</h2>
+      <p>I'm sorry.</p>
+      <p>To login, enter your instance name (if your mastodon handle is myname@some.domain, your instance name is "some.domain").</p>
+      <div class="temporaryLogin">
         <Form method="get" action="/auth/mastodon">
           <p>Instance name: <input type="text" name="instance" /></p>
           <button type="submit">Login</button>
         </Form>
       </div>
+      <p>If you don't have a mastodon account you can create one over at <a href="https://seldo.dev">seldo.dev</a> but it's a test server so don't expect it to be around forever.</p>
     </div>
   );
 }

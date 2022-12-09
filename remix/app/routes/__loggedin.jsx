@@ -56,7 +56,7 @@ export default function Index() {
       }
     }, [notificationsCount])
 
-    return <div>
+    return <div className="loggedIn">
         <Globalnav user={user} />
         {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
         <div className="content">

@@ -5,7 +5,6 @@ export const ComposeBox = ({user}) => {
     return <div className="composeBox">
         <Form method="post" action="/post/create" reloadDocument>
             <div className="pr-4 flex flex-row">
-                <Avatar user={user} />
                 <div className="w-full">
                     <textarea name="post" placeholder="What's up?"></textarea>
                 </div>

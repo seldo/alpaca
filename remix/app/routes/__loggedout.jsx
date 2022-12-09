@@ -14,10 +14,8 @@ export const loader = async ({request}) => {
 }
 
 export default function Index() {
-    return <div>
-        <div className="main-gutter h-screen fixed top-0">
+    return <div className="loggedOut">
         <Globalnav />
-        </div>
         <div className="content">
             <Outlet />
         </div>

@@ -186,7 +186,8 @@ export async function getUserRemote(username, userInstance, authUser) {
     },
     orderBy: {
       seenAt: "desc"
-    }
+    },
+    take: 100
   }
   if (options.hydrate) {
     query.include = {

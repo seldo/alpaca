@@ -170,50 +170,56 @@ const Post = (t, options = {
     //console.log(t)
     if(!t.account.instance) t.account.instance = getInstanceFromAccount(t.account)
     if (t.reblog !== null) {
-        return <div className="reblog">
-            <div className="reblogNotice">
-                {LinkToAccount(t.account)} reblogged
+        return <div className="repost">
+            <div className="repostNotice">
+                <span className="repostDisplayName">{LinkToAccount(t.account)}</span> reblogged
             </div>
             {Post(t.reblog,options)}
         </div>
     } else {
         //console.log(t)
-        return <div className="post flex flex-row w-full" onClick={nuffin}>
-            <div className="gutter">
-                {
-                    (options.avatar) ? <div className="authorAvatar">
-                        <Avatar user={t.account} />
-                    </div> : <div />
-                }
-            </div>
-            <div className="postBody nextToAvatar grow">
+        return <div className="post" onClick={nuffin}>
+            <div className="postBody">
                 <div className="author">
-                    <span className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></span>
-                    <span className="username">@{t.account.username}@{t.account.instance}</span>
-                    <span className="time"><Link to={getPostLink(t)}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></span>
+                    {
+                        (options.avatar) ? <div className="authorAvatar">
+                            <Avatar user={t.account} />
+                        </div> : <div />
+                    }
+                    <div className="authorText">
+                        <div className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></div>
+                        <div className="username">@{t.account.username}@{t.account.instance}</div>
+                    </div>
+                    <div className="time"><Link to={getPostLink(t)}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></div>
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
-                <div className="reactions flex flex-row place-content-between w-full">
-                    <div className="reactionButton replies">{t.replies_count ? t.replies_count : ''}</div>
-                    <fetcher.Form method="post" action="/post/repost" reloadDocument>
-                        <input type="hidden" name="postUrl" value={t.url} />
-                        <button className="postReaction" type="submit" onClick={options.handleLike}>
-                            <div className="reactionCount reposts">
+                <div className="reactions">
+                    <div className="reaction replies">
+                        <div className="reactionIcon"></div>
+                        <span>{t.replies_count ? t.replies_count : ''}</span>
+                    </div>
+                    <div className="reaction reposts">                        
+                        <fetcher.Form method="post" action="/post/repost" reloadDocument>
+                            <input type="hidden" name="postUrl" value={t.url} />
+                            <button className="postReaction" type="submit" onClick={options.handleLike}>
                                 <div className="reactionIcon"></div>
                                 <span>{t.reblogs_count ? t.reblogs_count : ''}</span>
-                            </div>
-                        </button>
-                    </fetcher.Form>
-                    <fetcher.Form method="post" action="/post/like" reloadDocument>
-                        <input type="hidden" name="postUrl" value={t.url} />
-                        <button className="postReaction" type="submit" onClick={options.handleLike}>
-                            <div className="reactionCount likes">
+                            </button>
+                        </fetcher.Form>
+                    </div>
+                    <div className="reaction likes">                        
+                        <fetcher.Form method="post" action="/post/like" reloadDocument>
+                            <input type="hidden" name="postUrl" value={t.url} />
+                            <button className="postReaction" type="submit" onClick={options.handleLike}>
                                 <div className="reactionIcon"></div>
                                 <span>{t.favourites_count ? t.favourites_count : ''}</span>
-                            </div>
-                        </button>
-                    </fetcher.Form>
-                    <div className="reactionButton share"><span>Share</span></div>
+                            </button>
+                        </fetcher.Form>
+                    </div>
+                    <div className="reaction share">
+                        <div className="reactionIcon"></div>
+                        <span>Share</span>
+                    </div>
                 </div>
             </div>
         </div>
