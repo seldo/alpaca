@@ -26,13 +26,13 @@ export default function Index() {
     const fetcher = useFetcher();
     const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
 
+    /*
     const matches = useMatches();
     let pathname = matches[matches.length-1].pathname
-    let isHome = false
     if (pathname == "/home") isHome = true;
-    /*
     const navigate = useNavigate();
     */
+    let isHome = false
 
     // Get fresh data after x seconds and then every y seconds thereafter
     useEffect(() => {
