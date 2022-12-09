@@ -10,7 +10,7 @@ export let authenticator
 export const authenticateAnyInstance = async (instanceName,request,options) => {
   console.log("authenticateAnyInstance")
   console.log("aai: authenticator exists", authenticator)
-  if (!authenticator || authenticator.strategies.get(instanceName)) {
+  if (!authenticator || !authenticator.strategies.get(instanceName)) {
     console.log("No authenticator or not the strategy we need so we are creating one for strategy",instanceName)
     authenticator = await getOrCreateInstance(instanceName)
     console.log("Created authenticator",authenticator)
