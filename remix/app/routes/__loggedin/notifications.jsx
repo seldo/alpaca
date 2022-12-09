@@ -30,11 +30,11 @@ const formatEvent = (event,fetcher) => {
                         <span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your post
                     </div>
                 }
-                {Post(event.status,{avatar:false,displayName: false,fetcher,handleLike:reactionClick})}
+                {Post(event.status,{isRepost: true, avatar:false,displayName: false,fetcher,handleLike:reactionClick})}
             </div>
         case "mention":
             return <div className="notificationMessage notifyMention">
-                {Post(event.status,{fetcher,handleLike:reactionClick})}
+                {Post(event.status,{isRepost: true,fetcher,handleLike:reactionClick})}
             </div>
         case "follow":
             return <div className="notificationMessage notifyFollow">

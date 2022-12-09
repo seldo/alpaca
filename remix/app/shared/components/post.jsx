@@ -182,8 +182,8 @@ const Post = (t,options) => {
                 <span className="repostDisplayName">{LinkToAccount(t.account)}</span> reblogged
             </div>
             {Post(t.reblog, {
-                isRepost: true,
-                ...options
+                ...options,
+                isRepost: true
             })}
         </div>
     } else {
