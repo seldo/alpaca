@@ -1,7 +1,7 @@
 import Avatar from "~/shared/components/avatar"
 import { Link } from "react-router-dom";
 
-export default function Globalnav({user,isHome}) {
+export default function Globalnav({user,isHome,navigate}) {
 
     return <div className="globalNav">
         {
@@ -9,7 +9,7 @@ export default function Globalnav({user,isHome}) {
                 <img className="floof" src="/images/ab-logomark.svg" />
                 <img className="logoType" src="/images/ab-logotype.svg" />
             </div> : <div className="backLink">
-                <Link to="/">
+                <Link to="/" onClick={() => navigate(-1)}>
                     <div className="arrow"><span>Back</span></div>
                 </Link>
             </div>

@@ -2,7 +2,8 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
+//import { Form } from "@remix-run/react";
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -163,7 +164,6 @@ let visitThread = () => {
 }
 
 const Post = (t,options) => {
-    const navigate = useNavigate();
     options = {
         avatar: true,
         displayName: true,
@@ -188,7 +188,7 @@ const Post = (t,options) => {
         </div>
     } else {
         //console.log(t)
-        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} onClick={() => navigate(getPostLink(t))}>
+        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`}>
             <div className="postBody">
                 <div className="author">
                     {

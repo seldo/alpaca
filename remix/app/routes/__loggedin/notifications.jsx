@@ -5,7 +5,7 @@ import { Post, batchNotifications, reactionClick, reactionState, reactionData } 
 import { LinkToAccount } from "~/shared/components/post"
 import { useEffect, useState } from "react";
 
-const NOTIFICATONS_FETCH_INTERVAL = 15
+const NOTIFICATONS_FETCH_INTERVAL = 5
 const MIN_ID = "notifications_most_recent_id" // FIXME: exists in two places
 
 export const loader = async ({request}) => {

@@ -370,6 +370,7 @@ const storeUsers = async (users) => {
 }
 
 const storeInstances = async (instances) => {
+  console.log("storeInstances")
   let batchData = instances.map( (u) => {
     return {
       name: u,

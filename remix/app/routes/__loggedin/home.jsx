@@ -6,11 +6,11 @@ import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/
 import { ComposeBox } from "~/shared/components/compose"
 
 // time in seconds between refreshes
-const INITIAL_LOAD_DELAY = 30
-const ONGOING_LOAD_PERIOD = 60
+const INITIAL_LOAD_DELAY = 5
+const ONGOING_LOAD_PERIOD = 10
 const MIN_ID = "notifications_most_recent_id"
 
-export const loader = async ({ request, data }) => {
+export const loader = async ({ request }) => {
   let authUser = await authenticateAndRefresh(request, {
     failureRedirect: "/?fromhome",
     throwOnError: true
@@ -55,7 +55,7 @@ export default function Index() {
   // When the fetcher comes back with new posts, update timeline
   useEffect(() => {
     if (fetcher.data) {
-      reactionData()
+      //reactionData()
       let incoming
       try {
         incoming = JSON.parse(fetcher.data)
