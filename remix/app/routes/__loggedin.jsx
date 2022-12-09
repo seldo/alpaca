@@ -5,13 +5,13 @@ import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import Globalnav from "~/shared/components/globalnav"
 
-const INITIAL_LOAD_DELAY = 10
-const ONGOING_LOAD_PERIOD = 30
+const INITIAL_LOAD_DELAY = 30
+const ONGOING_LOAD_PERIOD = 60
 const MIN_ID = "notifications_most_recent_id"
 
 export const loader = async ({request}) => {
     let authUser = await authenticateAndRefresh(request,{
-        failureRedirect: "/",
+        failureRedirect: "/?fromloggedin",
         throwOnError: true
     })
     let user = await mastodon.getOrCreateUserFromData(authUser)

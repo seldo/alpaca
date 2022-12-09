@@ -6,13 +6,13 @@ import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/
 import { ComposeBox } from "~/shared/components/compose"
 
 // time in seconds between refreshes
-const INITIAL_LOAD_DELAY = 10
-const ONGOING_LOAD_PERIOD = 30
+const INITIAL_LOAD_DELAY = 30
+const ONGOING_LOAD_PERIOD = 60
 const MIN_ID = "notifications_most_recent_id"
 
 export const loader = async ({ request, data }) => {
   let authUser = await authenticateAndRefresh(request, {
-    failureRedirect: "/",
+    failureRedirect: "/?fromhome",
     throwOnError: true
   })
   console.log(`/home got ${authUser.username}@${authUser.instance}`)

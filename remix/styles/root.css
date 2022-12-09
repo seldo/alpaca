@@ -38,7 +38,7 @@
 }
 
 .logo {
-    width: 100%;
+    width: calc(100% - 36px);
     display: flex;
     flex-direction: row;
     padding: 10px 14px;
@@ -229,6 +229,10 @@
     width: 100%;
     overflow-x: hidden;
     border-bottom: 1px solid var(--grey-primary-10pc);
+    font-style: normal;
+    font-weight: 425;
+    font-size: 15.5px;
+    line-height: 24px;    
 }
 .post .author {
     display: flex;

@@ -6,7 +6,6 @@ export const loader = async ({ request }) => {
     let session = await getSession(request.headers.get("Cookie"))
     let instanceName = session.get("oauth2:state")
     console.log("Cookie stored instance name as " + instanceName)
-    console.log("Authenticator was",authenticator)
     try {
         await authenticateAnyInstance(instanceName,request,{
             successRedirect: "/home",

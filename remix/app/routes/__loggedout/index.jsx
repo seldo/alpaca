@@ -18,7 +18,7 @@ export default function Index() {
       <h2>It's an open source Mastodon client.</h2>
       <p>I'm sorry.</p>
       <p>To login, enter your instance name (if your mastodon handle is myname@some.domain, your instance name is "some.domain").</p>
-      <div class="temporaryLogin">
+      <div className="temporaryLogin">
         <Form method="get" action="/auth/mastodon">
           <p>Instance name: <input type="text" name="instance" /></p>
           <button type="submit">Login</button>

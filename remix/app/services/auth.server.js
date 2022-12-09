@@ -8,7 +8,11 @@ export let authenticator
 
 // performs authenticate() after figuring out what instance to use
 export const authenticateAnyInstance = async (instanceName,request,options) => {
-  if (!authenticator) authenticator = await getOrCreateInstance(instanceName)
+  if (!authenticator) {
+    console.log("No authenticator so we are creating one, instance name",instanceName)
+    authenticator = await getOrCreateInstance(instanceName)
+    console.log("Created authenticator",authenticator)
+  }
   return await authenticator.authenticate(instanceName,request,options);
 }
 
@@ -121,7 +125,7 @@ export const authenticateAndRefresh = async (request,options = {
     authenticator = await getOrCreateInstance(instanceName)
     console.log("instantiated authenticator for instance",instanceName)
   }
-  console.log("authenticator exists")
+  console.log("authenticator exists",authenticator)
   try {
     let authUser = await authenticator.isAuthenticated(request, options)
     if(!authUser || authUser.error) {
@@ -133,6 +137,7 @@ export const authenticateAndRefresh = async (request,options = {
     }
   } catch (e) {
     console.log("authenticateandrefresh did not find valid user")
+    console.log(e)
     throw e
   }
 }
