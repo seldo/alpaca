@@ -352,7 +352,7 @@ const storeUsers = async (users) => {
   for(let i = 0; i < users.length; i++) {
     instances.push(users[i].instance)
   }
-  let storedInstances = storeInstances(instances)
+  let storedInstances = await storeInstances(instances)
   // now we can store the users
   let batchData = users.map( (u) => {
     return {
