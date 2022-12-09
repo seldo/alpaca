@@ -423,7 +423,7 @@ export const search = async(query,user,options = {
 export const searchAll = async (query, user) => {
   console.log("search")
   if (query === null) return false // why does mastodon search for null anyway?
-  let searchResults = search(query, user, {
+  let searchResults = await search(query, user, {
     resolve: true
   })
   // format search results
@@ -435,7 +435,6 @@ export const searchAll = async (query, user) => {
     })
     // FIXME: following data is slow af so let's do it async on the client, later
   }
-
   return searchResults
 }
 
