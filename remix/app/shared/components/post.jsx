@@ -162,12 +162,14 @@ let visitThread = () => {
     console.log("Nuffin")
 }
 
-const Post = (t, options = {
-    avatar: true,
-    displayName: true,
-    isRepost: false
-}) => {
+const Post = (t,options) => {
     const navigate = useNavigate();
+    options = {
+        avatar: true,
+        displayName: true,
+        isRepost: false,
+        ...options
+    }
 
     // can I do this?
     fetcher = options.fetcher

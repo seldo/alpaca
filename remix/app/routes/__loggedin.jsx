@@ -4,6 +4,8 @@ import { useLoaderData, useFetcher } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import Globalnav from "~/shared/components/globalnav"
+import { useMatches } from "@remix-run/react";
+//import { useNavigate } from "react-router-dom";
 
 const INITIAL_LOAD_DELAY = 30
 const ONGOING_LOAD_PERIOD = 60
@@ -23,6 +25,14 @@ export default function Index() {
     const {user, request} = loaderData  
     const fetcher = useFetcher();
     const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
+
+    const matches = useMatches();
+    let pathname = matches[matches.length-1].pathname
+    let isHome = false
+    if (pathname == "/home") isHome = true;
+    /*
+    const navigate = useNavigate();
+    */
 
     // Get fresh data after x seconds and then every y seconds thereafter
     useEffect(() => {
@@ -57,7 +67,7 @@ export default function Index() {
     }, [notificationsCount])
 
     return <div className="loggedIn">
-        <Globalnav user={user} request={request} />
+        <Globalnav user={user} request={request} isHome={isHome} />
         {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
         <div className="content">
             <Outlet context={{user}}/>

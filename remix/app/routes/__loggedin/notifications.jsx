@@ -34,7 +34,7 @@ const formatEvent = (event,fetcher) => {
             </div>
         case "mention":
             return <div className="notificationMessage notifyMention">
-                {Post(event.status,{avatar:true,displayName:true,fetcher,handleLike:reactionClick})}
+                {Post(event.status,{fetcher,handleLike:reactionClick})}
             </div>
         case "follow":
             return <div className="notificationMessage notifyFollow">

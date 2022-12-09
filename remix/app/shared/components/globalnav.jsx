@@ -1,15 +1,7 @@
 import Avatar from "~/shared/components/avatar"
 import { Link } from "react-router-dom";
-import { useMatches } from "@remix-run/react";
-import { useNavigate } from "react-router-dom";
 
-export default function Globalnav({user}) {
-    const matches = useMatches();
-    const navigate = useNavigate();
-    let pathname = matches[matches.length-1].pathname
-    console.log("pathname",pathname)
-    let isHome = false
-    if (pathname == "/home") isHome = true;
+export default function Globalnav({user,isHome}) {
 
     return <div className="globalNav">
         {
@@ -17,7 +9,7 @@ export default function Globalnav({user}) {
                 <img className="floof" src="/images/ab-logomark.svg" />
                 <img className="logoType" src="/images/ab-logotype.svg" />
             </div> : <div className="backLink">
-                <Link to="/" onClick={() => navigate(-1)}>
+                <Link to="/">
                     <div className="arrow"><span>Back</span></div>
                 </Link>
             </div>

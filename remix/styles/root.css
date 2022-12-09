@@ -333,11 +333,28 @@
     margin-bottom: -10px;
     font-size: 14px;
     color: var(--grey-tertiary);
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding-left: 25px;
+}
+.notifyLike .notifyText {
+    background-image: url('/images/icon-heart-active.svg');
 }
 .notifyText .displayName {
     font-size: 14px;
 }
-
+.notifyFollow {
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+.notifyFollow .notifyText {
+    margin-bottom: 0px;
+    margin-top: 0px;
+    margin-left: 16px;
+    background-image: url('/images/icon-avatar-active.svg')
+}
 
 
 
