@@ -2,6 +2,7 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -9,7 +10,7 @@ const timeAgo = new TimeAgo('en-US')
 
 export const makePostId = (post) => {
     return `${post.account.username}:${post.account.instance}:${post.hash}`
-  }
+}
 
 const parseThingId = (n) => {
     switch (n.type) {
@@ -87,7 +88,7 @@ export const createPostHash = async (post) => {
     let hashMessage = post.account.username + ":" +
         post.account.instance + ":" +
         ((post.reblog && post.reblog.content) ? post.reblog.content : '') + ":" +
-        post.content    
+        post.content
     // //console.log("Hash message",hashMessage)
     // const data = encoder.encode(hashMessage);
     // const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -103,22 +104,22 @@ export const getProfileLink = (account) => {
 export const getPostData = (post) => {
     const regex = /https:\/\/(.*)\/@(.*)\/(.*)/gm;
     try {
-        let [,userInstance,username,postId] = regex.exec(post.url)
+        let [, userInstance, username, postId] = regex.exec(post.url)
         return {
             username,
             userInstance,
             postId
-        }        
-    } catch(e) {
+        }
+    } catch (e) {
         //console.error("Got a non-mastodon URL",post.url)
         return null
     }
 }
 export const getPostLink = (post) => {
     let postData = getPostData(post)
-    if(!postData) {
+    if (!postData) {
         // best effort
-        return `/s/nonstandard/` + post.url.replace("https://","")
+        return `/s/nonstandard/` + post.url.replace("https://", "")
     }
     return `/s/${postData.username}@${postData.userInstance}/${postData.postId}`
 }
@@ -131,59 +132,61 @@ export const LinkToAccount = (account, content) => {
 let fetcher // blows my mind that I can successfully hoist this up here
 let whichOne = null
 
-export const reactionClick = function(e) {
+export const reactionClick = function (e) {
     //console.log("they clicked the button so we submit the fetcher")
     e.preventDefault()
     e.stopPropagation()
     fetcher.submit(e.currentTarget)
     whichOne = e.currentTarget
-    console.log("I have found The One",whichOne)
+    console.log("I have found The One", whichOne)
 }
 
-export const reactionState = function() {
+export const reactionState = function () {
     //console.log("Handler says state changed for this post; do animation here")
-    if(whichOne) {
+    if (whichOne) {
         let containerState = whichOne.parentNode.parentNode.classList
-        if(containerState.contains("likes") || containerState.contains("reposts")) {
+        if (containerState.contains("likes") || containerState.contains("reposts")) {
             let icon = whichOne.getElementsByClassName('reactionIcon')[0]
             icon.classList.add("active")
             icon.style.transition = "1.5s"
             icon.style.transform = "rotate(720deg)"
         }
-    }    
+    }
 }
 
-export const reactionData = function() {
+export const reactionData = function () {
     //console.log("Handler says data changed so it probably should do stuff with that")
 }
 
-let nuffin = () => {
+let visitThread = () => {
     console.log("Nuffin")
 }
 
 const Post = (t, options = {
     avatar: true,
+    displayName: true,
     isRepost: false
 }) => {
+    const navigate = useNavigate();
 
     // can I do this?
     fetcher = options.fetcher
 
     //console.log(t)
-    if(!t.account.instance) t.account.instance = getInstanceFromAccount(t.account)
+    if (!t.account.instance) t.account.instance = getInstanceFromAccount(t.account)
     if (t.reblog !== null) {
         return <div className="postOrRepost repost">
             <div className="repostNotice">
                 <span className="repostDisplayName">{LinkToAccount(t.account)}</span> reblogged
             </div>
-            {Post(t.reblog,{
+            {Post(t.reblog, {
                 isRepost: true,
                 ...options
             })}
         </div>
     } else {
         //console.log(t)
-        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} onClick={nuffin}>
+        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} onClick={() => navigate(getPostLink(t))}>
             <div className="postBody">
                 <div className="author">
                     {
@@ -191,10 +194,12 @@ const Post = (t, options = {
                             <Avatar user={t.account} />
                         </div> : <div />
                     }
-                    <div className="authorText">
-                        <div className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></div>
-                        <div className="username">@{t.account.username}@{t.account.instance}</div>
-                    </div>
+                    {
+                        (options.displayName) ? <div className="authorText">
+                            <div className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></div>
+                            <div className="username">@{t.account.username}@{t.account.instance}</div>
+                        </div> : <div/>
+                    }
                     <div className="time"><Link to={getPostLink(t)}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></div>
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
@@ -203,7 +208,7 @@ const Post = (t, options = {
                         <div className="reactionIcon"></div>
                         <span>{t.replies_count ? t.replies_count : ''}</span>
                     </div>
-                    <div className="reaction reposts">                        
+                    <div className="reaction reposts">
                         <fetcher.Form method="post" action="/post/repost" reloadDocument>
                             <input type="hidden" name="postUrl" value={t.url} />
                             <button className="postReaction" type="submit" onClick={options.handleLike}>
@@ -212,7 +217,7 @@ const Post = (t, options = {
                             </button>
                         </fetcher.Form>
                     </div>
-                    <div className="reaction likes">                        
+                    <div className="reaction likes">
                         <fetcher.Form method="post" action="/post/like" reloadDocument>
                             <input type="hidden" name="postUrl" value={t.url} />
                             <button className="postReaction" type="submit" onClick={options.handleLike}>

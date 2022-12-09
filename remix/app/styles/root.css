@@ -690,6 +690,38 @@ video {
   right: 14px;
 }
 
+.globalNav .backLink .arrow {
+  margin-left: 16px;
+  padding-left: 20px;
+  background-image: url('/images/icon-arrow.svg');
+  background-repeat: no-repeat;
+  background-size: 25px;
+  background-position-y: center;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.globalNav .backLink span {
+  margin-left: 10px;
+  min-height: 56px;
+  display: none;
+}
+
+.sectionHeader {
+  position: absolute;
+  font-weight: 550;
+  font-size: 18px;
+  line-height: 16px;
+  min-height: 56px;
+  top: 0px;
+  left: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
 .menuBar {
   width: 100%;
   position: fixed;
@@ -952,6 +984,18 @@ video {
 
 .share .reactionIcon {
   background-image: url('/images/icon-share.svg')
+}
+
+.notificationMessage .notifyText {
+  margin-top: 10px;
+  margin-left: 16px;
+  margin-bottom: -10px;
+  font-size: 14px;
+  color: var(--grey-tertiary);
+}
+
+.notifyText .displayName {
+  font-size: 14px;
 }
 
 /********************************* old UI **************************************/
