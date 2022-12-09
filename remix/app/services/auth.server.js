@@ -8,11 +8,13 @@ export let authenticator
 
 // performs authenticate() after figuring out what instance to use
 export const authenticateAnyInstance = async (instanceName,request,options) => {
+  console.log("authenticateAnyInstance")
   if (!authenticator) {
     console.log("No authenticator so we are creating one, instance name",instanceName)
     authenticator = await getOrCreateInstance(instanceName)
     console.log("Created authenticator",authenticator)
   }
+  console.log("aai: authenticator exists", authenticator)
   return await authenticator.authenticate(instanceName,request,options);
 }
 
