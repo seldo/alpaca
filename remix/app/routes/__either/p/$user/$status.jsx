@@ -35,7 +35,7 @@ export default function Index() {
         }
     }, [fetcher.data]);
 
-    console.log("thread", thread)
+    //console.log("thread", thread)
     return <div>
         <div class="threadTitle">Post by {username}@{userInstance}</div>
         <div>

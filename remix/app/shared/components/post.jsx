@@ -186,7 +186,7 @@ const Post = (t,options) => {
             })}
         </div>
     } else {
-        //console.log(t)
+        console.log(t.media_attachments)
         return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} onClick={() => options.navigate(getPostLink(t))}>
             <div className="postBody">
                 <div className="author">
@@ -206,6 +206,17 @@ const Post = (t,options) => {
                     }
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
+                { 
+                    (t.media_attachments.length > 0) ? <div className="media">
+                        {
+                            t.media_attachments.map( (a) => {
+                                console.log(a)
+                                if(!a || !a.preview_url) return
+                                else return <div><img src={a.preview_url}/></div>
+                            })
+                        }
+                    </div> : <div/>
+                }
                 <div className="reactions">
                     <div className="reaction replies">
                         <div className="reactionIcon"></div>
