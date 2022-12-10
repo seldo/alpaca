@@ -449,7 +449,8 @@ export const getNotificationsLocal = async (user,instanceName) => {
     },
     orderBy: {
       createdAt: "desc"
-    }
+    },
+    take: 100
   }
 
   let notificationsRaw = await prisma.notification.findMany(query)
