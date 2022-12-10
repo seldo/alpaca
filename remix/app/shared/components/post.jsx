@@ -175,7 +175,6 @@ const Post = (t,options) => {
         doneUrl: false,
         ...options
     }    
-
     // can I do this?
     fetcher = options.fetcher
 
@@ -192,7 +191,6 @@ const Post = (t,options) => {
             })}
         </div>
     } else {
-        //console.log(t)
         return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} >
             <div className="postBody" onClick={() => options.navigate(getPostLink(t))}>
                 <div className="author">
@@ -206,7 +204,7 @@ const Post = (t,options) => {
                             <div className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></div>
                             <div className="userAndTime">
                                 <div className="username">@{t.account.username}@{t.account.instance}</div>
-                                <div className="time"><Link to={getPostLink(t)}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></div>
+                                <div className="time"><Link to={getPostLink(t)} title={t.application?`via `+t.application.name:""}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></div>
                             </div>
                         </div> : <div/>
                     }
