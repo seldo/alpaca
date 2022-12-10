@@ -244,7 +244,7 @@
     font-weight: 500;
     font-size: 12px;
     line-height: 14px;
-    background-image: url('/images/icon-repost.svg');
+    background-image: url('/images/icon-repost-active.svg');
     background-repeat: no-repeat;
     background-size: 15px;
     background-position-y: bottom;
@@ -432,8 +432,12 @@
 .followerCounts .number {
     font-weight: bold;
 }
-
-
+.threadTitle {
+    position: absolute;
+    width: 100%;
+    top: 17px;
+    left: 50px;
+}
 
 
 

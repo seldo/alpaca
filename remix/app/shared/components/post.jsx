@@ -120,9 +120,9 @@ export const getPostLink = (post) => {
     let postData = getPostData(post)
     if (!postData) {
         // best effort
-        return `/s/nonstandard/` + post.url.replace("https://", "")
+        return `/p/nonstandard/` + post.url.replace("https://", "")
     }
-    return `/s/${postData.username}@${postData.userInstance}/${postData.postId}`
+    return `/p/${postData.username}@${postData.userInstance}/${postData.postId}`
 }
 
 export const LinkToAccount = (account, content) => {

@@ -37,7 +37,7 @@ export default function Index() {
 
     console.log("thread", thread)
     return <div>
-        <div>Post by {username}@{userInstance}</div>
+        <div class="threadTitle">Post by {username}@{userInstance}</div>
         <div>
             <ul className="ancestors">
                 {
