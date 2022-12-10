@@ -97,18 +97,11 @@ export default function Index() {
         if (b.created_at > a.created_at) return 1
         else return -1
       })
-      console.log("Allposts length is now",allPosts.length)
-      console.log("Postbuffer length is now",postBuffer.length)
-      console.log("Postbuffer count is now",postBufferCount)
       // commit the state change
       setPostBuffer(postBuffer)
       setPostBufferCount(postBufferCount)
     }
   }, [fetcher.data]);
-
-  useEffect(() => {
-    console.log("PostbufferCount changed, postBuffercount is",postBufferCount)
-  },postBufferCount)
   
   // when they click load more, merge the timeline and reset
   const mergePostBuffer = () => {

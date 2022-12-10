@@ -11,8 +11,9 @@ export const ComposeBox = ({user,isComposing,setIsComposing}) => {
         if(!e.currentTarget.value) setIsComposing(false)
     }
     const checkSubmit = (e) => {
+        console.log(e)
         if(e.key === 'Enter' && e.metaKey) {
-            e.currentTarget.submit()
+            e.currentTarget.closest("form").submit()
         }
     }
 
