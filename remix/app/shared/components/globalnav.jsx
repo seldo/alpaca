@@ -10,6 +10,9 @@ export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfi
         console.log("HERE I AM")
         setProfileMenuOpen(!profileMenuOpen)
     }
+    const closeMenu = () => {
+        setProfileMenuOpen(false)
+    }
 
     return <div className="globalNav">
         {
@@ -27,7 +30,7 @@ export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfi
             {
                 (profileMenuOpen) ? <div>
                     <ol>
-                        <li><Link rel="intent" to={`/u/${user.username}@${user.instance}`}>Profile</Link></li>                        
+                        <li><Link rel="intent" to={`/u/${user.username}@${user.instance}`} onClick={closeMenu}>Profile</Link></li>                        
                         <li>Settings</li>
                         <li>
                             <Form method="post" action="/auth/logout">

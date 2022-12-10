@@ -373,15 +373,15 @@
 }
 .profileTopNav .postCount {
     font-size: 80%;
-    color: #666;
+    color: var(--grey-primary);
 }
 .profileHeader {
-    width: calc(100% - 70px);
+    width: 100%;
     height: 15vh;
 }
 .headerContainer {
     display: block;
-    width: calc(100% - 75px);
+    width: 100%;
     height: 15vh;
     overflow: hidden;
     position: absolute;
