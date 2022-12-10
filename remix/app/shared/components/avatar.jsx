@@ -7,10 +7,10 @@ function getInstanceFromData(userData) {
     return urlInstance
   }
 
-export default function Avatar({user}) {
+export default function Avatar({user,toggleHandler}) {
     if (user) {
         return <div className="avatar">
-            <Link rel="intent" to={`/u/${user.username}@${user.instance||getInstanceFromData(user)}`}><img className="avatarImage" src={user.avatar} title={user.display_name || user.username } /></Link>
+            <Link rel="intent" to={`/u/${user.username}@${user.instance||getInstanceFromData(user)}`} onClick={toggleHandler}><img className="avatarImage" src={user.avatar} title={user.display_name || user.username } /></Link>
         </div>
     } else {
         return <div />

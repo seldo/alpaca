@@ -25,6 +25,7 @@ export default function Index() {
     const {user} = loaderData  
     const fetcher = useFetcher();
     const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
     const matches = useMatches();
     let pathname = matches[matches.length-1].pathname
@@ -34,7 +35,6 @@ export default function Index() {
 
     // Get fresh data after x seconds and then every y seconds thereafter
     useEffect(() => {
-        console.log("Fetcher effect above the navar")
         const interval = setInterval(() => {
         if (window && window.localStorage) {
             if (window.localStorage[MIN_ID]) {
@@ -52,20 +52,18 @@ export default function Index() {
     // When the fetcher comes back with notifications count, update that
     useEffect(() => {
       if (fetcher.data) {
-        console.log("Fetcher saw data", fetcher.data)
         setNotificationsCount(JSON.parse(fetcher.data)['unreadCount'])
       }
     }, [fetcher.data]);
     
     useEffect(() => {
-      console.log("new count", notificationsCount)
       if(window && window.document) {
         window.document.title = (notificationsCount ? `(${notificationsCount}) ` : ``) + `Alpaca Blue: a Mastodon client`
       }
     }, [notificationsCount])
 
     return <div className="loggedIn">
-        <Globalnav user={user} navigate={navigate} isHome={isHome} />
+        <Globalnav user={user} navigate={navigate} isHome={isHome} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
         {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
         <div className="content">
             <Outlet context={{user}}/>

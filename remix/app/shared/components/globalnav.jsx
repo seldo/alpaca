@@ -1,7 +1,15 @@
 import Avatar from "~/shared/components/avatar"
 import { Link } from "react-router-dom";
+import { Form } from "@remix-run/react";
 
-export default function Globalnav({user,isHome,navigate}) {
+export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfileMenuOpen}) {
+
+    const toggleMenu = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        console.log("HERE I AM")
+        setProfileMenuOpen(!profileMenuOpen)
+    }
 
     return <div className="globalNav">
         {
@@ -15,7 +23,20 @@ export default function Globalnav({user,isHome,navigate}) {
             </div>
         }
         <div className="profileMenu">
-            <Avatar user={user} />
+            <Avatar user={user} toggleHandler={toggleMenu} />
+            {
+                (profileMenuOpen) ? <div>
+                    <ol>
+                        <li><Link rel="intent" to={`/u/${user.username}@${user.instance}`}>Profile</Link></li>                        
+                        <li>Settings</li>
+                        <li>
+                            <Form method="post" action="/auth/logout">
+                                <button>Log out</button>
+                            </Form>                            
+                        </li>
+                    </ol>
+                </div> : <div/>
+            }
         </div>
         <div className="menuBar">
             <ul className="menuItems">

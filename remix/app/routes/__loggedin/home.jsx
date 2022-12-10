@@ -4,11 +4,11 @@ import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/shared/components/post"
 import { ComposeBox } from "~/shared/components/compose"
+import { useNavigate } from "react-router-dom";
 
 // time in seconds between refreshes
 const INITIAL_LOAD_DELAY = 5
 const ONGOING_LOAD_PERIOD = 10
-const MIN_ID = "notifications_most_recent_id"
 
 export const loader = async ({ request }) => {
   let authUser = await authenticateAndRefresh(request, {
@@ -22,14 +22,18 @@ export const loader = async ({ request }) => {
 }
 
 export default function Index() {
-  const loaderData = useLoaderData();
-  const { user, localPosts } = loaderData
+  const { user, localPosts } = useLoaderData();
+  const navigate = useNavigate();
 
   const [allPosts, setPosts] = useState(localPosts);
   useEffect(() => setPosts(allPosts), [allPosts]);
   const fetcher = useFetcher();
 
   const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
+
+  useEffect(() => {
+    console.log("Some kind of navigation is happening")
+  },navigate.state)
 
   // Get fresh data after x seconds and then every y seconds thereafter
   useEffect(() => {
@@ -55,7 +59,7 @@ export default function Index() {
   // When the fetcher comes back with new posts, update timeline
   useEffect(() => {
     if (fetcher.data) {
-      //reactionData()
+      reactionData()
       let incoming
       try {
         incoming = JSON.parse(fetcher.data)
@@ -90,7 +94,7 @@ export default function Index() {
       <ul>
         {
           (allPosts.length > 0) ? allPosts.map(t => {
-            return <li key={makePostId(t)}>{Post(t, { fetcher, handleLike: reactionClick })}</li>
+            return <li key={makePostId(t)}>{Post(t, { navigate, fetcher, handleLike: reactionClick })}</li>
           }) : <li key="noPosts">No posts yet. Give it a sec.</li>
         }
       </ul>

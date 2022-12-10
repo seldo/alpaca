@@ -139,7 +139,6 @@ export const reactionClick = function (e) {
     e.stopPropagation()
     fetcher.submit(e.currentTarget)
     whichOne = e.currentTarget
-    console.log("I have found The One", whichOne)
 }
 
 export const reactionState = function () {
@@ -188,7 +187,7 @@ const Post = (t,options) => {
         </div>
     } else {
         //console.log(t)
-        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`}>
+        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} onClick={() => options.navigate(getPostLink(t))}>
             <div className="postBody">
                 <div className="author">
                     {
