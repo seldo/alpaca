@@ -760,8 +760,8 @@ video {
   background-size:contain;
   background-position-x: center;
   background-position-y: center;
-  width: 35px;
-  height: 35px;
+  width: 24px;
+  height: 24px;
 }
 
 .menuItems li span {
@@ -775,14 +775,10 @@ video {
 }
 
 .menuItems .home {
-  height: 35px;
-  width: 35px;
   background-image: url('/images/icon-home.svg');
 }
 
 .menuItems .messages {
-  height: 35px;
-  width: 40px;
   background-image: url('/images/icon-dm.svg');
 }
 
@@ -792,12 +788,10 @@ video {
   border-radius: 4px;
   background-image: url('/images/icon-edit.svg');
   background-color: var(--blue-brand);
-  background-size: 30px;
+  background-size: 24px;
 }
 
 .menuItems .search {
-  height: 33px;
-  width: 35px;
   background-image: url('/images/icon-search.svg');
 }
 
@@ -1029,6 +1023,93 @@ video {
   margin-top: 0px;
   margin-left: 16px;
   background-image: url('/images/icon-avatar-active.svg')
+}
+
+.profilePage .profileTopNav {
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  margin-top: 12px;
+  margin-left: 50px;
+}
+
+.profileTopNav .displayName {
+  font-size: 110%;
+  font-weight: bold;
+}
+
+.profileTopNav .postCount {
+  font-size: 80%;
+  color: #666;
+}
+
+.profileHeader {
+  width: calc(100% - 70px);
+  height: 15vh;
+}
+
+.headerContainer {
+  display: block;
+  width: calc(100% - 75px);
+  height: 15vh;
+  overflow: hidden;
+  position: absolute;
+  display: flex;
+  flex-direction:column;
+  justify-content: space-around;
+}
+
+.avatarContainer {
+  height: 15vh;
+  position: absolute;
+}
+
+.profileHeader .avatar .avatarImage {
+  min-width: 120px;
+  max-height: 120px;
+  position: absolute;
+  bottom: -60px;
+  left: 20px;
+  border: 4px solid #fff;
+}
+
+.profilePage .buttonBar {
+  text-align: right;
+  padding: 15px 20px;
+  height: 60px;
+}
+
+.followButton {
+  float: right;
+}
+
+.followButton.empty {
+  color: #000;
+  border: 1px solid #ccc;
+  background-color: transparent;
+}
+
+.profilePage .descriptions {
+  padding: 20px;
+  border-bottom: 0.5px solid #ccc;
+}
+
+.descriptions .displayName {
+  font-weight: bold;
+  font-size: 150%;
+}
+
+.descriptions .followerCounts {
+  margin-top: 5px;
+  font-size: 90%;
+}
+
+.followerCounts .followingCount {
+  margin-right: 10px;
+}
+
+.followerCounts .number {
+  font-weight: bold;
 }
 
 /********************************* old UI **************************************/
@@ -1264,99 +1345,6 @@ video {
     margin-left: 40px;
     margin-top: 5px;
     margin-bottom: -5px;
-  }
-
-  .profilePage .profileTopNav {
-    padding: 5px 10px;
-  }
-
-  .profileTopNav .backButton {
-    background-image: url('/images/back-icon.svg');
-    width: 20px;
-    height: 20px;
-    margin-top: 12px;
-    margin-left: 10px;
-    background-size: contain;
-    margin-right: 2rem;
-  }
-
-  .profileTopNav .displayName {
-    font-size: 110%;
-    font-weight: bold;
-  }
-
-  .profileTopNav .postCount {
-    font-size: 80%;
-    color: #666;
-  }
-
-  .profileHeader {
-    width: calc(100% - 70px);
-    height: 15vh;
-  }
-
-  .headerContainer {
-    display: block;
-    width: calc(100% - 75px);
-    height: 15vh;
-    overflow: hidden;
-    position: absolute;
-    display: flex;
-    flex-direction:column;
-    justify-content: space-around;
-  }
-
-  .avatarContainer {
-    height: 15vh;
-    position: absolute;
-  }
-
-  .profileHeader .avatar .avatarImage {
-    min-width: 120px;
-    max-height: 120px;
-    position: absolute;
-    bottom: -60px;
-    left: 20px;
-    border: 4px solid #fff;
-  }
-
-  .profilePage .buttonBar {
-    text-align: right;
-    padding: 15px 20px;
-    height: 60px;
-  }
-
-  .followButton {
-    float: right;
-  }
-
-  .followButton.empty {
-    color: #000;
-    border: 1px solid #ccc;
-    background-color: transparent;
-  }
-
-  .profilePage .descriptions {
-    padding: 20px;
-    border-bottom: 0.5px solid #ccc;
-  }
-
-  .descriptions .displayName {
-    font-weight: bold;
-    font-size: 150%;
-  }
-
-  .descriptions .followerCounts {
-    margin-top: 5px;
-    font-size: 90%;
-  }
-
-  .followerCounts .followingCount {
-    margin-right: 10px;
-  }
-
-  .followerCounts .number {
-    font-weight: bold;
   }
 
   .searchBox {

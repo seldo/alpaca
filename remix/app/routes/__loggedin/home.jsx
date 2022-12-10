@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
+import { useLoaderData, useFetcher } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/shared/components/post"
