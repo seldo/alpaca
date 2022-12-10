@@ -118,11 +118,15 @@ export async function getOrCreateUser(username,userInstance,authUser,options = {
   return user
 }
 
-export const getPostsRemote = async (remoteUser,authUser) => {
+export const getPostsRemote = async (remoteUser,authUser,minId = null) => {
   console.log("getPostsRemote")
   // getting posts unfortunately requires knowing the user's internal ID
   let postsUrl = new URL(getInstanceUrl(authUser.instance) + `/api/v1/accounts/${remoteUser.id}/statuses`)
-  let postData = await fetch(postsUrl, {
+  if(minId) {
+    postsUrl.searchParams.append('min_id',minId)
+  }
+  console.log("postsUrl",postsUrl.toString())
+  let postData = await fetch(postsUrl.toString(), {
     method: "GET"
     // TODO: might want to get private posts with token if authed
   })
@@ -157,6 +161,7 @@ export async function getUserRemote(username, userInstance, authUser) {
     return false
   }
   if(user.error) {
+    console.error(user.error)
     throw new Error(`getUserRemote hit error fetching ${username}@${userInstance}`)
   }
   user.instance = userInstance
