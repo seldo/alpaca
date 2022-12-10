@@ -13,8 +13,8 @@ export const loader = async ({request}) => {
     let user = await mastodon.getOrCreateUserFromData(authUser)
     let notifications = await mastodon.getNotificationsLocal(authUser)
     let batchedNotifications = batchNotifications(notifications)
-
-    return {user, notifications, batchedNotifications}
+    let doneUrl = new URL(request.url).pathname
+    return {user, notifications, batchedNotifications, doneUrl}
 }
 
 const formatEvent = (event,fetcher,options) => {
@@ -34,7 +34,7 @@ const formatEvent = (event,fetcher,options) => {
             </div>
         case "mention":
             return <div className="notificationMessage notifyMention">
-                {Post(event.status,{isRepost: true,fetcher,handleLike:reactionClick, repliesOpen: options.repliesOpen, openReply: options.openReply})}
+                {Post(event.status,{isRepost: true,fetcher,handleLike:reactionClick, repliesOpen: options.repliesOpen, openReply: options.openReply, doneUrl: options.doneUrl})}
             </div>
         case "follow":
             return <div className="notificationMessage notifyFollow">
@@ -52,8 +52,7 @@ const formatEvent = (event,fetcher,options) => {
 }
 
 export default function Index() {
-    const loaderData = useLoaderData();
-    const {user, notifications} = loaderData
+    const {user, notifications, doneUrl} = useLoaderData();
     let batchedNotifications = batchNotifications(notifications)
 
     // set up a state newNotifications updated by setNotifications, initialized to notifications
@@ -135,7 +134,7 @@ export default function Index() {
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher,{repliesOpen,openReply})}</li>
+                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher,{repliesOpen,openReply,doneUrl})}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }

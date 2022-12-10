@@ -116,10 +116,14 @@ export default function Index() {
   }
 
   const [repliesOpen,setRepliesOpen] = useState(false)
-  const openReply = (e) => {
+  const openReply = (e,postId) => {
       e.preventDefault()
       e.stopPropagation()
-      setRepliesOpen(!repliesOpen)
+      if(postId == repliesOpen) {
+        setRepliesOpen(false)
+      } else {
+        setRepliesOpen(postId)
+      }
   }
 
   return (

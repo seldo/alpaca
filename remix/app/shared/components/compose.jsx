@@ -1,7 +1,7 @@
 import { Form } from "@remix-run/react";
 import Avatar from "~/shared/components/avatar"
 
-export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReplyTo=null}) => {
+export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReplyTo=null,doneUrl=false}) => {
 
     const showCompose = (e) => {
         setIsComposing(true)
@@ -11,7 +11,6 @@ export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReply
         if(!e.currentTarget.value) setIsComposing(false)
     }
     const checkSubmit = (e) => {
-        console.log(e)
         if(e.key === 'Enter' && e.metaKey) {
             e.currentTarget.closest("form").submit()
         }
@@ -24,7 +23,8 @@ export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReply
             }
             <div className="pr-4 flex flex-row">
                 <div className="w-full" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
-                    <textarea name="post" placeholder={(replyHandle)?"":"What's up?"} onFocus={showCompose} onBlur={hideCompose} onKeyDown={checkSubmit}>{replyHandle ? `@`+replyHandle + " " : ""}</textarea>
+                    <input type="hidden" name="done" value={doneUrl}/>
+                    <textarea name="post" placeholder={(replyHandle)?"":"What's up?"} onFocus={showCompose} onBlur={hideCompose} onKeyDown={checkSubmit} defaultValue={replyHandle ? `@`+replyHandle + " " : ""}></textarea>
                 </div>
             </div>
             <div className="buttonHolder ">

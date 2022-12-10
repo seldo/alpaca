@@ -104,27 +104,32 @@ export const getProfileLink = (account) => {
     return `/u/${account.username}@${account.instance}`
 }
 
-export const getPostData = (post) => {
+export const getPostUniversalId = (post) => {
     const regex = /https:\/\/(.*)\/@(.*)\/(.*)/gm;
+    let postSegments = false
     try {
         let [, userInstance, username, postId] = regex.exec(post.url)
-        return {
+        postSegments = {
             username,
             userInstance,
             postId
         }
     } catch (e) {
-        //console.error("Got a non-mastodon URL",post.url)
-        return null
+        console.log("Got a non-mastodon URL",post.url)
+        return false
     }
+    let uid = `${postSegments.username}@${postSegments.userInstance}/${postSegments.postId}`
+    return uid
 }
+
 export const getPostLink = (post) => {
-    let postData = getPostData(post)
-    if (!postData) {
+    let postUniversalId = getPostUniversalId(post)
+    if (!postUniversalId) {
         // best effort
+        console.log("Doing nonstandard URL")
         return `/p/nonstandard/` + post.url.replace("https://", "")
     }
-    return `/p/${postData.username}@${postData.userInstance}/${postData.postId}`
+    return `/p/` + postUniversalId
 }
 
 export const LinkToAccount = (account, content) => {
@@ -167,6 +172,7 @@ const Post = (t,options) => {
         isRepost: false,
         openReply: null,
         repliesOpen: null,
+        doneUrl: false,
         ...options
     }    
 
@@ -217,7 +223,7 @@ const Post = (t,options) => {
                     </div> : <div/>
                 }
                 <div className="reactions">
-                    <div className="reaction replies" onClick={options.openReply}>
+                    <div className="reaction replies" onClick={(e) => options.openReply(e,t.id)}>
                         <div className="reactionIcon"></div>
                         <span>{t.replies_count ? t.replies_count : ''}</span>
                     </div>                    
@@ -245,7 +251,7 @@ const Post = (t,options) => {
                     </div>
                 </div>
                 {
-                    (options.repliesOpen) ? <ComposeBox isComposing={true} replyHandle={t.account.username} inReplyTo={t.id} /> : <div/>
+                    (options.repliesOpen == t.id) ? <ComposeBox isComposing={true} replyHandle={t.account.username} inReplyTo={getPostUniversalId(t)} doneUrl={options.doneUrl} /> : <div/>
                 }
             </div>
         </div>

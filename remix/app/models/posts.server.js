@@ -587,13 +587,17 @@ export const unfollowUser = async (username, userInstance, authUser) => {
   return unfollow
 }
 
-export const createPost = async (user, data = {text:null}) => {
+export const createPost = async (user, data = {text:null, in_reply_to_id:null}) => {
   console.log("createPost")
   let postUrl = new URL(getInstanceUrl(user.instance) + `/api/v1/statuses`)
   if (data.text === null || data.text === "") throw new Error("Text cannot be empty")
 
   var formData = new FormData();
   formData.append("status", data.text);
+  if(data.in_reply_to_id) {
+    console.log("Posting a reply to internal id",data.in_reply_to_id)
+    formData.append("in_reply_to_id",data.in_reply_to_id)
+  }
 
   let postedData = await fetch(postUrl.toString(), {
     method: "POST",
@@ -662,15 +666,20 @@ export const rePost = async (postUrlString, authUser) => {
 }
 
 export const getPostRemote = async(postId = {
-  postUrl,       //   either
-  username,      //}
-  userInstance,  // } or
-  postId         //}
+  postUrl,          //  e.g. https://seldo.dev/@seldoadmin/21341234234
+  postUniversalId,  //  e.g. seldoadmin@seldo.dev/41234234342
+  username,         //}
+  userInstance,     // } e.g. seldoadmin, seldo.dev, 2342342342
+  postId            //}
 },authUser) => {
   // we don't know the internal ID so we have to resolve that first via search
   let postUrlString
   if(postId.postUrl) { // TODO: regex
     postUrlString = postId.postUrl
+  } else if (postId.postUniversalId) {
+    let [ui,pid] = postId.postUniversalId.split("/")
+    let [u,i] = ui.split("@")
+    postUrlString = `${getInstanceUrl(i)}/@${u}/${pid}`
   } else if (postId.username && postId.userInstance && postId.postId) {
     postUrlString = `${getInstanceUrl(postId.userInstance)}/@${postId.username}/${postId.postId}`
     console.log(postUrlString)
