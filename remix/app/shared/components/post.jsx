@@ -198,10 +198,12 @@ const Post = (t,options) => {
                     {
                         (options.displayName) ? <div className="authorText">
                             <div className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></div>
-                            <div className="username">@{t.account.username}@{t.account.instance}</div>
+                            <div className="userAndTime">
+                                <div className="username">@{t.account.username}@{t.account.instance}</div>
+                                <div className="time"><Link to={getPostLink(t)}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></div>
+                            </div>
                         </div> : <div/>
                     }
-                    <div className="time"><Link to={getPostLink(t)}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></div>
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
                 <div className="reactions">

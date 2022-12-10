@@ -14,6 +14,7 @@ import FollowButton from "~/shared/components/followbutton"
 // time in seconds between refreshes
 const INITIAL_LOAD_DELAY = 3
 const ONGOING_LOAD_PERIOD = 5
+const MIN_ID = "notifications_most_recent_id" // FIXME: exists in 3 places
 
 export const loader = async ({request, params}) => {
     let authUser = await authenticateAndRefresh(request)
@@ -54,6 +55,16 @@ export default function Index() {
             console.log("/u/$.jsx: Fetcher.data happened")
             if(refreshInterval == INITIAL_LOAD_DELAY) {
                 setRefresh(ONGOING_LOAD_PERIOD)
+            }
+            // only refresh if the page is being viewed
+            if(document.visibilityState === "visible") {
+                let feedUrl = "/profile_feed"
+                if(window && window.localStorage) {
+                    if(window.localStorage[MIN_ID]) {
+                        feedUrl += "?minId=" + window.localStorage[MIN_ID]
+                    }
+                }
+                fetcher.load(feedUrl)
             }
         }, refreshInterval * 1000);
         return () => clearInterval(interval);

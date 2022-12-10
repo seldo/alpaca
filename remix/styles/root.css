@@ -195,6 +195,7 @@
     text-align: center;
     font-size: 70%;
     padding-top: 1px;
+    z-index: 2;
 }
 .container {
     padding: 10px 14px;
@@ -277,12 +278,17 @@
     flex-direction: row;
     position: relative;
 }
+.post .username {
+    display: inline-block;
+}
 .post .time {
-    position: absolute;
-    top: 0px;
-    right: 0px;
+    display: inline-block;
     font-size: 12px;
-    text-align: right;
+}
+.post .time::before {
+    content: '•';
+    margin-left: 0.5em;
+    margin-right: 0.5em;
 }
 .post .time a:hover {
     text-decoration: underline;
