@@ -844,6 +844,10 @@ video {
   border-radius: 4px;
 }
 
+.composeBox.active textarea {
+  height: 8em;
+}
+
 .composeBox textarea::-moz-placeholder {
   color: var(--grey-tertiary);
   font-size: 16px;
@@ -858,6 +862,10 @@ video {
   width: 100%;
   text-align: right;
   display: none;
+}
+
+.composeBox.active .buttonHolder {
+  display: block;
 }
 
 .composeBox .buttonHolder button {

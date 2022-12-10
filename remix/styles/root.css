@@ -221,6 +221,9 @@
     padding: 8px 12px;
     border-radius: 4px;
 }
+.composeBox.active textarea {
+    height: 8em;
+}
 .composeBox textarea::placeholder {
     color: var(--grey-tertiary);
     font-size: 16px;
@@ -229,6 +232,9 @@
     width: 100%;
     text-align: right;
     display: none;
+}
+.composeBox.active .buttonHolder {
+    display: block;
 }
 .composeBox .buttonHolder button {
     background-color: var(--grey-secondary);

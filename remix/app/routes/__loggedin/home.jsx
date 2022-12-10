@@ -24,15 +24,23 @@ export const loader = async ({ request }) => {
 export default function Index() {
   const { user, localPosts } = useLoaderData();
   const navigate = useNavigate();
-
-  const [allPosts, setPosts] = useState(localPosts);
-  useEffect(() => setPosts(allPosts), [allPosts]);
+  // fetch data for a variety of tasks
   const fetcher = useFetcher();
 
+  // manage state for timeline
+  const [allPosts, setPosts] = useState(localPosts);
+  // treat a change to allPosts as a state change
+  useEffect(() => setPosts(allPosts), [allPosts]);
+
+  // manage state of how often we trigger data fetch
   const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
 
+  // manage state for the compose box
+  const [isComposing,setIsComposing] = useState(false)
+
+  // we could use this to animate when somebody has clicked something
   useEffect(() => {
-    console.log("Some kind of navigation is happening")
+    //console.log("Some kind of navigation is happening")
   },navigate.state)
 
   // Get fresh data after x seconds and then every y seconds thereafter
@@ -51,7 +59,7 @@ export default function Index() {
     // FIXME: because this depends on fetcher.data, initial load is true until we get our first data
   }, [fetcher.data]);
 
-  // Get fresh data after x seconds and then every y seconds thereafter
+  // sometimes the fetcher is getting data for likes or reblogs; pass to handler
   useEffect(() => {
     reactionState()
   }, [fetcher.state]);
@@ -89,7 +97,7 @@ export default function Index() {
   return (
     <div>
       <div className="composeTop">
-        <ComposeBox user={user} />
+        <ComposeBox user={user} isComposing={isComposing} setIsComposing={setIsComposing}/>
       </div>
       <ul>
         {
