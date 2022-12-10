@@ -721,7 +721,7 @@ video {
   display: none;
 }
 
-.sectionHeader {
+.pageHeader {
   position: absolute;
   font-weight: 550;
   font-size: 18px;
@@ -976,7 +976,7 @@ video {
 }
 
 .reactions .reaction {
-  width: 40px;
+  width: 55px;
   height: 22px;
   font-style: normal;
   font-weight: 500;
@@ -1148,13 +1148,6 @@ video {
 
 .followerCounts .number {
   font-weight: bold;
-}
-
-.threadTitle {
-  position: absolute;
-  width: 100%;
-  top: 17px;
-  left: 50px;
 }
 
 /********************************* old UI **************************************/

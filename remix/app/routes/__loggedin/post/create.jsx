@@ -8,9 +8,13 @@ export const action = async ({request,params}) => {
 
     let formData = await request.formData();
     let postText = formData.get('post')
+    let inReplyTo = formData.get('inReplyTo')
+
+    console.log("Attempting to reply to do",inReplyTo)
 
     let post = await mastodon.createPost(authUser,{
-        text: postText
+        text: postText,
+        in_reply_to_id: inReplyTo
     })
 
     // FIXME: you'll be able to post from all over

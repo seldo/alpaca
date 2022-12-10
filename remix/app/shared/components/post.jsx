@@ -2,6 +2,8 @@ import Avatar from "~/shared/components/avatar"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
+import { useState } from "react"
+import { ComposeBox } from "~/shared/components/compose"
 //import { useNavigate } from "react-router-dom";
 //import { Form } from "@remix-run/react";
 
@@ -158,17 +160,15 @@ export const reactionData = function () {
     //console.log("Handler says data changed so it probably should do stuff with that")
 }
 
-let visitThread = () => {
-    console.log("Nuffin")
-}
-
 const Post = (t,options) => {
     options = {
         avatar: true,
         displayName: true,
         isRepost: false,
+        openReply: null,
+        repliesOpen: null,
         ...options
-    }
+    }    
 
     // can I do this?
     fetcher = options.fetcher
@@ -186,9 +186,9 @@ const Post = (t,options) => {
             })}
         </div>
     } else {
-        console.log(t.media_attachments)
-        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} onClick={() => options.navigate(getPostLink(t))}>
-            <div className="postBody">
+        //console.log(t)
+        return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} >
+            <div className="postBody" onClick={() => options.navigate(getPostLink(t))}>
                 <div className="author">
                     {
                         (options.avatar) ? <div className="authorAvatar">
@@ -210,7 +210,6 @@ const Post = (t,options) => {
                     (t.media_attachments.length > 0) ? <div className="media">
                         {
                             t.media_attachments.map( (a) => {
-                                console.log(a)
                                 if(!a || !a.preview_url) return
                                 else return <div><img src={a.preview_url}/></div>
                             })
@@ -218,10 +217,10 @@ const Post = (t,options) => {
                     </div> : <div/>
                 }
                 <div className="reactions">
-                    <div className="reaction replies">
+                    <div className="reaction replies" onClick={options.openReply}>
                         <div className="reactionIcon"></div>
                         <span>{t.replies_count ? t.replies_count : ''}</span>
-                    </div>
+                    </div>                    
                     <div className="reaction reposts">
                         <fetcher.Form method="post" action="/post/repost" reloadDocument>
                             <input type="hidden" name="postUrl" value={t.url} />
@@ -245,6 +244,9 @@ const Post = (t,options) => {
                         <span>Share</span>
                     </div>
                 </div>
+                {
+                    (options.repliesOpen) ? <ComposeBox isComposing={true} replyHandle={t.account.username} inReplyTo={t.id} /> : <div/>
+                }
             </div>
         </div>
     }

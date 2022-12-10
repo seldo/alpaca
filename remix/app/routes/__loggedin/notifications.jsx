@@ -17,7 +17,7 @@ export const loader = async ({request}) => {
     return {user, notifications, batchedNotifications}
 }
 
-const formatEvent = (event,fetcher) => {
+const formatEvent = (event,fetcher,options) => {
     switch(event.type) {
         case "favourite":
             return <div className="notificationMessage notifyLike">
@@ -34,7 +34,7 @@ const formatEvent = (event,fetcher) => {
             </div>
         case "mention":
             return <div className="notificationMessage notifyMention">
-                {Post(event.status,{isRepost: true,fetcher,handleLike:reactionClick})}
+                {Post(event.status,{isRepost: true,fetcher,handleLike:reactionClick, repliesOpen: options.repliesOpen, openReply: options.openReply})}
             </div>
         case "follow":
             return <div className="notificationMessage notifyFollow">
@@ -120,15 +120,22 @@ export default function Index() {
     useEffect(() => {
         reactionState()
     }, [fetcher.state])
+
+    const [repliesOpen,setRepliesOpen] = useState(false)
+    const openReply = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setRepliesOpen(!repliesOpen)
+    }  
     
     return <div className="notificationsPage">
-        <div className="sectionHeader notificationsHeader">
+        <div className="pageHeader notificationsHeader">
             <h2>Notifications</h2>
         </div>
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher)}</li>
+                    return <li key={`notifications_${n.type}_${n.lastEvent}`}>{formatEvent(n,fetcher,{repliesOpen,openReply})}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }

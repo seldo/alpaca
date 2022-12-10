@@ -1,7 +1,7 @@
 import { Form } from "@remix-run/react";
 import Avatar from "~/shared/components/avatar"
 
-export const ComposeBox = ({user,isComposing,setIsComposing}) => {
+export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReplyTo=null}) => {
 
     const showCompose = (e) => {
         setIsComposing(true)
@@ -19,9 +19,12 @@ export const ComposeBox = ({user,isComposing,setIsComposing}) => {
 
     return <div className={`composeBox` + (isComposing ? " active" : "")}>
         <Form method="post" action="/post/create" reloadDocument>
+            {
+                (inReplyTo) ? <input type="hidden" name="inReplyTo" value={inReplyTo} /> : <div />
+            }
             <div className="pr-4 flex flex-row">
-                <div className="w-full">
-                    <textarea name="post" placeholder="What's up?" onFocus={showCompose} onBlur={hideCompose} onKeyDown={checkSubmit}></textarea>
+                <div className="w-full" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
+                    <textarea name="post" placeholder={(replyHandle)?"":"What's up?"} onFocus={showCompose} onBlur={hideCompose} onKeyDown={checkSubmit}>{replyHandle ? `@`+replyHandle + " " : ""}</textarea>
                 </div>
             </div>
             <div className="buttonHolder ">

@@ -115,6 +115,13 @@ export default function Index() {
     setPosts(allPosts)
   }
 
+  const [repliesOpen,setRepliesOpen] = useState(false)
+  const openReply = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setRepliesOpen(!repliesOpen)
+  }
+
   return (
     <div>
       <div className="composeTop">
@@ -126,7 +133,7 @@ export default function Index() {
       <ul>
         {
           (allPosts.length > 0) ? allPosts.map(t => {
-            return <li key={makePostId(t)}>{Post(t, { navigate, fetcher, handleLike: reactionClick })}</li>
+            return <li key={makePostId(t)}>{Post(t, { navigate, fetcher, handleLike: reactionClick, openReply, repliesOpen })}</li>
           }) : <li key="noPosts">No posts yet. Give it a sec.</li>
         }
       </ul>
