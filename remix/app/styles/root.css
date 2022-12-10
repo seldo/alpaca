@@ -879,6 +879,17 @@ video {
   margin-bottom: 16px;
 }
 
+.morePosts {
+  width: 100%;
+  padding: 5px 10px;
+  text-align: center;
+  display: none;
+}
+
+.morePosts.active {
+  display: block;
+}
+
 .repost .repostNotice {
   font-style: normal;
   font-weight: 500;

@@ -28,9 +28,9 @@ export default function Index() {
   const fetcher = useFetcher();
 
   // manage state for timeline
-  const [allPosts, setPosts] = useState(localPosts);
-  // treat a change to allPosts as a state change
-  useEffect(() => setPosts(allPosts), [allPosts]);
+  let [allPosts, setPosts] = useState(localPosts);
+  let [postBuffer, setPostBuffer] = useState([]);
+  let [postBufferCount, setPostBufferCount] = useState(0)
 
   // manage state of how often we trigger data fetch
   const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
@@ -76,28 +76,59 @@ export default function Index() {
         return
       }
       // dedupe and merge incoming posts since this is not guaranteed
+      let previousCount = postBufferCount
       let seenIds = []
       for (let i = 0; i < allPosts.length; i++) {
         seenIds.push(makePostId(allPosts[i]))
       }
+      // grab the current set of posts
+      postBuffer = JSON.parse(JSON.stringify(allPosts))
+      postBufferCount = postBufferCount + incoming.length
+
+      // merge in any we haven't seen
       for (let i = 0; i < incoming.length; i++) {
         let post = incoming[i]
         if (!seenIds.includes(makePostId(post))) {
-          allPosts.push(post)
+          postBuffer.push(post)
         }
       }
-      allPosts.sort((a, b) => {
+      // sort by date
+      postBuffer.sort((a, b) => {
         if (b.created_at > a.created_at) return 1
         else return -1
       })
-      setPosts(allPosts)
+      console.log("Allposts length is now",allPosts.length)
+      console.log("Postbuffer length is now",postBuffer.length)
+      console.log("Postbuffer count is now",postBufferCount)
+      // commit the state change
+      setPostBuffer(postBuffer)
+      setPostBufferCount(postBufferCount)
     }
   }, [fetcher.data]);
+
+  useEffect(() => {
+    console.log("PostbufferCount changed, postBuffercount is",postBufferCount)
+  },postBufferCount)
+  
+  // when they click load more, merge the timeline and reset
+  const mergePostBuffer = () => {
+    allPosts = postBuffer
+    postBufferCount = 0
+    console.log("load more should be inactive")
+    let morePostsNotification = document.getElementsByClassName("morePosts")[0]
+    morePostsNotification.classList.remove("active")
+    setPostBuffer(postBuffer)
+    setPostBufferCount(postBufferCount)
+    setPosts(allPosts)
+  }
 
   return (
     <div>
       <div className="composeTop">
         <ComposeBox user={user} isComposing={isComposing} setIsComposing={setIsComposing}/>
+      </div>
+      <div className={`morePosts ` + ((postBufferCount > 0) ? "active" : "")}>
+        <button className="button morePostsButton" onClick={mergePostBuffer}>Load more ({postBufferCount})</button>
       </div>
       <ul>
         {

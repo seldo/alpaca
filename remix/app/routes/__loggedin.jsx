@@ -4,7 +4,7 @@ import { useLoaderData, useFetcher } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
 import Globalnav from "~/shared/components/globalnav"
-import { useMatches } from "@remix-run/react";
+import { useMatches, Link } from "@remix-run/react";
 import { useNavigate } from "react-router-dom";
 
 const INITIAL_LOAD_DELAY = 30
@@ -64,7 +64,7 @@ export default function Index() {
 
     return <div className="loggedIn">
         <Globalnav user={user} navigate={navigate} isHome={isHome} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
-        {(notificationsCount) ? <div className="notificationsBadge">{notificationsCount}</div> : <div />}
+        {(notificationsCount) ? <div className="notificationsBadge"><Link to="/notifications">{notificationsCount}</Link></div> : <div />}
         <div className="content">
             <Outlet context={{user}}/>
         </div>
