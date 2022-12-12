@@ -22,7 +22,7 @@ export const isAvailable = true
 const getFresh = async (key,limit = DEFAULT_LIMIT) => {
     let data = await localforage.getItem(key)
     if (!data) {
-        throw new Error(`key ${key} not found`,1)
+        throw new Error(`key ${key} not found`,{cause:1})
     }
     let oldestAllowed = DateTime.now().minus({seconds:limit})
     if (new DateTime(data.setTime) > oldestAllowed) {

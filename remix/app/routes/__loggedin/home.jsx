@@ -28,7 +28,7 @@ export default function Index() {
   },[]) // but only once
 
   // manage state for timeline
-  let [allPosts, setPosts] = useState(false);
+  let [allPosts, setPosts] = useState([]);
   let [postBuffer, setPostBuffer] = useState([]);
   let [postBufferCount, setPostBufferCount] = useState(0)
 
