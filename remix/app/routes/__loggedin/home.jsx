@@ -11,8 +11,14 @@ import * as clientdon from "~/models/posts.client";
 const INITIAL_LOAD_DELAY = 5
 const ONGOING_LOAD_PERIOD = 10
 
+export const loader = async ({request}) => {
+  let authUser = await authenticateAndRefresh(request)
+  return {authUser}
+}
+
 export default function Index() {
   const navigate = useNavigate();
+  const {authUser} = useLoaderData();
 
   // fetch data for a variety of tasks
   const fetcher = useFetcher();
@@ -21,7 +27,7 @@ export default function Index() {
   let user, localPosts
   useEffect(() => {
     (async () => {
-      ({user,localPosts} = await clientdon.getUserAndTimeline())
+      ({user,localPosts} = await clientdon.getUserAndTimeline(authUser))
       allPosts = localPosts
       setPosts(allPosts)
     })();
@@ -127,6 +133,7 @@ export default function Index() {
       }
   }
 
+  let keysSeen = {}
   return (
     <div>
       <div className="composeTop">
@@ -137,11 +144,12 @@ export default function Index() {
       </div>
       <ul>
         {
-          (allPosts.length > 0) ? allPosts.map(t => {
-            return <li key={makePostId(t)}>{Post(t, { navigate, fetcher, handleLike: reactionClick, openReply, repliesOpen })}</li>
+          (allPosts.length > 0) ? allPosts.map( (t,index) => {
+            let key = makePostId(t)
+            return <li key={key}>{Post(t, { navigate, fetcher, handleLike: reactionClick, openReply, repliesOpen })}</li>
           }) : <li key="noPosts">No posts yet. Give it a sec.</li>
         }
       </ul>
-    </div>
+   </div>
   );
 }

@@ -15,7 +15,7 @@ export const loader = async ({request}) => {
 
 export default function Index() {
     return <div className="loggedOut">
-        <Globalnav />
+        <Globalnav isHome={true}/>
         <div className="content">
             <Outlet />
         </div>

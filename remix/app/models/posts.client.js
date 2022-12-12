@@ -1,16 +1,18 @@
-import localforage from "localforage";
+import * as localforage from "localforage";
 import { DateTime } from "luxon"
-
-localforage.config({
-    name: 'Alpaca Blue DB'
-})
 
 const DEFAULT_LIMIT = 3600 // 1 hour
 
 const KEY_AUTH_USER = "authUser"
 const KEY_ALL_POSTS = "allPosts"
 
-export const isAvailable = true
+export const initialize = async (user) => {
+    let cacheKey = `${user.username}@${user.instance}`
+    console.log("initializing cache",cacheKey)
+    await localforage.config({
+        name: `Alpaca Blue DB: ${cacheKey}`
+    })    
+}
 
 /**
  * Get the key.
@@ -47,7 +49,8 @@ const setFresh = async (key,data) => {
     return localforage.setItem(key,cache)
 }
 
-export const getUserAndTimeline = async () => {
+export const getUserAndTimeline = async (user) => {
+    await initialize(user)
     const endpoint = "/api/v1/user?timeline=true"
     // fast case
     try {
@@ -79,5 +82,6 @@ export const getUserAndTimeline = async () => {
 }
 
 export const updatePosts = async (posts) => {
+    console.log("Saving posts")
     setFresh(KEY_ALL_POSTS,posts)
 }
