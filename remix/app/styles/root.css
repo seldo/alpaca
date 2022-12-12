@@ -553,6 +553,10 @@ video {
   visibility: visible;
 }
 
+.static {
+  position: static;
+}
+
 .flex {
   display: flex;
 }

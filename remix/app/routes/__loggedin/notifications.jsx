@@ -115,26 +115,12 @@ export default function Index() {
               else return -1
             })
             // storing state across pages
-            /*
-            if(window && window.localStorage && newNotifications.length > 0) {
-                window.localStorage[MIN_ID] = newNotifications[0].id   
+            if(window && window.localStorage && notificationsBuffer.length > 0) {
+                window.localStorage.setItem(MIN_ID,notificationsBuffer[0].id)
             }
-            */
             setNotificationsBuffer(notificationsBuffer)
         }
     },[fetcher.data])
-
-    /*
-    // when newNotifications is modified, update the state
-    useEffect(() => {
-        setNewNotifications(newNotifications)
-        batchedNotifications = batchNotifications(newNotifications)
-    },[newNotifications])
-
-    useEffect(() => {
-        reactionState()
-    }, [fetcher.state])
-    */
 
     // when they click the button to see new notifications, merge buffer into all and reset buffer
     const mergeNewNotifications = () => {

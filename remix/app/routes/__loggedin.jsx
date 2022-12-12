@@ -7,8 +7,8 @@ import Globalnav from "~/shared/components/globalnav"
 import { useMatches, Link } from "@remix-run/react";
 import { useNavigate } from "react-router-dom";
 
-const INITIAL_LOAD_DELAY = 30
-const ONGOING_LOAD_PERIOD = 60
+const INITIAL_LOAD_DELAY = 5
+const ONGOING_LOAD_PERIOD = 15
 const MIN_ID = "notifications_most_recent_id"
 
 export default function Index() {
@@ -27,9 +27,12 @@ export default function Index() {
     useEffect(() => {
         const interval = setInterval(() => {
         if (window && window.localStorage) {
+            let notificationCountUrl = "/api/v1/notifications/count"
+            console.log("min ID",window.localStorage.getItem(MIN_ID))
             if (window.localStorage[MIN_ID]) {
-                fetcher.load("/notifications_count?minId=" + window.localStorage[MIN_ID])
+              notificationCountUrl += "?minId=" + window.localStorage[MIN_ID]
             }
+            fetcher.load(notificationCountUrl)
         }
         if (refreshInterval == INITIAL_LOAD_DELAY) {
             setRefresh(ONGOING_LOAD_PERIOD)
@@ -42,7 +45,7 @@ export default function Index() {
     // When the fetcher comes back with notifications count, update that
     useEffect(() => {
       if (fetcher.data) {
-        setNotificationsCount(JSON.parse(fetcher.data)['unreadCount'])
+        setNotificationsCount(fetcher.data['unreadCount'])
       }
     }, [fetcher.data]);
     
