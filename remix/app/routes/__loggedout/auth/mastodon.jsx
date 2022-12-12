@@ -1,4 +1,3 @@
-import { redirect } from "@remix-run/node";
 import { authenticateAnyInstance } from "~/services/auth.server";
 
 export const loader = async ({ request, params }) => {

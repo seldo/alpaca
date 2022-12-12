@@ -30,9 +30,9 @@ export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfi
             {
                 (profileMenuOpen) ? <div>
                     <ol>
-                        <li><Link rel="intent" to={`/u/${user.username}@${user.instance}`} onClick={closeMenu}>Profile</Link></li>                        
-                        <li>Settings</li>
-                        <li>
+                        <li key="profilemenu1"><Link rel="intent" to={`/u/${user.username}@${user.instance}`} onClick={closeMenu}>Profile</Link></li>                        
+                        <li key="profilemenu2">Settings</li>
+                        <li key="profilemenu3">
                             <Form method="post" action="/auth/logout">
                                 <button>Log out</button>
                             </Form>                            

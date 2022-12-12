@@ -11,18 +11,8 @@ const INITIAL_LOAD_DELAY = 30
 const ONGOING_LOAD_PERIOD = 60
 const MIN_ID = "notifications_most_recent_id"
 
-export const loader = async ({request}) => {
-    let authUser = await authenticateAndRefresh(request,{
-        failureRedirect: "/?fromloggedin",
-        throwOnError: true
-    })
-    let user = await mastodon.getOrCreateUserFromData(authUser)
-    return { user, request }
-}
-
 export default function Index() {
-    const loaderData = useLoaderData();
-    const {user} = loaderData  
+    const {user} = false  
     const fetcher = useFetcher();
     const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
     const [profileMenuOpen, setProfileMenuOpen] = useState(false)

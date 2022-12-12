@@ -5,30 +5,30 @@ import * as mastodon from "~/models/posts.server";
 import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/shared/components/post"
 import { ComposeBox } from "~/shared/components/compose"
 import { useNavigate } from "react-router-dom";
+import * as clientdon from "~/models/posts.client";
 
 // time in seconds between refreshes
 const INITIAL_LOAD_DELAY = 5
 const ONGOING_LOAD_PERIOD = 10
 
-export const loader = async ({ request }) => {
-  let authUser = await authenticateAndRefresh(request, {
-    failureRedirect: "/?fromhome",
-    throwOnError: true
-  })
-  console.log(`/home got ${authUser.username}@${authUser.instance}`)
-  let user = await mastodon.getOrCreateUserFromData(authUser)
-  let localPosts = await mastodon.getTimelineLocal(user, { hydrate: true })
-  return { user, localPosts }
-}
-
 export default function Index() {
-  const { user, localPosts } = useLoaderData();
   const navigate = useNavigate();
+
   // fetch data for a variety of tasks
   const fetcher = useFetcher();
 
+  // render posts ASAP
+  let user, localPosts
+  useEffect(() => {
+    (async () => {
+      ({user,localPosts} = await clientdon.getUserAndTimeline())
+      allPosts = localPosts
+      setPosts(allPosts)
+    })();
+  },[]) // but only once
+
   // manage state for timeline
-  let [allPosts, setPosts] = useState(localPosts);
+  let [allPosts, setPosts] = useState(false);
   let [postBuffer, setPostBuffer] = useState([]);
   let [postBufferCount, setPostBufferCount] = useState(0)
 
@@ -76,7 +76,6 @@ export default function Index() {
         return
       }
       // dedupe and merge incoming posts since this is not guaranteed
-      let previousCount = postBufferCount
       let seenIds = []
       for (let i = 0; i < allPosts.length; i++) {
         seenIds.push(makePostId(allPosts[i]))
@@ -106,6 +105,8 @@ export default function Index() {
   // when they click load more, merge the timeline and reset
   const mergePostBuffer = () => {
     allPosts = postBuffer
+    // update local cache for next refresh
+    clientdon.updatePosts(allPosts)
     postBufferCount = 0
     console.log("load more should be inactive")
     let morePostsNotification = document.getElementsByClassName("morePosts")[0]
