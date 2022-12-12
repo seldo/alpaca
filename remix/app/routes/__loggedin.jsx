@@ -11,8 +11,14 @@ const INITIAL_LOAD_DELAY = 5
 const ONGOING_LOAD_PERIOD = 15
 const MIN_ID = "notifications_most_recent_id"
 
+export const loader = async ({request}) => {
+  let authUser = await authenticateAndRefresh(request)
+  let doneUrl = new URL(request.url).pathname
+  return {authUser, doneUrl}
+}
+
 export default function Index() {
-    const {user} = false  
+    const {authUser,doneUrl} = useLoaderData();
     const fetcher = useFetcher();
     const [refreshInterval, setRefresh] = useState(INITIAL_LOAD_DELAY)
     const [profileMenuOpen, setProfileMenuOpen] = useState(false)
@@ -56,10 +62,10 @@ export default function Index() {
     }, [notificationsCount])
 
     return <div className="loggedIn">
-        <Globalnav user={user} navigate={navigate} isHome={isHome} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
+        <Globalnav user={authUser} navigate={navigate} isHome={isHome} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
         {(notificationsCount) ? <div className="notificationsBadge"><Link to="/notifications">{notificationsCount}</Link></div> : <div />}
         <div className="content">
-            <Outlet context={{user}}/>
+            <Outlet context={{authUser}}/>
         </div>
     </div>
 }
