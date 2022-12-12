@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { authenticateAndRefresh } from "~/services/auth.server";
 import * as mastodon from "~/models/posts.server";
+import * as clientdon from "~/models/posts.client";
 import { Post, makePostId, reactionClick, reactionState, reactionData } from "~/shared/components/post"
 import { ComposeBox } from "~/shared/components/compose"
 import { useNavigate } from "react-router-dom";
-import * as clientdon from "~/models/posts.client";
 
 // time in seconds between refreshes
 const INITIAL_LOAD_DELAY = 5

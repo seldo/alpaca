@@ -29,6 +29,7 @@ const parseThingId = (n) => {
 }
 
 export const batchNotifications = (notifications) => {
+    console.log("batching up",notifications)
     let thingsReactedTo = {}
     // batch up by the thing they are reacting to
     for (let i = 0; i < notifications.length; i++) {
@@ -40,6 +41,7 @@ export const batchNotifications = (notifications) => {
     // process each group of reactions
     let batches = []
     for (let trt of Object.values(thingsReactedTo)) {
+        console.log(trt)
         // everything is the same type so we can infer it from the first one
         let type = trt[0].type
         // get the events into most recent order

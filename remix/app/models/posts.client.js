@@ -5,6 +5,7 @@ const DEFAULT_LIMIT = 3600 // 1 hour
 
 const KEY_AUTH_USER = "authUser"
 const KEY_ALL_POSTS = "allPosts"
+const KEY_ALL_NOTIFICATIONS = "allNotifications"
 
 export const initialize = async (user) => {
     let cacheKey = `${user.username}@${user.instance}`
@@ -84,4 +85,39 @@ export const getUserAndTimeline = async (user) => {
 export const updatePosts = async (posts) => {
     console.log("Saving posts")
     setFresh(KEY_ALL_POSTS,posts)
+}
+
+export const getNotifications = async (user) => {
+    await initialize(user)
+    const endpoint = "/api/v1/notifications"
+    // fast case
+    try {
+        let storedNotifications = await getFresh(KEY_ALL_NOTIFICATIONS)
+        if (storedNotifications) {
+            console.log("Found notifications fresh",storedNotifications)
+            return storedNotifications
+        }
+    } catch (e) {
+        if(e.cause == 1) { // key did not exist
+            // that's fine, carry on
+        } else {
+            throw e
+        }
+    }
+
+    // slow case
+    let res = await fetch(endpoint,{
+        method: "GET"
+    })
+    let data = await res.json()
+    // store it (async) for fast case next time
+    setFresh(KEY_ALL_NOTIFICATIONS,data)
+    console.log("Did not get notifications from cache; now fetched and stored",data)
+    
+    return data
+}
+
+export const updateNotifications = async (notifications) => {
+    console.log("Saving notifications")
+    setFresh(KEY_ALL_NOTIFICATIONS,notifications)
 }
