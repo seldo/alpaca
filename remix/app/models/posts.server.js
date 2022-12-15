@@ -246,7 +246,7 @@ export async function getUserRemote(username, userInstance, authUser) {
   console.log("getTimelineRemote")
   let timelineData
   try {
-    let timelineUrl = new URL(getInstanceUrl(user.instance) + `/api/v1/timelines/home`)
+    let timelineUrl = new URL(getInstanceUrl(user.instance) + `/api/v1/timelines/home?limit=40`)
     if(minId) {
       timelineUrl.searchParams.append("min_id",minId)
     }    
