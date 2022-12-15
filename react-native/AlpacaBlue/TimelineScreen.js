@@ -7,20 +7,32 @@ export const TimelineScreen = ({navigation}) => {
 
     const [allPosts,setAllPosts] = useState([])
 
-    const fetchTimeline = async (minId = null,maxId = null) => {
+    const fetchTimeline = async (options = {minId: null,maxId: null}) => {
+        console.log("options are",options)
         let auth = JSON.parse(await AsyncStorage.getItem('auth'))
         let timelineUrl = new URL("https://seldo.dev/api/v1/timelines/home")
         timelineUrl.searchParams.append('limit',40)
-        let res = await fetch(timelineUrl,{
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${auth.accessToken}`
-            }            
-        })
-        let timeline = await res.json()   
-        console.log("Timeline items:",timeline.length)
-        console.log("Timeline content:",timeline.map( (p,index) => index + ":" + p.content))
-        return timeline
+        if(options.maxId) {
+            console.log("Max ID was",options.maxId)
+            timelineUrl.searchParams.append('max_id',options.maxId)
+        }
+        console.log("Timeline URL",timelineUrl)
+        try {
+            let res = await fetch(timelineUrl,{
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${auth.accessToken}`
+                }            
+            })
+            console.log(res)
+            let timeline = await res.json()   
+            console.log("Fetched items:",timeline.length)
+            console.log("Adding posts:",timeline.map( (p,index) => index + ":" + p.content))
+            return timeline        
+        } catch (e) {
+            console.log("Failed to fetch timeline",e)
+            return []
+        }
     }
 
     // initialize to the top of the timeline
@@ -33,13 +45,34 @@ export const TimelineScreen = ({navigation}) => {
 
     let contentWidth = useWindowDimensions().width
 
-    const getItem = (data, index) => data[index];
-    const getItemCount = (data) => data.length;
-    const Post = ({content}) => (
+    const fetchMoreItems = async () => {
+        console.log(`Ran out of items; currently we only have ${allPosts.length} items`)
+        let maxId = allPosts[allPosts.length-1].id
+        console.log(`must fetch items up to ${maxId}`)
+        try {
+            (async () => {
+                console.log("here")
+                let morePosts = await fetchTimeline({maxId:maxId})
+                let newPosts = allPosts.concat(morePosts)
+                setAllPosts(newPosts)
+                console.log("Total items",allPosts.length)
+            })();
+        } catch (e) {
+            console.log("Failed to run anonymous function")            
+            console.log(e)
+        }
+        return
+    }
+
+    const getItem = (data, index) => {
+        return data[index];
+    }
+    const getItemCount = (data) => data.length
+    const Post = ({post}) => (
         <View style={styles.item}>
           <RenderHtml
                     contentWidth={contentWidth}
-                    source={{html:content}}
+                    source={{html:post.content ? post.content : post.reblog.content}}
                     styles={{
                         foregroundColor: 'red',
                         textAlign: 'left',
@@ -55,11 +88,12 @@ export const TimelineScreen = ({navigation}) => {
             <SafeAreaView>
                 <VirtualizedList
                     data={allPosts}
-                    initialNumToRender={20}
-                    renderItem={({ item }) => <Post content={item.content} />}
+                    initialNumToRender={10}
+                    renderItem={({ item }) => <Post post={item} />}
                     keyExtractor={item => item.id}
                     getItemCount={getItemCount}
                     getItem={getItem}
+                    onEndReached={fetchMoreItems}
                 />
             </SafeAreaView>
             <Text>What</Text>
@@ -81,5 +115,12 @@ const styles = StyleSheet.create({
         paddingTop: 4,
         paddingBottom: 4,
         borderColor: '#000'
+    },
+    item: {
+        paddingLeft: 10,
+        paddingRight: 10,
+        borderBottomWidth: 0.2,
+        borderBottomColor: '#ccc',
+        minHeight: 10
     }
 });
