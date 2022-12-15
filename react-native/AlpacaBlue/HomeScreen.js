@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const goToLogin = (navigation) => {
     navigation.navigate('Login', { name: 'Yo' })

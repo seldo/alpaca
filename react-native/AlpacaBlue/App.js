@@ -20,6 +20,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from './HomeScreen';
 import { LoginScreen } from './LoginScreen';
+import { TimelineScreen } from './TimelineScreen';
 
 import {
   Colors,
@@ -41,6 +42,7 @@ const App = () => {
           options={{ title: 'Alpaca Blue' }}
         />
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Timeline" component={TimelineScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

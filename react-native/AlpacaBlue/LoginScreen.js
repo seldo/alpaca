@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, Button, SafeAreaView, TextInput } from 'react-native';
 import { authorize } from 'react-native-app-auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // base config
 const config = {
@@ -14,19 +15,23 @@ const config = {
     }    
 };
 
-const startLogin = async () => {
-    console.log("Yo");
-    // use the client to make the auth request and receive the authState
-    try {
-        const result = await authorize(config);
-        // result includes accessToken, accessTokenExpirationDate and refreshToken
-        console.log(result)
-    } catch (error) {
-        console.log(error);
-    }
-}
+export const LoginScreen = ({navigation}) => {
 
-export const LoginScreen = () => {
+    const startLogin = async () => {
+        console.log("Logging in");
+        let auth
+        // use the client to make the auth request and receive the authState
+        try {
+            auth = await authorize(config);
+            // result includes accessToken, accessTokenExpirationDate and refreshToken
+            await AsyncStorage.setItem('auth', JSON.stringify(auth))
+            navigation.navigate('Timeline')
+        } catch (error) {
+            console.log("Saving did not work")
+            console.log(error);
+        }
+    }
+    
     return (
         <View style={styles.container}>
             <SafeAreaView>
