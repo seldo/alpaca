@@ -1,4 +1,4 @@
-import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator } from 'react-native';
+import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import RenderHtml from 'react-native-render-html'
@@ -139,19 +139,25 @@ export const TimelineScreen = ({navigation}) => {
         return data[index];
     }
     const getItemCount = (data) => data.length
-    const Post = ({post}) => (
-        <View style={styles.item}>
-          <RenderHtml
-                    contentWidth={contentWidth}
-                    source={{html:post.content ? post.content : post.reblog.content}}
-                    styles={{
-                        foregroundColor: 'red',
-                        textAlign: 'left',
-                        borderWidth: 1
-                    }}
-                />
-        </View>
-      );
+    const Post = ({post}) => {
+        try {
+            return <View style={styles.item}>
+            <RenderHtml
+                        contentWidth={contentWidth}
+                        source={{html:post.content ? post.content : post.reblog.content ? post.reblog.content : ""}}
+                        styles={{
+                            foregroundColor: 'red',
+                            textAlign: 'left',
+                            borderWidth: 1
+                        }}
+                    />
+            </View>
+        } catch(e) {
+            console.log("Error rendering post",e)
+            console.log("Post was",post)
+            return <View><Text>Oops</Text></View>
+        }
+    }
     const loadingBar = () => {
         if(isRefreshing) {
             return <ActivityIndicator size="small" color="#0000ff" />
@@ -159,10 +165,9 @@ export const TimelineScreen = ({navigation}) => {
             return null
         }
     }
-    
+
     return (
         <View style={styles.container}>
-            <Text>This will be a timeline.</Text>
             <SafeAreaView>
                 <VirtualizedList
                     data={allPosts}
@@ -175,10 +180,8 @@ export const TimelineScreen = ({navigation}) => {
                     onEndReached={fetchMoreItems}
                     ListFooterComponent={loadingBar}
                     refreshing={isRefreshing}
-                    removeClippedSubviews={true}
                 />
             </SafeAreaView>
-            <Text>What</Text>
         </View>
     );
 }

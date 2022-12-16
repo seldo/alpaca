@@ -40,13 +40,12 @@ export const NotificationsScreen = ({ navigation }) => {
                     "Authorization": `Bearer ${auth.accessToken}`
                 }
             })
-            console.log(res)
-            let Notifications = await res.json()
-            console.log("Fetched items:", Notifications.length)
-            console.log(Notifications)
-            return Notifications
+            let notifications = await res.json()
+            console.log("Fetched items:", notifications.length)
+            console.log(notifications)
+            return notifications
         } catch (e) {
-            console.log("Failed to fetch Notifications", e)
+            console.log("Failed to fetch notifications", e)
             return []
         }
     }

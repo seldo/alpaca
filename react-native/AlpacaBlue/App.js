@@ -8,38 +8,80 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
   View,
+  Image,
+  Text
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from './HomeScreen';
 import { TimelineScreen } from './TimelineScreen';
 import { NotificationsScreen } from './NotificationsScreen';
+import { SearchScreen } from "./SearchScreen"
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
+const tabIcon = (iconName) => {
+  let icon, iconActive
+  switch (iconName) {
+    case "Timeline":
+      icon = require("./assets/icon-home.png")
+      iconActive = require("./assets/icon-home-active.png")
+      break;
+    case "Notifications":
+      icon = require("./assets/icon-notifications.png")
+      iconActive = require("./assets/icon-notifications-active.png")
+      break;
+    case "Search":
+      icon = require("./assets/icon-search.png")
+      iconActive = require("./assets/icon-search-active.png")
+      break;
+  }
+  return ({focused, color, size}) => {
+    let display = icon
+    if (focused) display = iconActive
+    return <Image 
+      source={display}
+      style={styles.tabIcon}
+    />
+  }
+}
+
+const iconHome = ({focused, color, size}) => {
+  let icon = require("./assets/icon-home.png")
+  if (focused) icon = require("./assets/icon-home-active.png")
+  return <Image 
+    source={icon}
+    style={styles.tabIcon}
+  />
+}
+
 const MainApp = () => {
   return <Tab.Navigator>
-    <Tab.Screen name="Timeline" component={TimelineScreen} />
-    <Tab.Screen name="Mentions" component={NotificationsScreen} />
+    <Tab.Screen 
+      name="Timeline" 
+      component={TimelineScreen} 
+      options={{
+        tabBarIcon: tabIcon("Timeline")
+      }}
+    />
+    <Tab.Screen 
+      name="Mentions" 
+      component={NotificationsScreen} 
+      options={{
+        tabBarIcon: tabIcon("Notifications")
+      }}
+    />
+    <Tab.Screen 
+      name="Search" 
+      component={SearchScreen} 
+      options={{
+        tabBarIcon: tabIcon("Search")
+      }}
+    />
   </Tab.Navigator>
 }
 
@@ -72,6 +114,10 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },
+  tabIcon: {
+    width: 20,
+    height: 20,
   },
 });
 
