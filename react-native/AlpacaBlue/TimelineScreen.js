@@ -39,10 +39,9 @@ export const TimelineScreen = ({navigation}) => {
                     "Authorization": `Bearer ${auth.accessToken}`
                 }            
             })
-            console.log(res)
             let timeline = await res.json()   
             console.log("Fetched items:",timeline.length)
-            console.log("Adding posts:",timeline.map( (p,index) => index + ":" + p.content))
+            //console.log("Adding posts:",timeline.map( (p,index) => index + ":" + p.content))
             return timeline        
         } catch (e) {
             console.log("Failed to fetch timeline",e)

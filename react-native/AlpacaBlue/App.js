@@ -21,7 +21,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from './HomeScreen';
-import { LoginScreen } from './LoginScreen';
 import { TimelineScreen } from './TimelineScreen';
 import { NotificationsScreen } from './NotificationsScreen';
 
@@ -50,8 +49,7 @@ const App = () => {
       <Drawer.Navigator screenOptions={{
           headerShown: false
         }}>
-        <Drawer.Screen name="Home" component={HomeScreen} />
-        <Drawer.Screen name="Login" component={LoginScreen} />
+        <Drawer.Screen name="Log in" component={HomeScreen} />
         <Drawer.Screen name="Posts" component={MainApp} />
       </Drawer.Navigator>      
     </NavigationContainer>
