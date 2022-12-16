@@ -5,7 +5,7 @@
  * @format
  * @flow strict-local
  */
-
+import 'react-native-gesture-handler';
 import React from 'react';
 import {
   SafeAreaView,
@@ -17,10 +17,13 @@ import {
   View,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from './HomeScreen';
 import { LoginScreen } from './LoginScreen';
 import { TimelineScreen } from './TimelineScreen';
+import { NotificationsScreen } from './NotificationsScreen';
 
 import {
   Colors,
@@ -31,22 +34,26 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+const MainApp = () => {
+  return <Tab.Navigator>
+    <Tab.Screen name="Timeline" component={TimelineScreen} />
+    <Tab.Screen name="Mentions" component={NotificationsScreen} />
+  </Tab.Navigator>
+}
 
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator 
-        screenOptions={{
+      <Drawer.Navigator screenOptions={{
           headerShown: false
         }}>
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ title: 'Alpaca Blue' }}
-        />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Timeline" component={TimelineScreen} />
-      </Stack.Navigator>
+        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="Login" component={LoginScreen} />
+        <Drawer.Screen name="Posts" component={MainApp} />
+      </Drawer.Navigator>      
     </NavigationContainer>
   );
 };

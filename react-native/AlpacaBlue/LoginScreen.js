@@ -25,7 +25,7 @@ export const LoginScreen = ({navigation}) => {
             auth = await authorize(config);
             // result includes accessToken, accessTokenExpirationDate and refreshToken
             await AsyncStorage.setItem('auth', JSON.stringify(auth))
-            navigation.navigate('Timeline')
+            navigation.navigate('Posts')
         } catch (error) {
             console.log("Saving did not work")
             console.log(error);

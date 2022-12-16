@@ -14,7 +14,7 @@ export const HomeScreen = ({ navigation }) => {
         (async () => {
             let auth = JSON.parse(await AsyncStorage.getItem('auth'))
             if(auth) {
-                navigation.navigate('Timeline')
+                navigation.navigate('Posts')
             }
         })();
     },[])
