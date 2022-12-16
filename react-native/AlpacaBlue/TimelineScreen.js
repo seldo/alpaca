@@ -11,7 +11,8 @@ export const TimelineScreen = ({navigation}) => {
     const fetchTimeline = async (options = {minId: null,maxId: null}) => {
         console.log("options are",options)
         let auth = JSON.parse(await AsyncStorage.getItem('auth'))
-        let timelineUrl = new URL("https://seldo.dev/api/v1/timelines/home")
+        console.log("auth is",auth)
+        let timelineUrl = new URL(auth.instanceBasePath + "/api/v1/timelines/home")
         timelineUrl.searchParams.append('limit',40)
         try {
             if(options.maxId) {
@@ -51,11 +52,21 @@ export const TimelineScreen = ({navigation}) => {
 
     // initialize to the top of the timeline
     useEffect( () => {
-        (async () => {
-            let timeline = await fetchTimeline()
-            setAllPosts(timeline)
-        })();
+        const unsubscribe = navigation.addListener('focus', async () => {
+            console.log("-----timeline got focus")
+            let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+            if(auth) {
+                (async () => {
+                    let timeline = await fetchTimeline()
+                    setAllPosts(timeline)
+                })();        
+            } else {
+                navigation.navigate('Log in')
+            }
+        });
     },[])
+
+
 
     let contentWidth = useWindowDimensions().width
     const mergeAndSort = (a,b) => {

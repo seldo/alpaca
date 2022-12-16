@@ -12,7 +12,7 @@ export const NotificationsScreen = ({ navigation }) => {
     const fetchNotifications = async (options = { minId: null, maxId: null }) => {
         console.log("options are", options)
         let auth = JSON.parse(await AsyncStorage.getItem('auth'))
-        let notificationsUrl = new URL("https://seldo.dev/api/v1/notifications")
+        let notificationsUrl = new URL(auth.instanceBasePath + "/api/v1/notifications")
         notificationsUrl.searchParams.append('limit', 50)
         try {
             if (options.maxId) {
@@ -53,12 +53,20 @@ export const NotificationsScreen = ({ navigation }) => {
 
     // initialize Notifications
     useEffect(() => {
-        (async () => {
-            let Notifications = await fetchNotifications()
-            setAllNotifications(Notifications)
-            let batchedNotifications = batchNotifications(Notifications)
-            setBatchedNotifications(batchedNotifications)
-        })();
+        const unsubscribe = navigation.addListener('focus', async () => {
+            console.log("--notifications got focus")
+            let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+            if(auth) {
+                (async () => {
+                    let Notifications = await fetchNotifications()
+                    setAllNotifications(Notifications)
+                    let batchedNotifications = batchNotifications(Notifications)
+                    setBatchedNotifications(batchedNotifications)
+                })();
+            } else {
+                navigation.navigate('Log in')
+            }
+        });
     }, [])
 
     const makeIdForNotification = (n) => {

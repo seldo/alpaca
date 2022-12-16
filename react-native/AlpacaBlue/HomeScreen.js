@@ -4,34 +4,58 @@ import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authorize, logout } from 'react-native-app-auth';
-
-// base config
-const config = {
-    clientId: 'VmwsQKagYtOFL527d-I5BnLfOhV2N_npI-rZa6P5HpA',
-    clientSecret: 'peo_E_9sqx0z8K6GhFc1RK7pjsrItOY6W7fRPw38EtM',
-    redirectUrl: 'alpacablue://login',
-    scopes: ['read','write','push'],
-    serviceConfiguration: {
-        authorizationEndpoint: 'https://seldo.dev/oauth/authorize',
-        tokenEndpoint: 'https://seldo.dev/oauth/token',
-        revocationEndpoint: 'https://seldo.dev/oauth/revoke',
-    }    
-};
+import {KEY_INSTANCES,OAUTH_APP_NAME,OAUTH_FAKE_CALLBACK,OAUTH_APP_WEBSITE} from './config'
 
 export const HomeScreen = ({ navigation }) => {
 
     const [isLoggedIn,setIsLoggedIn] = useState(false)
+    const [instanceInput,setInstanceInput] = useState("")
 
     const startLogin = async () => {
         console.log("Logging in");
+        let instanceName = instanceInput.trim().toLowerCase()
+        // see if we have a client app for this instance
+        let instanceBasePath = "https://" + instanceName
+        let clientKey = KEY_INSTANCES+instanceName
+        let client = JSON.parse(await AsyncStorage.getItem(clientKey))
+        if (!client) {
+            // register a new client
+            let formData = new FormData();
+            formData.append("client_name", OAUTH_APP_NAME)
+            formData.append("redirect_uris", OAUTH_FAKE_CALLBACK)
+            formData.append("scopes","read write")
+            formData.append("website",OAUTH_APP_WEBSITE)
+            let instanceUrl = instanceBasePath + "/api/v1/apps"
+            let appData = await fetch(instanceUrl, {
+              method: "POST",
+              body: formData
+            })
+            client = await appData.json()
+            AsyncStorage.setItem(clientKey,JSON.stringify(client))
+            console.log("Registered a client",client)
+        }
         // use the client to make the auth request and receive the authState
         try {
-            let auth = await authorize(config);
-            // result includes accessToken, accessTokenExpirationDate and refreshToken
+            const config = {
+                clientId: client.client_id,
+                clientSecret: client.client_secret,
+                redirectUrl: client.redirect_uri,
+                scopes: ['read','write'],
+                serviceConfiguration: {
+                    authorizationEndpoint: instanceBasePath + '/oauth/authorize',
+                    tokenEndpoint: instanceBasePath + '/oauth/token',
+                    revocationEndpoint: instanceBasePath + '/oauth/revoke',
+                }    
+            };
+            
+            let auth = await authorize(config);            
+            // make sure auth includes accessToken, accessTokenExpirationDate and refreshToken
+            console.log("auth is",auth)
+            auth.instanceBasePath = instanceBasePath
             await AsyncStorage.setItem('auth', JSON.stringify(auth))
             navigation.navigate('Posts')
         } catch (error) {
-            console.log("Saving did not work")
+            console.log("Authorization triggered an error")
             console.log(error);
         }
     }
@@ -72,7 +96,10 @@ export const HomeScreen = ({ navigation }) => {
             </View> : <View>
                 <Text>It's an open source iOS client for Mastodon.</Text>            
                 <Text>To get started, enter an instance name and click "login".</Text>
-                <TextInput style={styles.input}></TextInput>
+                <TextInput 
+                    style={styles.input}
+                    onChangeText={(text) => setInstanceInput(text)}
+                ></TextInput>
                 <Button onPress={startLogin} title="Login"></Button>
                 <Text>Hint: if your Mastodon handle is @somebody@some.domain then your instance name is some.domain</Text>
             </View> }
