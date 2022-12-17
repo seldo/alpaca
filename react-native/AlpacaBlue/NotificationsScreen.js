@@ -42,7 +42,6 @@ export const NotificationsScreen = ({ navigation }) => {
             })
             let notifications = await res.json()
             console.log("Fetched items:", notifications.length)
-            console.log(notifications)
             return notifications
         } catch (e) {
             console.log("Failed to fetch notifications", e)
@@ -100,7 +99,8 @@ export const NotificationsScreen = ({ navigation }) => {
                 else return -1
             })
             let lastEvent = trt[0].created_at // credit the batch with the time of the most recent addition
-            let notification = { type, lastEvent }
+            let notificationId = makeIdForNotification(trt[0])
+            let notification = { type, lastEvent, id: notificationId }
             switch (type) {
                 case "favourite": // fuckin' "u"s
                     // many people can favorite one status
@@ -134,6 +134,7 @@ export const NotificationsScreen = ({ navigation }) => {
             if (b.lastEvent > a.lastEvent) return 1
             else return -1
         })
+        console.log("batch IDs",batches.map( (n) => n.id ))
         return batches
     }
 
@@ -186,17 +187,19 @@ export const NotificationsScreen = ({ navigation }) => {
     }
     const fetchNewItems = async () => {
         console.log(`Is there anything new?`)
-        let minId = allPosts[10].id // arbitrary, to see if there's backfill
+        let minId = allNotifications[5].id // a little overlap in case of backfill
         console.log(`fetching items after ${minId}`)
         try {
             (async () => {
                 console.log("there")
                 setIsRefreshing(true)
-                let freshPosts = await fetchTimeline({ minId: minId })
+                let freshNotifications = await fetchNotifications({ minId: minId })
                 setIsRefreshing(false)
-                let newPosts = mergeAndSort(freshPosts, allPosts)
-                setAllPosts(newPosts)
-                console.log("Total items", allPosts.length)
+                let newNotifications = mergeAndSort(freshNotifications, allNotifications)
+                setAllNotifications(newNotifications)
+                console.log("Total items", allNotifications.length)
+                let batchedNotifications = batchNotifications(newNotifications)
+                setBatchedNotifications(batchedNotifications)
             })();
         } catch (e) {
             console.log("Failed to run anonymous function")
@@ -211,7 +214,6 @@ export const NotificationsScreen = ({ navigation }) => {
     const getItemCount = (data) => data.length
 
     const Notification = ({ event }) => {
-        console.log(event)
         return <View style={styles.notification}>
             {event.type == 'reblog' ? <View width={contentWidth}>
                 <Text>{event.accounts[0].display_name} and {event.accounts.length-1} others reposted your post</Text>
@@ -245,8 +247,8 @@ export const NotificationsScreen = ({ navigation }) => {
                     keyExtractor={item => item.id}
                     getItemCount={getItemCount}
                     getItem={getItem}
-                    /*
                     onRefresh={fetchNewItems}
+                    /*
                     onEndReached={fetchMoreItems}
                     */
                     ListFooterComponent={loadingBar}
