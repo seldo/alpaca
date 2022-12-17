@@ -36,14 +36,9 @@ export default Post = ({post, contentWidth, navigation, showAvatar = true}) => {
                 </View> : <View></View>
             }
             <RenderHtml
-                    contentWidth={contentWidth}
-                    source={{html:isReblog ? post.reblog.content : post.content }}
-                    styles={{
-                        foregroundColor: 'red',
-                        textAlign: 'left',
-                        borderWidth: 1
-                    }}
-                />
+                contentWidth={contentWidth}
+                source={{html:isReblog ? post.reblog.content : post.content }}
+            />
         </View>
         </View>
     } catch(e) {
