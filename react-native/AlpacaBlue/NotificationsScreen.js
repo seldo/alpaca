@@ -166,18 +166,20 @@ export const NotificationsScreen = ({ navigation }) => {
     }
 
     const fetchMoreItems = async () => {
-        console.log(`Ran out of items; currently we only have ${allPosts.length} items`)
-        let maxId = allPosts[allPosts.length - 1].id
+        console.log(`Ran out of items; currently we only have ${allNotifications.length} items`)
+        let maxId = allNotifications[allNotifications.length - 1].id
         console.log(`must fetch items up to ${maxId}`)
         try {
             (async () => {
                 console.log("here")
                 setIsRefreshing(true)
-                let morePosts = await fetchTimeline({ maxId: maxId })
+                let moreNotifications = await fetchNotifications({ maxId: maxId })
                 setIsRefreshing(false)
-                let newPosts = mergeAndSort(morePosts, allPosts)
-                setAllPosts(newPosts)
-                console.log("Total items", allPosts.length)
+                let newNotifications = mergeAndSort(moreNotifications, allNotifications)
+                setAllNotifications(newNotifications)
+                console.log("Total items", allNotifications.length)
+                let batchedNotifications = batchNotifications(newNotifications)
+                setBatchedNotifications(batchedNotifications)
             })();
         } catch (e) {
             console.log("Failed to run anonymous function")
@@ -248,9 +250,7 @@ export const NotificationsScreen = ({ navigation }) => {
                     getItemCount={getItemCount}
                     getItem={getItem}
                     onRefresh={fetchNewItems}
-                    /*
                     onEndReached={fetchMoreItems}
-                    */
                     ListFooterComponent={loadingBar}
                     refreshing={isRefreshing}
                     removeClippedSubviews={true}
