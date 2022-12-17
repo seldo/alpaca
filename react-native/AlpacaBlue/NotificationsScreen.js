@@ -1,7 +1,8 @@
-import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator } from 'react-native';
+import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import Post from './components/Post'
+import { UserLink, Others } from './components/UserLink'
 
 export const NotificationsScreen = ({ navigation }) => {
 
@@ -216,19 +217,71 @@ export const NotificationsScreen = ({ navigation }) => {
     const getItemCount = (data) => data.length
 
     const Notification = ({ event }) => {
+        console.log(event)
         return <View style={styles.notification}>
-            {event.type == 'reblog' ? <View width={contentWidth}>
-                <Text>{event.accounts[0].display_name} and {event.accounts.length-1} others reposted your post</Text>
+            { event.type == 'reblog' ? <View 
+                width={contentWidth} 
+            >
+                <View 
+                    style={styles.notificationContainer}
+                >
+                    <Image
+                        source={require('./assets/icon-repost-active.png')}
+                        style={styles.notificationIcon}
+                    /> 
+                    <Text 
+                        style={styles.notificationText}
+                    >
+                        <Others people={event.accounts}/> reposted your post
+                    </Text>
+                </View>
+                <Post 
+                    post={event.status} 
+                    contentWidth={contentWidth} 
+                    showAvatar={false} 
+                />
+            </View> : event.type == 'favourite' ? <View 
+                width={contentWidth} 
+                style={styles.repostContainer}
+            > 
+                <View style={styles.notificationContainer}>
+                    <Image
+                        source={require('./assets/icon-heart-active.png')}
+                        style={styles.notificationIcon}
+                    /> 
+                    <Text 
+                        style={styles.notificationText}
+                    >
+                        <Others people={event.accounts}/> liked your post
+                    </Text>
+                </View>
+                <Post 
+                    post={event.status} 
+                    contentWidth={contentWidth} 
+                    showAvatar={false} 
+                />
+            </View> : event.type == 'mention' ? <View 
+                width={contentWidth}
+            >
+                <View style={styles.notificationContainer}>
+                    <Text 
+                        style={styles.mentionText}
+                    ><Others people={[event.account]} /> mentioned you</Text>
+                </View>
                 <Post post={event.status} contentWidth={contentWidth} />
-            </View> : event.type == 'favourite' ? <View width={contentWidth}>
-                <Text>{event.accounts[0].display_name} and {event.accounts.length-1} others liked your post</Text>
-                <Post post={event.status} contentWidth={contentWidth} />
-            </View> : event.type == 'mention' ? <View width={contentWidth}>
-                <Text>{event.account.display_name} mentioned you</Text>
-                <Post post={event.status} contentWidth={contentWidth} />
-            </View> : event.type == 'follow' ? <View width={contentWidth}>
-                <Text>{event.accounts[0].display_name} and {event.accounts.length-1} others followed you</Text>
-            </View> : <View />}
+            </View> : event.type == 'follow' ? <View 
+                width={contentWidth} 
+                style={styles.follow}
+            >
+                <View style={styles.notificationContainer}>
+                    <Image
+                        source={require('./assets/icon-avatar-active.png')}
+                        style={styles.notificationIcon}
+                    /> 
+                    <Text><Others people={event.accounts}/> followed you</Text>
+                </View>
+            </View> : <View></View>
+            }
         </View>
     }
     const loadingBar = () => {
@@ -275,4 +328,31 @@ const styles = StyleSheet.create({
         paddingBottom: 4,
         borderColor: '#000'
     },
+    follow: {
+        borderBottomWidth: 0.2,
+        borderBottomColor: '#ccc',
+        paddingTop: 5,
+        paddingBottom: 5,
+        paddingRight: 10,
+        minHeight: 60
+    },
+    notificationContainer: {
+        width: '95%',
+        flex: true,
+        flexDirection: 'row',
+        paddingLeft: 10,
+        marginBottom: -15,
+        paddingTop: 10
+    },
+    notificationText: {
+        paddingTop: 3,
+    },
+    mentionText: {
+        marginBottom: 15
+    },
+    notificationIcon: {
+        width: 25,
+        height: 25,
+        marginRight: 5
+    }
 });

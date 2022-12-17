@@ -1,19 +1,21 @@
 import RenderHtml from 'react-native-render-html'
 import { View, Text, StyleSheet, Image } from 'react-native';
 
-export default Post = ({post, contentWidth}) => {
+export default Post = ({post, contentWidth, showAvatar = true}) => {
     try {
         return <View style={styles.post}>
-            <View style={styles.author}>
-                <Image style={styles.avatar} source={{
-                    uri: post.account.avatar,
-                    }}
-                />
-                <View style={styles.authorName}>
-                    <Text style={styles.displayName}>{post.account.display_name}</Text>
-                    <Text style={styles.username}>@{post.account.username}</Text>
-                </View>
-            </View>
+            {
+                showAvatar ? <View style={styles.author}>
+                    <Image style={styles.avatar} source={{
+                        uri: post.account.avatar,
+                        }}
+                    />
+                    <View style={styles.authorName}>
+                        <Text style={styles.displayName}>{post.account.display_name}</Text>
+                        <Text style={styles.username}>@{post.account.username}</Text>
+                    </View>
+                </View> : <View></View>
+            }
             <RenderHtml
                     contentWidth={contentWidth}
                     source={{html:post.content ? post.content : post.reblog.content ? post.reblog.content : ""}}
