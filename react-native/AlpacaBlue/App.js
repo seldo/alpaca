@@ -22,6 +22,10 @@ import { TimelineScreen } from './TimelineScreen';
 import { NotificationsScreen } from './NotificationsScreen';
 import { SearchScreen } from "./SearchScreen"
 import { ProfileScreen } from "./ProfileScreen"
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
+
+TimeAgo.addDefaultLocale(en)
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();

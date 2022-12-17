@@ -1,36 +1,50 @@
 import RenderHtml from 'react-native-render-html'
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
-import { viewProfile } from './UserLink'
+import { viewProfile, UserLink } from './UserLink'
+import TimeAgo from 'javascript-time-ago'
+
+const timeAgo = new TimeAgo('en-US')
 
 export default Post = ({post, contentWidth, navigation, showAvatar = true}) => {
-    console.log("post got navigation",navigation)
     try {
-        return <View style={styles.post}>
+        const isReblog = post.reblog && post.reblog.account
+        let account = post.account
+        if (isReblog) account = post.reblog.account
+        return <View>
+            { isReblog ? <View style={styles.reblogNotice}>
+                    <UserLink account={post.account} navigation={navigation} small={true} /><Text style={styles.reblogNoticeText}> reblogged</Text>
+                </View> : <></>
+            }
+            <View style={styles.post}>
             {
                 showAvatar ? <View style={styles.author}>
-                    <Pressable onPress={() => viewProfile(post.account,navigation)}>
+                    <Pressable onPress={() => viewProfile(account,navigation)}>
                         <Image 
                         style={styles.avatar} source={{
-                            uri: post.account.avatar,
+                            uri: account.avatar,
                         }}                        
                         />
                     </Pressable>
                     <View style={styles.authorName}>
-                        <Text onPress={() => viewProfile(post.account,navigation)}
-                            style={styles.displayName}>{post.account.display_name || post.account.username}</Text>
-                        <Text style={styles.username}>@{post.account.username}</Text>
+                        <View style={styles.nameAndTime}>
+                            <Text onPress={() => viewProfile(account,navigation)}
+                                style={styles.displayName}>{account.display_name || account.username}</Text>
+                            <Text style={styles.timeAgo}> • {timeAgo.format(new Date(post.created_at))}</Text>
+                        </View>
+                        <Text style={styles.username}>@{account.username}</Text>
                     </View>
                 </View> : <View></View>
             }
             <RenderHtml
                     contentWidth={contentWidth}
-                    source={{html:post.content ? post.content : post.reblog.content ? post.reblog.content : ""}}
+                    source={{html:isReblog ? post.reblog.content : post.content }}
                     styles={{
                         foregroundColor: 'red',
                         textAlign: 'left',
                         borderWidth: 1
                     }}
                 />
+        </View>
         </View>
     } catch(e) {
         console.log("Error rendering post",e)
@@ -48,12 +62,31 @@ const styles = StyleSheet.create({
         borderBottomColor: '#ccc',
         minHeight: 10
     },
+    reblogNotice: {
+        flex: true,
+        flexDirection: 'row',
+        paddingLeft: 10,
+        paddingTop: 10,
+        paddingRight: 10
+    },
+    reblogNoticeText: {
+        paddingTop: 3,
+        fontSize: 10
+    },  
     author: {
         flex: true,
         flexDirection: "row"
     },
     authorName: {
         paddingLeft: 8
+    },
+    nameAndTime: {
+        flex: true,
+        flexDirection: 'row',        
+    },
+    timeAgo: {
+        paddingTop: 3.5,
+        fontSize: 9
     },
     displayName: {
         fontWeight: '800',

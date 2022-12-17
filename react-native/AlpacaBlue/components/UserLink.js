@@ -4,9 +4,11 @@ export const viewProfile = (account,navigation) => {
     navigation.navigate('Profile',{account})
 }
 
-export const UserLink = ({account, navigation}) => {
+export const UserLink = ({account, navigation, small=false}) => {
+    let chosenStyle = styles.big
+    if(small) chosenStyle = styles.small
     try {
-        return <Text style={styles.name} onPress={() => viewProfile(account,navigation)}>{account.display_name || account.username }</Text>
+        return <Text style={chosenStyle} onPress={() => viewProfile(account,navigation)}>{account.display_name || account.username }</Text>
     } catch(e) {
         return <View><Text>Oops</Text></View>
     }
@@ -29,7 +31,12 @@ export const Others = ({people, navigation}) => {
 }
 
 const styles = StyleSheet.create({
-    name: {
+    big: {
         fontWeight: '800'
     },
+    small: {
+        paddingTop: 1,
+        fontWeight: '500',
+        fontSize: 12
+    }
 })
