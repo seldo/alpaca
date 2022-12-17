@@ -1,7 +1,7 @@
 import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import RenderHtml from 'react-native-render-html'
+import Post from './components/Post'
 
 export const NotificationsScreen = ({ navigation }) => {
 
@@ -212,25 +212,16 @@ export const NotificationsScreen = ({ navigation }) => {
 
     const Notification = ({ event }) => {
         console.log(event)
-        return <View style={styles.item}>
+        return <View style={styles.notification}>
             {event.type == 'reblog' ? <View width={contentWidth}>
                 <Text>{event.accounts[0].display_name} and {event.accounts.length-1} others reposted your post</Text>
-                <RenderHtml
-                    contentWidth={contentWidth}
-                    source={{html:event.status.content}}
-                    />
+                <Post post={event.status} contentWidth={contentWidth} />
             </View> : event.type == 'favourite' ? <View width={contentWidth}>
                 <Text>{event.accounts[0].display_name} and {event.accounts.length-1} others liked your post</Text>
-                <RenderHtml
-                    contentWidth={contentWidth}
-                    source={{html:event.status.content}}
-                    />
+                <Post post={event.status} contentWidth={contentWidth} />
             </View> : event.type == 'mention' ? <View width={contentWidth}>
                 <Text>{event.account.display_name} mentioned you</Text>
-                <RenderHtml
-                    contentWidth={contentWidth}
-                    source={{html:event.status.content}}
-                    />
+                <Post post={event.status} contentWidth={contentWidth} />
             </View> : event.type == 'follow' ? <View width={contentWidth}>
                 <Text>{event.accounts[0].display_name} and {event.accounts.length-1} others followed you</Text>
             </View> : <View />}
@@ -282,11 +273,4 @@ const styles = StyleSheet.create({
         paddingBottom: 4,
         borderColor: '#000'
     },
-    item: {
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderBottomWidth: 0.2,
-        borderBottomColor: '#ccc',
-        minHeight: 10
-    }
 });

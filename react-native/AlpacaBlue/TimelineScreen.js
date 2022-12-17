@@ -1,7 +1,9 @@
 import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import RenderHtml from 'react-native-render-html'
+import Post from "./components/Post"
+
+let contentWidth = useWindowDimensions().width
 
 export const TimelineScreen = ({navigation}) => {
 
@@ -66,9 +68,6 @@ export const TimelineScreen = ({navigation}) => {
         });
     },[])
 
-
-
-    let contentWidth = useWindowDimensions().width
     const mergeAndSort = (a,b) => {
         let seenIds = []
         let merged = []
@@ -139,25 +138,6 @@ export const TimelineScreen = ({navigation}) => {
         return data[index];
     }
     const getItemCount = (data) => data.length
-    const Post = ({post}) => {
-        try {
-            return <View style={styles.item}>
-            <RenderHtml
-                        contentWidth={contentWidth}
-                        source={{html:post.content ? post.content : post.reblog.content ? post.reblog.content : ""}}
-                        styles={{
-                            foregroundColor: 'red',
-                            textAlign: 'left',
-                            borderWidth: 1
-                        }}
-                    />
-            </View>
-        } catch(e) {
-            console.log("Error rendering post",e)
-            console.log("Post was",post)
-            return <View><Text>Oops</Text></View>
-        }
-    }
     const loadingBar = () => {
         if(isRefreshing) {
             return <ActivityIndicator size="small" color="#0000ff" />
@@ -172,7 +152,7 @@ export const TimelineScreen = ({navigation}) => {
                 <VirtualizedList
                     data={allPosts}
                     initialNumToRender={10}
-                    renderItem={({ item }) => <Post post={item} />}
+                    renderItem={({ item }) => <Post post={item} contentWidth={contentWidth} />}
                     keyExtractor={item => item.id}
                     getItemCount={getItemCount}
                     getItem={getItem}
@@ -201,11 +181,4 @@ const styles = StyleSheet.create({
         paddingBottom: 4,
         borderColor: '#000'
     },
-    item: {
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderBottomWidth: 0.2,
-        borderBottomColor: '#ccc',
-        minHeight: 10
-    }
 });
