@@ -3,11 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import RenderHtml from 'react-native-render-html'
 
-export const SearchScreen = ({ navigation }) => {
-
+export const ProfileScreen = ({ navigation, route }) => {
+    console.log("profile params",route.params)
     return (
         <View style={styles.container}>
-            <Text>Search Screen</Text>
+            <Text>User Profile</Text>
         </View>
     );
 }

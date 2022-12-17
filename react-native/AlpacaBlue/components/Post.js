@@ -1,17 +1,23 @@
 import RenderHtml from 'react-native-render-html'
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { viewProfile } from './UserLink'
 
-export default Post = ({post, contentWidth, showAvatar = true}) => {
+export default Post = ({post, contentWidth, navigation, showAvatar = true}) => {
+    console.log("post got navigation",navigation)
     try {
         return <View style={styles.post}>
             {
                 showAvatar ? <View style={styles.author}>
-                    <Image style={styles.avatar} source={{
-                        uri: post.account.avatar,
-                        }}
-                    />
+                    <Pressable onPress={() => viewProfile(post.account,navigation)}>
+                        <Image 
+                        style={styles.avatar} source={{
+                            uri: post.account.avatar,
+                        }}                        
+                        />
+                    </Pressable>
                     <View style={styles.authorName}>
-                        <Text style={styles.displayName}>{post.account.display_name}</Text>
+                        <Text onPress={() => viewProfile(post.account,navigation)}
+                            style={styles.displayName}>{post.account.display_name || post.account.username}</Text>
                         <Text style={styles.username}>@{post.account.username}</Text>
                     </View>
                 </View> : <View></View>

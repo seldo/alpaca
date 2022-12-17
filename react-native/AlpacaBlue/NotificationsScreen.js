@@ -232,7 +232,10 @@ export const NotificationsScreen = ({ navigation }) => {
                     <Text 
                         style={styles.notificationText}
                     >
-                        <Others people={event.accounts}/> reposted your post
+                        <Others 
+                            people={event.accounts}
+                            navigation={navigation}
+                            /> reposted your post
                     </Text>
                 </View>
                 <Post 
@@ -252,7 +255,10 @@ export const NotificationsScreen = ({ navigation }) => {
                     <Text 
                         style={styles.notificationText}
                     >
-                        <Others people={event.accounts}/> liked your post
+                        <Others 
+                            people={event.accounts}
+                            navigation={navigation}
+                            /> liked your post
                     </Text>
                 </View>
                 <Post 
@@ -266,7 +272,10 @@ export const NotificationsScreen = ({ navigation }) => {
                 <View style={styles.notificationContainer}>
                     <Text 
                         style={styles.mentionText}
-                    ><Others people={[event.account]} /> mentioned you</Text>
+                    ><Others 
+                        people={[event.account]} 
+                        navigation={navigation}
+                        /> mentioned you</Text>
                 </View>
                 <Post post={event.status} contentWidth={contentWidth} />
             </View> : event.type == 'follow' ? <View 
@@ -278,7 +287,20 @@ export const NotificationsScreen = ({ navigation }) => {
                         source={require('./assets/icon-avatar-active.png')}
                         style={styles.notificationIcon}
                     /> 
-                    <Text><Others people={event.accounts}/> followed you</Text>
+                    <Text><Others 
+                        people={event.accounts}
+                        navigation={navigation}
+                        /> followed you</Text>
+                </View>
+                <View style={styles.avatarList}>
+                {
+                    event.accounts.slice(0,10).map( (a) => {
+                        return <Image style={styles.avatar} source={{
+                            uri: a.avatar,
+                        }}
+                    />
+                    })
+                }
                 </View>
             </View> : <View></View>
             }
@@ -341,6 +363,7 @@ const styles = StyleSheet.create({
         flex: true,
         flexDirection: 'row',
         paddingLeft: 10,
+        paddingRight: 10,
         marginBottom: -15,
         paddingTop: 10
     },
@@ -354,5 +377,18 @@ const styles = StyleSheet.create({
         width: 25,
         height: 25,
         marginRight: 5
+    },
+    avatarList: {
+        marginTop: 15,
+        paddingLeft: 37,
+        height: 30,
+        flex: true,
+        flexDirection: 'row'
+    },
+    avatar: {
+        marginRight: 2,
+        width: 30,
+        height: 30,
+        borderRadius: 15
     }
 });

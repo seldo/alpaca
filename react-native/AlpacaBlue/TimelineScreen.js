@@ -152,7 +152,7 @@ export const TimelineScreen = ({navigation}) => {
                 <VirtualizedList
                     data={allPosts}
                     initialNumToRender={10}
-                    renderItem={({ item }) => <Post post={item} contentWidth={contentWidth} />}
+                    renderItem={({ item }) => <Post post={item} contentWidth={contentWidth} navigation={navigation} />}
                     keyExtractor={item => item.id}
                     getItemCount={getItemCount}
                     getItem={getItem}

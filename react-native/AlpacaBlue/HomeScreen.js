@@ -53,7 +53,7 @@ export const HomeScreen = ({ navigation }) => {
             console.log("auth is",auth)
             auth.instanceBasePath = instanceBasePath
             await AsyncStorage.setItem('auth', JSON.stringify(auth))
-            navigation.navigate('Posts')
+            navigation.navigate('Back')
         } catch (error) {
             console.log("Authorization triggered an error")
             console.log(error);
@@ -75,7 +75,7 @@ export const HomeScreen = ({ navigation }) => {
             console.log("Home screen -----------------------")
             auth = JSON.parse(await AsyncStorage.getItem('auth'))
             if(auth) {
-                navigation.navigate('Posts')
+                navigation.navigate('Back')
             }
         })();
         const unsubscribe = navigation.addListener('focus', async () => {

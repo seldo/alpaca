@@ -16,13 +16,16 @@ import {
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from './HomeScreen';
 import { TimelineScreen } from './TimelineScreen';
 import { NotificationsScreen } from './NotificationsScreen';
 import { SearchScreen } from "./SearchScreen"
+import { ProfileScreen } from "./ProfileScreen"
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
 
 const tabIcon = (iconName) => {
   let icon, iconActive
@@ -88,12 +91,19 @@ const MainApp = () => {
 const App = () => {
   return (
     <NavigationContainer>
-      <Drawer.Navigator screenOptions={{
+      <Stack.Navigator screenOptions={{
           headerShown: false
         }}>
-        <Drawer.Screen name="Log in" component={HomeScreen} />
-        <Drawer.Screen name="Posts" component={MainApp} />
-      </Drawer.Navigator>      
+        <Stack.Group>
+          <Stack.Screen name="Log in" component={HomeScreen} />
+          <Stack.Screen name="Back" component={MainApp} />
+        </Stack.Group>
+        <Stack.Group screenOptions={{
+          headerShown: true
+        }}>
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+        </Stack.Group>        
+      </Stack.Navigator>      
     </NavigationContainer>
   );
 };
