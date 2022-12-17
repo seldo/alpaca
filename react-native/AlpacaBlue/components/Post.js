@@ -7,40 +7,42 @@ const timeAgo = new TimeAgo('en-US')
 
 export default Post = ({post, contentWidth, navigation, showAvatar = true}) => {
     try {
+        console.log("Rendering post")
         const isReblog = post.reblog && post.reblog.account
         let account = post.account
         if (isReblog) account = post.reblog.account
         return <View>
-            { isReblog ? <View style={styles.reblogNotice}>
-                    <UserLink account={post.account} navigation={navigation} small={true} /><Text style={styles.reblogNoticeText}> reblogged</Text>
-                </View> : <></>
-            }
-            <View style={styles.post}>
-            {
-                showAvatar ? <View style={styles.author}>
-                    <Pressable onPress={() => viewProfile(account,navigation)}>
-                        <Image 
-                        style={styles.avatar} source={{
-                            uri: account.avatar,
-                        }}                        
-                        />
-                    </Pressable>
-                    <View style={styles.authorName}>
-                        <View style={styles.nameAndTime}>
-                            <Text onPress={() => viewProfile(account,navigation)}
-                                style={styles.displayName}>{account.display_name || account.username}</Text>
-                            <Text style={styles.timeAgo}> • {timeAgo.format(new Date(post.created_at))}</Text>
-                        </View>
-                        <Text style={styles.username}>@{account.username}</Text>
+        { isReblog ? <View style={styles.reblogNotice}>
+                <UserLink account={post.account} navigation={navigation} small={true} /><Text style={styles.reblogNoticeText}> reblogged</Text>
+            </View> : <></>
+        }
+        <View style={styles.post}>
+        {
+            showAvatar ? <View style={styles.author}>
+                <Pressable onPress={() => viewProfile(account,navigation)}>
+                    <Image 
+                    style={styles.avatar} source={{
+                        uri: account.avatar,
+                    }}                        
+                    />
+                </Pressable>
+                <View style={styles.authorName}>
+                    <View style={styles.nameAndTime}>
+                        <Text onPress={() => viewProfile(account,navigation)}
+                            style={styles.displayName}>{account.display_name || account.username}</Text>
+                        <Text style={styles.timeAgo}> • {timeAgo.format(new Date(post.created_at))}</Text>
                     </View>
-                </View> : <View></View>
-            }
-            <RenderHtml
-                contentWidth={contentWidth}
-                source={{html:isReblog ? post.reblog.content : post.content }}
-            />
-        </View>
-        </View>
+                    <Text style={styles.username}>@{account.username}</Text>
+                </View>
+            </View> : <View></View>
+        }
+        <RenderHtml
+            contentWidth={contentWidth}
+            source={{html:isReblog ? post.reblog.content : post.content }}
+        />
+    </View>
+    </View>
+
     } catch(e) {
         console.log("Error rendering post",e)
         console.log("Post was",post)

@@ -1,12 +1,86 @@
+import RenderHtml from 'react-native-render-html'
 import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import RenderHtml from 'react-native-render-html'
+import Post from "./components/Post"
 
 export const ProfileScreen = ({ navigation, route }) => {
+
+    const [account,setAccount] = useState(route.params.account)
+    const [allPosts,setAllPosts] = useState([])
+    const [isRefreshing,setIsRefreshing] = useState(false)
+
     let contentWidth = useWindowDimensions().width
 
-    let account = route.params.account
+    const fetchPosts = async (options = {minId: null,maxId: null}) => {
+        let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+        let profilePostsUrl = new URL(auth.instanceBasePath + `/api/v1/accounts/${account.id}/statuses`)
+        profilePostsUrl.searchParams.append('limit',40)
+        try {
+            if(options.maxId) {
+                console.log("Max ID was",options.maxId)
+                profilePostsUrl.searchParams.append('max_id',options.maxId)
+            }
+        } catch (e) {
+            console.log("Looking for max ID triggered exception")
+            console.log(e)
+        }
+        try {
+            if(options.minId) {
+                console.log("Min ID was",options.minId)
+                profilePostsUrl.searchParams.append('min_id',options.minId)
+            }
+        } catch(e) {
+            console.log("Looking for minID triggered exception")
+            console.log(e)
+        }
+        console.log("profilePostsUrl",profilePostsUrl)
+        try {
+            let res = await fetch(profilePostsUrl,{
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${auth.accessToken}`
+                }            
+            })
+            let posts = await res.json()   
+            console.log("Fetched user's posts:",posts.length)
+            return posts        
+        } catch (e) {
+            console.log("Failed to fetch user's posts",e)
+            return []
+        }
+    }
+
+    const getItem = (data, index) => {
+        return data[index];
+    }
+    const getItemCount = (data) => data.length
+    const loadingBar = () => {
+        if(isRefreshing) {
+            return <ActivityIndicator size="small" color="#0000ff" />
+        } else {
+            return null
+        }
+    }
+    
+    // initialize
+    useEffect( () => {
+        const unsubscribe = navigation.addListener('focus', async () => {
+            console.log("-----profile page got focus")
+            let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+            if(auth) {
+                (async () => {
+                    setIsRefreshing(true)
+                    let posts = await fetchPosts()
+                    setIsRefreshing(false)
+                    setAllPosts(posts)
+                    if(posts[0] && posts[0].account) setAccount(posts[0].account)
+                })();        
+            } else {
+                navigation.navigate('Log in')
+            }
+        });
+    },[])
 
     useEffect( () => {
         navigation.setOptions({
@@ -44,6 +118,30 @@ export const ProfileScreen = ({ navigation, route }) => {
                     <Text> posts</Text>
                 </View>
             </View>
+            <SafeAreaView>
+                <View>
+                <VirtualizedList
+                    data={allPosts}
+                    initialNumToRender={10}
+                    renderItem={({ item }) => {
+                        return <Post 
+                            post={item} 
+                            contentWidth={contentWidth} 
+                            navigation={navigation} 
+                        />
+                    }}
+                    keyExtractor={item => item.id}
+                    getItemCount={getItemCount}
+                    getItem={getItem}
+                    /*
+                    onRefresh={fetchNewItems}
+                    onEndReached={fetchMoreItems}
+                    */
+                    refreshing={isRefreshing}
+                    ListFooterComponent={loadingBar}
+                />
+                </View>
+            </SafeAreaView>
         </SafeAreaView>
     );
 }
@@ -55,11 +153,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
-        borderWidth: 1
     },
     headerImage: {
         width: '100%',
-        height: 180
+        height: 120
     },
     avatarImage: {
         width: 100,
@@ -78,7 +175,9 @@ const styles = StyleSheet.create({
     },
     description: {
         paddingLeft: 10,
-        marginLeft: 10
+        marginLeft: 10,
+        maxHeight: 100,
+        overflow: 'hidden'
     },
     counts: {
         flex: true,
