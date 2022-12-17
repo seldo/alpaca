@@ -7,7 +7,6 @@ const timeAgo = new TimeAgo('en-US')
 
 export default Post = ({post, contentWidth, navigation, showAvatar = true}) => {
     try {
-        console.log("Rendering post")
         const isReblog = post.reblog && post.reblog.account
         let account = post.account
         if (isReblog) account = post.reblog.account

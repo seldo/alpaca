@@ -88,8 +88,8 @@ export const ProfileScreen = ({ navigation, route }) => {
         })    
     },[])
 
-    return (
-        <SafeAreaView style={styles.container}>
+    const profileHeader = () => {
+        return <View style={[styles.shadowProp,{width:contentWidth}]}>
             <Image 
                 style={styles.headerImage}
                 source={{
@@ -118,30 +118,32 @@ export const ProfileScreen = ({ navigation, route }) => {
                     <Text> posts</Text>
                 </View>
             </View>
-            <SafeAreaView>
-                <View>
-                <VirtualizedList
-                    data={allPosts}
-                    initialNumToRender={10}
-                    renderItem={({ item }) => {
-                        return <Post 
-                            post={item} 
-                            contentWidth={contentWidth} 
-                            navigation={navigation} 
-                        />
-                    }}
-                    keyExtractor={item => item.id}
-                    getItemCount={getItemCount}
-                    getItem={getItem}
-                    /*
-                    onRefresh={fetchNewItems}
-                    onEndReached={fetchMoreItems}
-                    */
-                    refreshing={isRefreshing}
-                    ListFooterComponent={loadingBar}
-                />
-                </View>
-            </SafeAreaView>
+        </View>
+    }
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <VirtualizedList
+                data={allPosts}
+                ListHeaderComponent={profileHeader()}
+                initialNumToRender={10}
+                renderItem={({ item }) => {
+                    return <Post 
+                        post={item} 
+                        contentWidth={contentWidth} 
+                        navigation={navigation} 
+                    />
+                }}
+                keyExtractor={item => item.id}
+                getItemCount={getItemCount}
+                getItem={getItem}
+                /*
+                onRefresh={fetchNewItems}
+                onEndReached={fetchMoreItems}
+                */
+                refreshing={isRefreshing}
+                ListFooterComponent={loadingBar}
+            />
         </SafeAreaView>
     );
 }
@@ -176,8 +178,18 @@ const styles = StyleSheet.create({
     description: {
         paddingLeft: 10,
         marginLeft: 10,
-        maxHeight: 100,
-        overflow: 'hidden'
+        overflow: 'hidden',
+    },
+    shadowProp: {
+        backgroundColor: '#fff',
+        shadowColor: '#ccc',
+        shadowOffset: {
+            width: 0,
+            height: 5
+          },
+        shadowOpacity: 0.5,
+        shadowRadius: 2,
+        paddingBottom: 10
     },
     counts: {
         flex: true,
