@@ -70,7 +70,7 @@ export const NotificationsScreen = ({ navigation }) => {
 
     const makeIdForNotification = (n) => {
         switch (n.type) {
-            case "mention": return "mentioned_" + n.status.id
+            case "mention": return "mentioned_" + n.status.id + "_by_" + n.account.id
             case "status": return // FIXME: ignoring notifications for now
             case "reblog": return "reblogged_" + n.status.id
             case "follow": return "followed_you"
@@ -217,7 +217,6 @@ export const NotificationsScreen = ({ navigation }) => {
     const getItemCount = (data) => data.length
 
     const Notification = ({ event }) => {
-        console.log(event)
         return <View style={styles.notification}>
             { event.type == 'reblog' ? <View 
                 width={contentWidth} 
@@ -313,7 +312,7 @@ export const NotificationsScreen = ({ navigation }) => {
             return null
         }
     }
-
+    console.log("keys",allBatchedNotifications.map((i) => i.id).sort())
     return (
         <View style={styles.container}>
             <SafeAreaView>

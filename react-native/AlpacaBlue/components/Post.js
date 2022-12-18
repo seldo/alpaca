@@ -39,6 +39,37 @@ export const showLikePost = async (post,cb) => {
     cb(post)
 }
 
+const rePost = async (post) => {
+    let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+    let repostUrl = new URL(auth.instanceBasePath + `/api/v1/statuses/${post.id}/reblog`)
+    console.log("repostUrl", repostUrl)
+    try {
+        let res = await fetch(repostUrl, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${auth.accessToken}`
+            }
+        })
+        let repost = await res.json()
+        console.log(`reposted`, repost)
+        return repost
+    } catch (e) {
+        console.log("Failed to repost", e)
+        return []
+    }
+}
+
+// make it look like we liked the post
+export const showRePost = async (post,cb) => {
+    // asynchronously reblog
+    rePost(post)
+    // animate the icon and increment the count
+    post.reblogs_count = post.reblogs_count + 1
+    post.reblogged = true
+    // call back to trigger changes
+    cb(post)
+}
+
 export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null }) => {
     
     try {
@@ -75,6 +106,14 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                     source={{ html: isReblog ? post.reblog.content : post.content }}
                 />
                 <View style={styles.reactionsContainer}>
+                    <Pressable onPress={() => showRePost(post,cb)}>
+                        <View style={styles.reactionsCount}>
+                            <Image
+                                source={post.reblogged ? require("../assets/icon-repost-active.png") : require("../assets/icon-repost.png")}
+                                style={styles.reactionIcon} />
+                            <Text>{post.reblogs_count}</Text>
+                        </View>
+                    </Pressable>
                     <Pressable onPress={() => showLikePost(post,cb)}>
                         <View style={styles.reactionsCount}>
                             <Image
@@ -140,10 +179,10 @@ const styles = StyleSheet.create({
         height: 30,
         borderRadius: 15
     },
-    reactionContainer: {
+    reactionsContainer: {
         flex: true,
         flexDirection: 'row',
-        alignContent: 'space-between'
+        justifyContent: 'space-around',
     },
     reactionIcon: {
         width: 20,
