@@ -3,12 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import Post from "./components/Post"
 
-let contentWidth = useWindowDimensions().width
-
 export const TimelineScreen = ({navigation}) => {
 
     const [allPosts,setAllPosts] = useState([])
     const [isRefreshing,setIsRefreshing] = useState(false)
+    const [refreshCount,setRefreshCount] = useState(0)
+    const contentWidth = useWindowDimensions().width
 
     const fetchTimeline = async (options = {minId: null,maxId: null}) => {
         console.log("options are",options)
@@ -146,13 +146,25 @@ export const TimelineScreen = ({navigation}) => {
         }
     }
 
+    const somethingChanged = async (post) => {
+        for(let i = 0; i < allPosts.length; i++) {
+            let examiningPost = allPosts[i]
+            if (examiningPost.id == post.id) {
+                allPosts[i] = post
+            }
+        }
+        console.log("I should be modifying all the posts")
+        setAllPosts(allPosts)
+        setRefreshCount(refreshCount+1)
+    }
+
     return (
         <View style={styles.container}>
             <SafeAreaView>
                 <VirtualizedList
                     data={allPosts}
                     initialNumToRender={10}
-                    renderItem={({ item }) => <Post post={item} contentWidth={contentWidth} navigation={navigation} />}
+                    renderItem={({ item }) => <Post post={item} contentWidth={contentWidth} navigation={navigation} cb={somethingChanged} />}
                     keyExtractor={item => item.id}
                     getItemCount={getItemCount}
                     getItem={getItem}
@@ -160,6 +172,7 @@ export const TimelineScreen = ({navigation}) => {
                     onEndReached={fetchMoreItems}
                     ListFooterComponent={loadingBar}
                     refreshing={isRefreshing}
+                    refreshCount={refreshCount}
                 />
             </SafeAreaView>
         </View>

@@ -206,7 +206,7 @@ export const NotificationsScreen = ({ navigation }) => {
             })();
         } catch (e) {
             console.log("Failed to run anonymous function")
-            console.log(e)
+            console.log(e.currentTarget)
         }
         return
     }
