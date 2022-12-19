@@ -1,5 +1,5 @@
 import RenderHtml from 'react-native-render-html'
-import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image, Button } from 'react-native';
+import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import Post from "./components/Post"
@@ -77,23 +77,17 @@ export const ProfileScreen = ({ navigation, route }) => {
     }
 
     const getFollowing = async (auth) => {
-        // we need their internal id; local doesn't have this
-        // that's because the same user can have infinity internal IDs
-        // depending which server you're logged into when you look them up
-        // bummer!
-        let followingRequestUrl = new URL(getInstanceUrl(authUser.instance) + "/api/v1/accounts/relationships")
-        followingRequestUrl.searchParams.set('id', user.id)
+        let followingRequestUrl = new URL(auth.instanceBasePath + "/api/v1/accounts/relationships?id=" + account.id)
         let followingData = await fetch(followingRequestUrl.toString(), {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${authUser.accessToken}`
+                "Authorization": `Bearer ${auth.accessToken}`
             }
         })
         let following = await followingData.json()
+        console.log("Following data",following)
         if (following[0]) return following[0]
-        else return {
-          following:false
-        }        
+        else return null
     }
     
     // initialize
@@ -111,6 +105,8 @@ export const ProfileScreen = ({ navigation, route }) => {
                     if(posts[0] && posts[0].account) setAccount(posts[0].account)
                     // also find out if we follow them
                     let isFollowed = await getFollowing(auth)
+                    console.log("isFollowed",isFollowed)
+                    setFollowed(isFollowed.following)
                 })();        
             } else {
                 navigation.navigate('Log in')
@@ -125,7 +121,26 @@ export const ProfileScreen = ({ navigation, route }) => {
     },[])
 
     const toggleFollow = async (account) => {
-        
+        let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+        let action, fakeFollowStatus
+        if(followed) {
+            action = "unfollow"
+            fakeFollowStatus = false
+        } else {
+            action = "follow"
+            fakeFollowStatus = true
+        }
+        let followingRequestUrl = new URL(auth.instanceBasePath + `/api/v1/accounts/${account.id}/${action}`)
+        let followingData = await fetch(followingRequestUrl.toString(), {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${auth.accessToken}`
+            }
+        })
+        // don't wait around
+        let following = followingData.json()
+        // optimistically change UI
+        setFollowed(fakeFollowStatus)
     }
 
     const profileHeader = () => {
@@ -140,11 +155,13 @@ export const ProfileScreen = ({ navigation, route }) => {
                 source={{
                     uri: account.avatar
                 }} />
-            <View style={styles.followButton}>
-                <Button 
-                    onPress={() => toggleFollow(account,followed)}
-                    title={ followed ? "Unfollow" : "Follow" }
-                />
+            <View style={styles.followStatus}>
+                <Pressable                    
+                    onPress={() => toggleFollow(account,followed)}>
+                    <View style={styles.followButton}>
+                        <Text>{ followed ? "Unfollow" : "Follow" }</Text>
+                    </View>
+                </Pressable>
             </View>
             <Text style={styles.nameTitle}>{ account.display_name ? account.display_name : account.username }</Text>
             <View style={styles.description} >
@@ -247,6 +264,21 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 20,
         justifyContent: 'space-around'
+    },
+    followStatus: {
+        flex: true,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        marginTop: -30,
+        marginRight: 20
+    },
+    followButton: {      
+        backgroundColor: '#eee',
+        borderRadius: 20,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 15,
+        paddingRight: 15,
     },
     number: {
         fontWeight: '700'
