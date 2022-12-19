@@ -56,14 +56,18 @@ export const TimelineScreen = ({navigation}) => {
     useEffect( () => {
         const unsubscribe = navigation.addListener('focus', async () => {
             console.log("-----timeline got focus")
-            let auth = JSON.parse(await AsyncStorage.getItem('auth'))
-            if(auth) {
-                (async () => {
-                    let timeline = await fetchTimeline()
-                    setAllPosts(timeline)
-                })();        
-            } else {
-                navigation.navigate('Log in')
+            if(!isRefreshing) {
+                setIsRefreshing(true)
+                let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+                if(auth) {
+                    (async () => {
+                        let timeline = await fetchTimeline()
+                        setAllPosts(timeline)
+                        setIsRefreshing(false)
+                    })();        
+                } else {
+                    navigation.navigate('Log in')
+                }
             }
         });
     },[])
@@ -153,7 +157,6 @@ export const TimelineScreen = ({navigation}) => {
                 allPosts[i] = post
             }
         }
-        console.log("I should be modifying all the posts")
         setAllPosts(allPosts)
         setRefreshCount(refreshCount+1)
     }
@@ -181,17 +184,8 @@ export const TimelineScreen = ({navigation}) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    input: {
-        borderWidth: 1,
-        paddingLeft: 10,
-        paddingRight: 10,
-        paddingTop: 4,
-        paddingBottom: 4,
-        borderColor: '#000'
     },
 });

@@ -241,6 +241,7 @@ export const NotificationsScreen = ({ navigation }) => {
                     post={event.status} 
                     contentWidth={contentWidth} 
                     showAvatar={false} 
+                    reactionsEnabled={false}
                 />
             </View> : event.type == 'favourite' ? <View 
                 width={contentWidth} 
@@ -264,6 +265,7 @@ export const NotificationsScreen = ({ navigation }) => {
                     post={event.status} 
                     contentWidth={contentWidth} 
                     showAvatar={false} 
+                    reactionsEnabled={false}
                 />
             </View> : event.type == 'mention' ? <View 
                 width={contentWidth}
@@ -276,7 +278,11 @@ export const NotificationsScreen = ({ navigation }) => {
                         navigation={navigation}
                         /> mentioned you</Text>
                 </View>
-                <Post post={event.status} contentWidth={contentWidth} />
+                <Post 
+                    post={event.status} 
+                    contentWidth={contentWidth} 
+                    reactionsEnabled={false}
+                />
             </View> : event.type == 'follow' ? <View 
                 width={contentWidth} 
                 style={styles.follow}
@@ -286,7 +292,7 @@ export const NotificationsScreen = ({ navigation }) => {
                         source={require('./assets/icon-avatar-active.png')}
                         style={styles.notificationIcon}
                     /> 
-                    <Text><Others 
+                    <Text style={styles.followText}><Others 
                         people={event.accounts}
                         navigation={navigation}
                         /> followed you</Text>
@@ -312,7 +318,7 @@ export const NotificationsScreen = ({ navigation }) => {
             return null
         }
     }
-    console.log("keys",allBatchedNotifications.map((i) => i.id).sort())
+//    console.log("keys",allBatchedNotifications.map((i) => i.id).sort())
     return (
         <View style={styles.container}>
             <SafeAreaView>
@@ -320,6 +326,7 @@ export const NotificationsScreen = ({ navigation }) => {
                     data={allBatchedNotifications}
                     initialNumToRender={10}
                     renderItem={({ item }) => <Notification event={item} />}
+                    // FIXME: sometimes this gets tons of duplicates?
                     keyExtractor={item => item.id}
                     getItemCount={getItemCount}
                     getItem={getItem}
@@ -336,18 +343,9 @@ export const NotificationsScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    input: {
-        borderWidth: 1,
-        paddingLeft: 10,
-        paddingRight: 10,
-        paddingTop: 4,
-        paddingBottom: 4,
-        borderColor: '#000'
     },
     follow: {
         borderBottomWidth: 0.2,
@@ -356,6 +354,9 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
         paddingRight: 10,
         minHeight: 60
+    },
+    followText: {
+        paddingTop: 9,
     },
     notificationContainer: {
         width: '95%',
@@ -367,19 +368,19 @@ const styles = StyleSheet.create({
         paddingTop: 10
     },
     notificationText: {
-        paddingTop: 3,
+        paddingTop: 8,
     },
     mentionText: {
         marginBottom: 15
     },
     notificationIcon: {
-        width: 25,
-        height: 25,
+        width: 35,
+        height: 35,
         marginRight: 5
     },
     avatarList: {
         marginTop: 15,
-        paddingLeft: 37,
+        paddingLeft: 50,
         height: 30,
         flex: true,
         flexDirection: 'row'

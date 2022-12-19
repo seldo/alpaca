@@ -70,7 +70,28 @@ export const showRePost = async (post,cb) => {
     cb(post)
 }
 
-export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null }) => {
+export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true }) => {
+
+    const ReplyButton = () => <View style={styles.reactionsCount}>
+        <Image
+            source={require("../assets/icon-reply.png")}
+            style={styles.reactionIcon} />
+        <Text style={styles.reactionsCountNumber}>{post.replies_count}</Text>
+    </View>
+
+    const RepostButton = () => <View style={styles.reactionsCount}>
+        <Image
+            source={post.reblogged ? require("../assets/icon-repost-active.png") : require("../assets/icon-repost.png")}
+            style={styles.reactionIcon} />
+        <Text style={styles.reactionsCountNumber}>{post.reblogs_count}</Text>
+    </View>
+
+    const LikeButton = () => <View style={styles.reactionsCount}>
+        <Image
+            source={post.favourited ? require("../assets/icon-heart-active.png") : require("../assets/icon-heart.png")}
+            style={styles.reactionIcon} />
+        <Text style={styles.reactionsCountNumber}>{post.favourites_count}</Text>
+    </View>
     
     try {
         const isReblog = post.reblog && post.reblog.account
@@ -99,30 +120,43 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                             </View>
                             <Text style={styles.username}>@{account.username}</Text>
                         </View>
-                    </View> : <View></View>
+                    </View> : <></>
                 }
-                <RenderHtml
-                    contentWidth={contentWidth}
-                    source={{ html: isReblog ? post.reblog.content : post.content }}
-                />
-                <View style={styles.reactionsContainer}>
-                    <Pressable onPress={() => showRePost(post,cb)}>
-                        <View style={styles.reactionsCount}>
-                            <Image
-                                source={post.reblogged ? require("../assets/icon-repost-active.png") : require("../assets/icon-repost.png")}
-                                style={styles.reactionIcon} />
-                            <Text>{post.reblogs_count}</Text>
-                        </View>
-                    </Pressable>
-                    <Pressable onPress={() => showLikePost(post,cb)}>
-                        <View style={styles.reactionsCount}>
-                            <Image
-                                source={post.favourited ? require("../assets/icon-heart-active.png") : require("../assets/icon-heart.png")}
-                                style={styles.reactionIcon} />
-                            <Text>{post.favourites_count}</Text>
-                        </View>
-                    </Pressable>
+                <View style={styles.htmlContainer}>
+                    <RenderHtml
+                        contentWidth={contentWidth}
+                        source={{ html: isReblog ? post.reblog.content : post.content }}
+                    />
                 </View>
+                {
+                    post.media_attachments.length > 0 ? <View style={styles.imageContainer}>
+                        {
+                            post.media_attachments.map( (ma) => {
+                                return <Image 
+                                    style={styles.previewImage}
+                                    source={{uri: ma.url}}/>
+                            })
+                        }
+                    </View> : <></>
+                }
+                { reactionsEnabled ? <View 
+                    style={styles.reactionsContainer}>
+                        <Pressable onPress={() => showReply(post,cb)}>
+                            <ReplyButton />
+                        </Pressable>
+                        <Pressable onPress={() => showRePost(post,cb)}>
+                            <RepostButton />
+                        </Pressable>
+                        <Pressable onPress={() => showLikePost(post,cb)}>
+                            <LikeButton />
+                        </Pressable>
+                    </View> : <View 
+                        style={styles.reactionsContainer}>
+                        <Pressable><ReplyButton /></Pressable>
+                        <Pressable><RepostButton /></Pressable>
+                        <Pressable><LikeButton /></Pressable>
+                    </View>
+                }
             </View>
         </View>
 
@@ -140,7 +174,7 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         borderBottomWidth: 0.2,
         borderBottomColor: '#ccc',
-        minHeight: 10
+        minHeight: 10,
     },
     reblogNotice: {
         flex: true,
@@ -179,10 +213,15 @@ const styles = StyleSheet.create({
         height: 30,
         borderRadius: 15
     },
+    htmlContainer: {
+        paddingLeft: 40,
+        paddingRight: 5
+    },  
     reactionsContainer: {
         flex: true,
         flexDirection: 'row',
         justifyContent: 'space-around',
+        paddingBottom: 5,
     },
     reactionIcon: {
         width: 20,
@@ -192,4 +231,17 @@ const styles = StyleSheet.create({
         flex: true,
         flexDirection: 'row'
     },
+    reactionsCountNumber: {
+        paddingTop: 2.5,
+        paddingLeft: 2,
+        fontSize: 12
+    },
+    imageContainer: {
+        flex: true,
+        flexDirection: 'row'
+    },
+    previewImage: {
+        width: 50,
+        height: 50
+    }
 })

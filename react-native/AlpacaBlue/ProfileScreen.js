@@ -1,5 +1,5 @@
 import RenderHtml from 'react-native-render-html'
-import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image } from 'react-native';
+import { SafeAreaView, View, VirtualizedList, StyleSheet, Text, useWindowDimensions, ActivityIndicator, Image, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import Post from "./components/Post"
@@ -9,6 +9,8 @@ export const ProfileScreen = ({ navigation, route }) => {
     const [account,setAccount] = useState(route.params.account)
     const [allPosts,setAllPosts] = useState([])
     const [isRefreshing,setIsRefreshing] = useState(false)
+    const [followed,setFollowed] = useState(false)
+    const [refreshCount,setRefreshCount] = useState(0)
 
     let contentWidth = useWindowDimensions().width
 
@@ -62,6 +64,37 @@ export const ProfileScreen = ({ navigation, route }) => {
             return null
         }
     }
+
+    const somethingChanged = async (post) => {
+        for(let i = 0; i < allPosts.length; i++) {
+            let examiningPost = allPosts[i]
+            if (examiningPost.id == post.id) {
+                allPosts[i] = post
+            }
+        }
+        setAllPosts(allPosts)
+        setRefreshCount(refreshCount+1)
+    }
+
+    const getFollowing = async (auth) => {
+        // we need their internal id; local doesn't have this
+        // that's because the same user can have infinity internal IDs
+        // depending which server you're logged into when you look them up
+        // bummer!
+        let followingRequestUrl = new URL(getInstanceUrl(authUser.instance) + "/api/v1/accounts/relationships")
+        followingRequestUrl.searchParams.set('id', user.id)
+        let followingData = await fetch(followingRequestUrl.toString(), {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${authUser.accessToken}`
+            }
+        })
+        let following = await followingData.json()
+        if (following[0]) return following[0]
+        else return {
+          following:false
+        }        
+    }
     
     // initialize
     useEffect( () => {
@@ -71,10 +104,13 @@ export const ProfileScreen = ({ navigation, route }) => {
             if(auth) {
                 (async () => {
                     setIsRefreshing(true)
+                    // get the user's posts
                     let posts = await fetchPosts()
                     setIsRefreshing(false)
                     setAllPosts(posts)
                     if(posts[0] && posts[0].account) setAccount(posts[0].account)
+                    // also find out if we follow them
+                    let isFollowed = await getFollowing(auth)
                 })();        
             } else {
                 navigation.navigate('Log in')
@@ -88,6 +124,10 @@ export const ProfileScreen = ({ navigation, route }) => {
         })    
     },[])
 
+    const toggleFollow = async (account) => {
+        
+    }
+
     const profileHeader = () => {
         return <View style={[styles.shadowProp,{width:contentWidth}]}>
             <Image 
@@ -100,9 +140,17 @@ export const ProfileScreen = ({ navigation, route }) => {
                 source={{
                     uri: account.avatar
                 }} />
+            <View style={styles.followButton}>
+                <Button 
+                    onPress={() => toggleFollow(account,followed)}
+                    title={ followed ? "Unfollow" : "Follow" }
+                />
+            </View>
             <Text style={styles.nameTitle}>{ account.display_name ? account.display_name : account.username }</Text>
             <View style={styles.description} >
-                <RenderHtml contentWidth={contentWidth} source={{html: account.note }} />
+                <RenderHtml 
+                    contentWidth={contentWidth} 
+                    source={{html: account.note }} />
             </View>
             <View style={styles.counts}>
                 <View style={styles.count}>
@@ -132,6 +180,7 @@ export const ProfileScreen = ({ navigation, route }) => {
                         post={item} 
                         contentWidth={contentWidth} 
                         navigation={navigation} 
+                        cb={somethingChanged}
                     />
                 }}
                 keyExtractor={item => item.id}
@@ -142,6 +191,7 @@ export const ProfileScreen = ({ navigation, route }) => {
                 onEndReached={fetchMoreItems}
                 */
                 refreshing={isRefreshing}
+                refreshCount={refreshCount}
                 ListFooterComponent={loadingBar}
             />
         </SafeAreaView>
