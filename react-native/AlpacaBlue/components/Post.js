@@ -91,6 +91,7 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
         <Text style={styles.reactionsCountNumber}>{post.favourites_count}</Text>
     </View>
     
+    console.log("Post",post)
     try {
         const isReblog = post.reblog && post.reblog.account
         let account = post.account
@@ -197,7 +198,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     previewImage: {
-        width: 50,
-        height: 50
+        minWidth: 50,
+        minHeight: 50,
+        maxWidth: '100%',
+        maxHeight: 200,
+        flex: true
     }
 })
