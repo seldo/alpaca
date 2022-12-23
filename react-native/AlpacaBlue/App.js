@@ -97,7 +97,8 @@ const MainApp = () => {
       component={ComposeScreen} 
       options={{
         tabBarButton: composeButton,
-        presentation: 'modal'
+        presentation: 'modal',
+        headerLeft: () => <Button title="Dismiss" />
       }}
     />
     <Tab.Screen 
