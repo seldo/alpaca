@@ -11,7 +11,8 @@ import {
   StyleSheet,
   View,
   Image,
-  Text
+  Text,
+  TouchableOpacity
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -62,13 +63,15 @@ const tabIcon = (iconName) => {
   }
 }
 
-const iconHome = ({focused, color, size}) => {
-  let icon = require("./assets/icon-home.png")
-  if (focused) icon = require("./assets/icon-home-active.png")
-  return <Image 
-    source={icon}
-    style={styles.tabIcon}
-  />
+const composeButton = (props) => {
+  let icon = require("./assets/icon-edit.png")
+  console.log(props)
+  return <TouchableOpacity {...props}><View style={styles.composeButton}>
+    <Image 
+      source={icon}
+      style={styles.composeIcon}
+    />
+  </View></TouchableOpacity>
 }
 
 const MainApp = () => {
@@ -85,6 +88,13 @@ const MainApp = () => {
       component={NotificationsScreen} 
       options={{
         tabBarIcon: tabIcon("Notifications")
+      }}
+    />
+    <Tab.Screen 
+      name="Compose" 
+      component={SearchScreen} 
+      options={{
+        tabBarButton: composeButton
       }}
     />
     <Tab.Screen 
@@ -147,6 +157,22 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
+  composeButton: {
+    marginTop: -5,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: '#008DFF',
+    padding: 10,
+    width: 60,
+    height: 60,
+    borderRadius: 10
+  },
+  composeIcon: {
+    width: 30,
+    height: 30,
+    marginTop: 5,
+    marginLeft: 5
+  }
 });
 
 export default App;

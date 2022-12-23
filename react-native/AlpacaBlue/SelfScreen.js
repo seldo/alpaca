@@ -103,10 +103,6 @@ export const SelfScreen = ({ navigation, route }) => {
                 keyExtractor={item => item.id}
                 getItemCount={getItemCount}
                 getItem={getItem}
-                /*
-                onRefresh={fetchNewItems}
-                onEndReached={fetchMoreItems}
-                */
                 refreshing={isRefreshing}
                 ListFooterComponent={loadingBar}
             /> : <View>
