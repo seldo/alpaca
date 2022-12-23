@@ -22,6 +22,7 @@ import { TimelineScreen } from './TimelineScreen';
 import { NotificationsScreen } from './NotificationsScreen';
 import { SearchScreen } from "./SearchScreen"
 import { ProfileScreen } from "./ProfileScreen"
+import { SelfScreen } from "./SelfScreen"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 
@@ -46,7 +47,11 @@ const tabIcon = (iconName) => {
       icon = require("./assets/icon-search.png")
       iconActive = require("./assets/icon-search-active.png")
       break;
-  }
+    case "Self":
+      icon = require("./assets/icon-avatar.png")
+      iconActive = require("./assets/icon-avatar-active.png")
+      break;
+    }
   return ({focused, color, size}) => {
     let display = icon
     if (focused) display = iconActive
@@ -87,6 +92,15 @@ const MainApp = () => {
       component={SearchScreen} 
       options={{
         tabBarIcon: tabIcon("Search")
+      }}
+    />
+    <Tab.Screen 
+      name="Self" 
+      component={SelfScreen} 
+      options={{
+        headerTitle: "Your profile",
+        tabBarIcon: tabIcon("Self"),
+        tabBarLabel: "Profile"
       }}
     />
   </Tab.Navigator>
