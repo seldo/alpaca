@@ -12,6 +12,7 @@ import {
   View,
   Image,
   Text,
+  Button,
   TouchableOpacity
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -24,6 +25,7 @@ import { NotificationsScreen } from './NotificationsScreen';
 import { SearchScreen } from "./SearchScreen"
 import { ProfileScreen } from "./ProfileScreen"
 import { SelfScreen } from "./SelfScreen"
+import { ComposeScreen } from "./ComposeScreen"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 
@@ -92,9 +94,10 @@ const MainApp = () => {
     />
     <Tab.Screen 
       name="Compose" 
-      component={SearchScreen} 
+      component={ComposeScreen} 
       options={{
-        tabBarButton: composeButton
+        tabBarButton: composeButton,
+        presentation: 'modal'
       }}
     />
     <Tab.Screen 

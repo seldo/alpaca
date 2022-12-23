@@ -8,7 +8,7 @@ export const getOwnProfile = async () => {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${auth.accessToken}`
-            }            
+            }
         })
         let account = await res.json()   
         console.log("Fetched user's profile:",account)
