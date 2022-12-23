@@ -68,6 +68,27 @@ export const showRePost = async (post,cb) => {
     cb(post)
 }
 
+const showImage = async (post,ma,cb) => {
+    for(let i = 0; i < post.media_attachments.length; i++) {
+        let a = post.media_attachments[i]
+        if(a.id == ma.id) {
+            post.media_attachments[i].show_full = true
+        }
+        post.show_image = true
+    }
+    cb(post)
+}
+const hideImage = async (post,ma,cb) => {
+    for(let i = 0; i < post.media_attachments.length; i++) {
+        let a = post.media_attachments[i]
+        if(a.id == ma.id) {
+            post.media_attachments[i].show_full = false
+        }
+        post.show_image = false
+    }
+    cb(post)
+}
+
 export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true }) => {
 
     const ReplyButton = () => <View style={styles.reactionsCount}>
@@ -114,10 +135,34 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                 {
                     post.media_attachments.length > 0 ? <View style={styles.imageContainer}>
                         {
-                            post.media_attachments.map( (ma) => {
-                                return <Image 
-                                    style={styles.previewImage}
-                                    source={{uri: ma.url}}/>
+                            post.show_image ? post.media_attachments.map( (ma) => {
+                                // show one big picture (have to find it)
+                                if(ma.show_full) {                           
+                                    let proportionalHeight = (contentWidth/ma.meta.original.width)*ma.meta.original.height
+                                    return <View>
+                                            <Pressable 
+                                                onPress={() => hideImage(post,ma,cb)}
+                                                style={[styles.fullImageContainer,{
+                                                    width:contentWidth,
+                                                    height:proportionalHeight
+                                                }]}>
+                                                <Image 
+                                                    style={styles.fullImage}
+                                                    source={{uri: ma.url}}/>
+                                            </Pressable>
+                                        </View>
+                                } else { return <></> }
+                            }) : post.media_attachments.map( (ma) => {
+                                // show thumbnails of all pictures
+                                return <View>
+                                    <Pressable 
+                                        onPress={() => showImage(post,ma,cb)}
+                                        style={styles.previewContainer}>
+                                        <Image 
+                                            style={styles.previewImage}
+                                            source={{uri: ma.url}}/>
+                                    </Pressable>
+                                </View>
                             })
                         }
                     </View> : <></>
@@ -195,13 +240,27 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         flex: true,
-        flexDirection: 'row'
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+        marginLeft: 40,
+        marginBottom: 10,
+        paddingRight: 10
+    },
+    previewContainer: {
+        width: 150,
+        height: 150,
     },
     previewImage: {
-        minWidth: 50,
-        minHeight: 50,
-        maxWidth: '100%',
-        maxHeight: 200,
-        flex: true
+        width: 150,
+        height: 150,
+        flex: true,
+    },
+    fullImageContainer: {
+        flex: true,
+        marginLeft: -50
+    },
+    fullImage: {
+        width: '100%',
+        height: '100%'
     }
 })
