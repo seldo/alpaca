@@ -32,7 +32,7 @@ export const createUser = async (userData) => {
       }
     })
   } catch(e) {
-    if(e.code = 'P2002') {
+    if(e.code == 'P2002') {
       // user already existed, no need to create
       return userData
     } else {
