@@ -93,7 +93,7 @@ const hideImage = async (post,ma,cb) => {
     cb(post)
 }
 
-export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true }) => {
+export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true, reactionsHidden = false }) => {
 
     const ReplyButton = () => <View style={styles.reactionsCount}>
         <Image
@@ -170,7 +170,7 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                         }
                     </View> : <></>
                 }
-                { reactionsEnabled ? <View 
+                { reactionsEnabled && !reactionsHidden ? <View 
                     style={styles.reactionsContainer}>
                         <Pressable onPress={() => showReply(post,navigation)}>
                             <ReplyButton />
@@ -181,12 +181,12 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                         <Pressable onPress={() => showLikePost(post,cb)}>
                             <LikeButton />
                         </Pressable>
-                    </View> : <View 
+                    </View> : !reactionsHidden ? <View 
                         style={styles.reactionsContainer}>
                         <Pressable><ReplyButton /></Pressable>
                         <Pressable><RepostButton /></Pressable>
                         <Pressable><LikeButton /></Pressable>
-                    </View>
+                    </View> : <></>
                 }
             </View>
         </View>

@@ -1,6 +1,7 @@
 import { SafeAreaView, View, StyleSheet, Text, Button, TextInput, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 import { sendPost } from './models/Posts';
+import Post from './components/Post'
 
 export const ComposeScreen = ({ navigation, route }) => {
 
@@ -32,14 +33,23 @@ export const ComposeScreen = ({ navigation, route }) => {
 
     return (
         <SafeAreaView style={styles.modalScreen}>
-            { route.params && route.params.inReplyTo ? <Text>It's a reply</Text> : <Text>New post</Text>
+            <View>
+            { route.params && route.params.inReplyTo ? <Post 
+                post={route.params.inReplyTo} 
+                reactionsEnabled={false}
+                reactionsHidden={true}
+                contentWidth={contentWidth}
+                /> : <></>
             }
-            <TextInput
-                multiline={true}
-                style={[styles.input,{width:contentWidth}]}
-                onChangeText={onChangeText}
-                value={text}
-            />            
+            </View>
+            <View>
+                <TextInput
+                    multiline={true}
+                    style={[styles.input,{width:contentWidth}]}
+                    onChangeText={onChangeText}
+                    value={text}
+                />
+            </View>
             <Button onPress={sendPostAndDismiss} title="Send post" />
         </SafeAreaView>
     );
@@ -47,9 +57,7 @@ export const ComposeScreen = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
     modalScreen: {
-        flex: 1, 
-        alignItems: 'center', 
-        justifyContent: 'flex-start',
+        backgroundColor: '#fff'
     },
     input: {
         height: 200,
