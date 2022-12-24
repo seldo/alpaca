@@ -68,6 +68,10 @@ export const showRePost = async (post,cb) => {
     cb(post)
 }
 
+export const showReply = async (post,navigation) => {
+    navigation.navigate('Compose',{inReplyTo:post})
+}
+
 const showImage = async (post,ma,cb) => {
     for(let i = 0; i < post.media_attachments.length; i++) {
         let a = post.media_attachments[i]
@@ -112,7 +116,6 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
         <Text style={styles.reactionsCountNumber}>{post.favourites_count}</Text>
     </View>
     
-    console.log("Post",post)
     try {
         const isReblog = post.reblog && post.reblog.account
         let account = post.account
@@ -169,7 +172,7 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                 }
                 { reactionsEnabled ? <View 
                     style={styles.reactionsContainer}>
-                        <Pressable onPress={() => showReply(post,cb)}>
+                        <Pressable onPress={() => showReply(post,navigation)}>
                             <ReplyButton />
                         </Pressable>
                         <Pressable onPress={() => showRePost(post,cb)}>

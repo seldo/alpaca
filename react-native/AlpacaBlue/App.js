@@ -29,7 +29,7 @@ import { ComposeScreen } from "./ComposeScreen"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 
-TimeAgo.addDefaultLocale(en)
+TimeAgo.addLocale(en)
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -67,7 +67,6 @@ const tabIcon = (iconName) => {
 
 const composeButton = (props) => {
   let icon = require("./assets/icon-edit.png")
-  console.log(props)
   return <TouchableOpacity {...props}><View style={styles.composeButton}>
     <Image 
       source={icon}

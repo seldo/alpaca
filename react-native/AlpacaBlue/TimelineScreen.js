@@ -62,7 +62,7 @@ export const TimelineScreen = ({navigation}) => {
                 if(auth) {
                     (async () => {
                         let timeline = await fetchTimeline()
-                        setAllPosts(timeline)
+                        setAllPosts(mergeAndSort(timeline,[]))
                         setIsRefreshing(false)
                     })();        
                 } else {
@@ -94,7 +94,12 @@ export const TimelineScreen = ({navigation}) => {
             if (a.created_at > b.created_at) return -1
             return 1
         })
-        return sorted
+        // apply keys
+        let keyed = sorted.map( (i) => {
+            i.key = i.id
+            return i
+        })
+        return keyed
     }
 
     const fetchMoreItems = async () => {
@@ -142,6 +147,7 @@ export const TimelineScreen = ({navigation}) => {
         return data[index];
     }
     const getItemCount = (data) => data.length
+
     const loadingBar = () => {
         if(isRefreshing) {
             return <ActivityIndicator size="small" color="#0000ff" />
@@ -172,7 +178,6 @@ export const TimelineScreen = ({navigation}) => {
                         contentWidth={contentWidth} 
                         navigation={navigation} 
                         cb={somethingChanged} />}
-                    keyExtractor={item => item.id}
                     getItemCount={getItemCount}
                     getItem={getItem}
                     onRefresh={fetchNewItems}
