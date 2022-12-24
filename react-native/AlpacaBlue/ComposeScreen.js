@@ -1,11 +1,19 @@
 import { SafeAreaView, View, StyleSheet, Text, Button, TextInput, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
+import { sendPost } from './models/Posts';
 
 export const ComposeScreen = ({ navigation }) => {
 
     const [text,onChangeText] = useState('')
 
     let contentWidth = useWindowDimensions().width
+
+    const sendPostAndDismiss = async () => {
+        let posted = await sendPost({
+            text
+        })
+        navigation.navigate(-1)
+    }
 
     useEffect( () => {
         navigation.setOptions({
@@ -26,7 +34,7 @@ export const ComposeScreen = ({ navigation }) => {
                 onChangeText={onChangeText}
                 value={text}
             />            
-            <Button title="Send post" />
+            <Button onPress={sendPostAndDismiss} title="Send post" />
         </SafeAreaView>
     );
 }

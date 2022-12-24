@@ -105,9 +105,7 @@ export const SelfScreen = ({ navigation, route }) => {
                 getItem={getItem}
                 refreshing={isRefreshing}
                 ListFooterComponent={loadingBar}
-            /> : <View>
-                <Text>Nada</Text>
-            </View>
+            /> : <></>
             }
         </SafeAreaView>
     );

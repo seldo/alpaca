@@ -57,3 +57,26 @@ export const fetchPosts = async (account, options = {minId: null,maxId: null}) =
         return []
     }
 }
+
+export const sendPost = async (data,options) => {
+    let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+    let postUrl = new URL(auth.instanceBasePath + `/api/v1/statuses`)
+    if (data.text === null || data.text === "") throw new Error("Text cannot be empty")
+
+    var formData = new FormData();
+    formData.append("status", data.text);
+    if(data.in_reply_to_id) {
+      console.log("Posting a reply to internal id",data.in_reply_to_id)
+      formData.append("in_reply_to_id",data.in_reply_to_id)
+    }
+  
+    let postedData = await fetch(postUrl.toString(), {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${auth.accessToken}`
+      },
+      body: formData
+    })
+    let posted = await postedData.json()
+    return posted
+}
