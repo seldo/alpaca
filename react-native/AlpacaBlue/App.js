@@ -26,6 +26,7 @@ import { SearchScreen } from "./SearchScreen"
 import { ProfileScreen } from "./ProfileScreen"
 import { SelfScreen } from "./SelfScreen"
 import { ComposeScreen } from "./ComposeScreen"
+import { ThreadScreen } from "./ThreadScreen"
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 
@@ -67,12 +68,15 @@ const tabIcon = (iconName) => {
 
 const composeButton = (props) => {
   let icon = require("./assets/icon-edit.png")
-  return <TouchableOpacity {...props}><View style={styles.composeButton}>
-    <Image 
-      source={icon}
-      style={styles.composeIcon}
-    />
-  </View></TouchableOpacity>
+  return <TouchableOpacity 
+    {...props}>
+      <View style={styles.composeButton}>
+      <Image 
+        source={icon}
+        style={styles.composeIcon}
+      />
+    </View>
+  </TouchableOpacity>
 }
 
 const MainApp = () => {
@@ -133,6 +137,13 @@ const App = () => {
           headerShown: true
         }}>
           <Stack.Screen name="Profile" component={ProfileScreen} />
+        </Stack.Group>
+        <Stack.Group>
+          <Stack.Screen 
+            name="Thread" 
+            options={{headerShown: true}} 
+            component={ThreadScreen}
+          />
         </Stack.Group>        
       </Stack.Navigator>      
     </NavigationContainer>

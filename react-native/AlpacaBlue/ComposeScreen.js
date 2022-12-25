@@ -17,6 +17,10 @@ export const ComposeScreen = ({ navigation, route }) => {
             post.in_reply_to_id = route.params.inReplyTo.id
         }
         let posted = await sendPost(post)
+        navigation.setParams({
+            inReplyTo: null
+        })
+        onChangeText('')
         navigation.goBack()
     }
 
@@ -24,7 +28,12 @@ export const ComposeScreen = ({ navigation, route }) => {
         navigation.setOptions({
             headerLeft: () => {
                 return <Button 
-                onPress={() => navigation.goBack()} 
+                onPress={() => {
+                    navigation.setParams({
+                        inReplyTo: null
+                    })
+                    navigation.goBack()
+                }}
                 title="Dismiss" 
               />
             }

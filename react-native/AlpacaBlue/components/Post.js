@@ -1,5 +1,5 @@
 import RenderHtml from 'react-native-render-html'
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, Button } from 'react-native';
 import { UserLink } from './UserLink'
 import * as Animatable from 'react-native-animatable';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,7 +27,7 @@ const likePost = async (post) => {
 }
 
 // make it look like we liked the post
-export const showLikePost = async (post,cb) => {
+export const showLikePost = async (post, cb) => {
     // asynchronously actually like the post
     likePost(post)
     // animate the icon and increment the count
@@ -58,7 +58,7 @@ const rePost = async (post) => {
 }
 
 // make it look like we liked the post
-export const showRePost = async (post,cb) => {
+export const showRePost = async (post, cb) => {
     // asynchronously reblog
     rePost(post)
     // animate the icon and increment the count
@@ -68,24 +68,24 @@ export const showRePost = async (post,cb) => {
     cb(post)
 }
 
-export const showReply = async (post,navigation) => {
-    navigation.navigate('Compose',{inReplyTo:post})
+export const showReply = async (post, navigation) => {
+    navigation.navigate('Compose', { inReplyTo: post })
 }
 
-const showImage = async (post,ma,cb) => {
-    for(let i = 0; i < post.media_attachments.length; i++) {
+const showImage = async (post, ma, cb) => {
+    for (let i = 0; i < post.media_attachments.length; i++) {
         let a = post.media_attachments[i]
-        if(a.id == ma.id) {
+        if (a.id == ma.id) {
             post.media_attachments[i].show_full = true
         }
         post.show_image = true
     }
     cb(post)
 }
-const hideImage = async (post,ma,cb) => {
-    for(let i = 0; i < post.media_attachments.length; i++) {
+const hideImage = async (post, ma, cb) => {
+    for (let i = 0; i < post.media_attachments.length; i++) {
         let a = post.media_attachments[i]
-        if(a.id == ma.id) {
+        if (a.id == ma.id) {
             post.media_attachments[i].show_full = false
         }
         post.show_image = false
@@ -93,7 +93,11 @@ const hideImage = async (post,ma,cb) => {
     cb(post)
 }
 
-export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true, reactionsHidden = false }) => {
+const viewThread = async (navigation,post) => {
+    navigation.navigate("Thread",{post})
+}
+
+export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true, reactionsHidden = false, isThread = false }) => {
 
     const ReplyButton = () => <View style={styles.reactionsCount}>
         <Image
@@ -115,7 +119,7 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
             style={styles.reactionIcon} />
         <Text style={styles.reactionsCountNumber}>{post.favourites_count}</Text>
     </View>
-    
+
     try {
         const isReblog = post.reblog && post.reblog.account
         let account = post.account
@@ -138,55 +142,63 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                 {
                     post.media_attachments.length > 0 ? <View style={styles.imageContainer}>
                         {
-                            post.show_image ? post.media_attachments.map( (ma) => {
+                            post.show_image ? post.media_attachments.map((ma) => {
                                 // show one big picture (have to find it)
-                                if(ma.show_full) {                           
-                                    let proportionalHeight = (contentWidth/ma.meta.original.width)*ma.meta.original.height
+                                if (ma.show_full) {
+                                    let proportionalHeight = (contentWidth / ma.meta.original.width) * ma.meta.original.height
                                     return <View>
-                                            <Pressable 
-                                                onPress={() => hideImage(post,ma,cb)}
-                                                style={[styles.fullImageContainer,{
-                                                    width:contentWidth,
-                                                    height:proportionalHeight
-                                                }]}>
-                                                <Image 
-                                                    style={styles.fullImage}
-                                                    source={{uri: ma.url}}/>
-                                            </Pressable>
-                                        </View>
+                                        <Pressable
+                                            onPress={() => hideImage(post, ma, cb)}
+                                            style={[styles.fullImageContainer, {
+                                                width: contentWidth,
+                                                height: proportionalHeight
+                                            }]}>
+                                            <Image
+                                                style={styles.fullImage}
+                                                source={{ uri: ma.url }} />
+                                        </Pressable>
+                                    </View>
                                 } else { return <></> }
-                            }) : post.media_attachments.map( (ma) => {
+                            }) : post.media_attachments.map((ma) => {
                                 // show thumbnails of all pictures
                                 return <View>
-                                    <Pressable 
-                                        onPress={() => showImage(post,ma,cb)}
+                                    <Pressable
+                                        onPress={() => showImage(post, ma, cb)}
                                         style={styles.previewContainer}>
-                                        <Image 
+                                        <Image
                                             style={styles.previewImage}
-                                            source={{uri: ma.url}}/>
+                                            source={{ uri: ma.url }} />
                                     </Pressable>
                                 </View>
                             })
                         }
                     </View> : <></>
                 }
-                { reactionsEnabled && !reactionsHidden ? <View 
-                    style={styles.reactionsContainer}>
-                        <Pressable onPress={() => showReply(post,navigation)}>
-                            <ReplyButton />
-                        </Pressable>
-                        <Pressable onPress={() => showRePost(post,cb)}>
-                            <RepostButton />
-                        </Pressable>
-                        <Pressable onPress={() => showLikePost(post,cb)}>
-                            <LikeButton />
-                        </Pressable>
-                    </View> : !reactionsHidden ? <View 
-                        style={styles.reactionsContainer}>
-                        <Pressable><ReplyButton /></Pressable>
-                        <Pressable><RepostButton /></Pressable>
-                        <Pressable><LikeButton /></Pressable>
+                {
+                    (post.in_reply_to_id && !isThread) ? <View>
+                        <Pressable
+                            onPress={() => viewThread(navigation,post)}
+                        ><Text
+                            style={styles.threadButton}>See thread</Text></Pressable>
                     </View> : <></>
+                }
+                {reactionsEnabled && !reactionsHidden ? <View
+                    style={styles.reactionsContainer}>
+                    <Pressable onPress={() => showReply(post, navigation)}>
+                        <ReplyButton />
+                    </Pressable>
+                    <Pressable onPress={() => showRePost(post, cb)}>
+                        <RepostButton />
+                    </Pressable>
+                    <Pressable onPress={() => showLikePost(post, cb)}>
+                        <LikeButton />
+                    </Pressable>
+                </View> : !reactionsHidden ? <View
+                    style={styles.reactionsContainer}>
+                    <Pressable><ReplyButton /></Pressable>
+                    <Pressable><RepostButton /></Pressable>
+                    <Pressable><LikeButton /></Pressable>
+                </View> : <></>
                 }
             </View>
         </View>
@@ -221,7 +233,7 @@ const styles = StyleSheet.create({
     htmlContainer: {
         paddingLeft: 40,
         paddingRight: 5
-    },  
+    },
     reactionsContainer: {
         flex: true,
         flexDirection: 'row',
@@ -265,5 +277,11 @@ const styles = StyleSheet.create({
     fullImage: {
         width: '100%',
         height: '100%'
+    },
+    threadButton: {
+        fontSize: 12,
+        textAlign: 'center',
+        color: 'blue',
+        marginBottom: 5
     }
 })

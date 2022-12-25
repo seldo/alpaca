@@ -80,3 +80,20 @@ export const sendPost = async (data,options) => {
     let posted = await postedData.json()
     return posted
 }
+
+export const getThread = async (post) => {
+    let auth = JSON.parse(await AsyncStorage.getItem('auth'))
+    let threadUrl = new URL(auth.instanceBasePath + `/api/v1/statuses/${post.id}/context`)
+    let threadData = await fetch(threadUrl, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${auth.accessToken}`
+      }
+    })
+    post.isCurrentGeneration = true
+    let generations = await threadData.json()    
+    let thread = generations.ancestors
+                    .concat([post])
+                    .concat(generations.descendants)
+    return thread
+}
