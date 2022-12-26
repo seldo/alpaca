@@ -216,7 +216,7 @@ export const NotificationsScreen = ({ navigation }) => {
     }
     const getItemCount = (data) => data.length
 
-    const Notification = ({ event }) => {
+    const Notification = ({ event, contentWidth, navigation }) => {
         return <View style={styles.notification}>
             { event.type == 'reblog' ? <View 
                 width={contentWidth} 
@@ -242,6 +242,7 @@ export const NotificationsScreen = ({ navigation }) => {
                     contentWidth={contentWidth} 
                     showAvatar={false} 
                     reactionsEnabled={false}
+                    navigation={navigation}
                 />
             </View> : event.type == 'favourite' ? <View 
                 width={contentWidth} 
@@ -266,6 +267,7 @@ export const NotificationsScreen = ({ navigation }) => {
                     contentWidth={contentWidth} 
                     showAvatar={false} 
                     reactionsEnabled={false}
+                    navigation={navigation}
                 />
             </View> : event.type == 'mention' ? <View 
                 width={contentWidth}
@@ -282,6 +284,7 @@ export const NotificationsScreen = ({ navigation }) => {
                     post={event.status} 
                     contentWidth={contentWidth} 
                     reactionsEnabled={false}
+                    navigation={navigation}
                 />
             </View> : event.type == 'follow' ? <View 
                 width={contentWidth} 
@@ -325,7 +328,11 @@ export const NotificationsScreen = ({ navigation }) => {
                 <VirtualizedList
                     data={allBatchedNotifications}
                     initialNumToRender={10}
-                    renderItem={({ item }) => <Notification event={item} />}
+                    renderItem={({ item }) => <Notification 
+                        event={item} 
+                        contentWidth={contentWidth}    
+                        navigation={navigation}
+                    />}
                     // FIXME: sometimes this gets tons of duplicates?
                     keyExtractor={item => item.id}
                     getItemCount={getItemCount}

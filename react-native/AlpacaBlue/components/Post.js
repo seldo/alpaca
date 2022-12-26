@@ -97,6 +97,23 @@ const viewThread = async (navigation,post) => {
     navigation.navigate("Thread",{post})
 }
 
+function onPress(event, href) {
+    console.log(`You just pressed ${href}`);
+}
+
+const capturePress = (event) => {
+    console.log("Captured event",event)
+}
+
+const renderersProps = {
+    a: {
+      onPress: onPress
+    },
+    div: {
+        onPress: capturePress
+    }
+  };
+
 export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true, reactionsHidden = false, isThread = false }) => {
 
     const ReplyButton = () => <View style={styles.reactionsCount}>
@@ -137,6 +154,7 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                     <RenderHtml
                         contentWidth={contentWidth}
                         source={{ html: isReblog ? post.reblog.content : post.content }}
+                        renderersProps={renderersProps}
                     />
                 </View>
                 {
@@ -175,7 +193,7 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                     </View> : <></>
                 }
                 {
-                    (post.in_reply_to_id && !isThread) ? <View>
+                    ((post.in_reply_to_id || post.reblog.in_reply_to_id) && !isThread) ? <View>
                         <Pressable
                             onPress={() => viewThread(navigation,post)}
                         ><Text
