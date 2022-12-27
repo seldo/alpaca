@@ -116,12 +116,15 @@ const renderersProps = {
 
 export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb = null, reactionsEnabled = true, reactionsHidden = false, isThread = false }) => {
 
-    const ReplyButton = () => <View style={styles.reactionsCount}>
-        <Image
-            source={require("../assets/icon-reply.png")}
-            style={styles.reactionIcon} />
-        <Text style={styles.reactionsCountNumber}>{post.replies_count}</Text>
-    </View>
+    const ReplyButton = () => {
+        console.log("Rendering reply button")
+        return <View style={styles.reactionsCount}>
+            <Image
+                source={require("../assets/icon-reply.png")}
+                style={styles.reactionIcon} />
+            <Text style={styles.reactionsCountNumber}>{post.replies_count}</Text>
+        </View>
+    }
 
     const RepostButton = () => <View style={styles.reactionsCount}>
         <Image
@@ -193,7 +196,7 @@ export default Post = ({ post, contentWidth, navigation, showAvatar = true, cb =
                     </View> : <></>
                 }
                 {
-                    ((post.in_reply_to_id || post.reblog.in_reply_to_id) && !isThread) ? <View>
+                    ((post.in_reply_to_id || post.reblog?.in_reply_to_id) && !isThread) ? <View>
                         <Pressable
                             onPress={() => viewThread(navigation,post)}
                         ><Text
