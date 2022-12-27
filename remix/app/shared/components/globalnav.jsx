@@ -18,6 +18,7 @@ export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfi
             (isHome) ? <div className="logo">
                 <img className="floof" src="/images/ab-logomark.svg" />
                 <img className="logoType" src="/images/ab-logotype.svg" />
+                <div className="desktopLogo"></div>
             </div> : <div className="backLink">
                 <Link to="/" onClick={() => navigate(-1)}>
                     <div className="arrow"><span>Back</span></div>

@@ -553,10 +553,6 @@ video {
   visibility: visible;
 }
 
-.static {
-  position: static;
-}
-
 .flex {
   display: flex;
 }
@@ -1158,317 +1154,47 @@ video {
   font-size: 120%;
 }
 
-/********************************* old UI **************************************/
+/** desktop UI **/
 
 @media (min-width:750px) {
-  .globalNav {
-    position: fixed;
+  .loggedOut .globalNav img {
+    display: none
   }
 
-  .floof {
-    min-height: 20px;
-    max-height: 50px;
-  }
-
-  h2 {
-    margin-left: 10px;
-    font-weight: bold;
-    font-size: 120%;
-  }
-
-  .genericButton {
-    font-size: 90%;
-    font-weight: bold;
-    padding: 7px 12px;
-    border-radius: 20px;
-    color: var(--white);
-    background-color: #ccc;
-  }
-
-  .nextToAvatar {
-    font-size: 92%;
-  }
-
-  .time {
-    font-size: 80%;
-    color: #888;
-    float: right;
-  }
-
-  .composeBox textarea {
+  .loggedOut .globalNav .desktopLogo {
+    display: block;
+    background: url('/images/ab-logo-horizontal.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position-x: 50%;
     width: 100%;
-    padding: 10px;
+    height: 100px;
   }
 
-  .main-gutter {
-    padding-left: 10px;
-    border-right: 0.5px solid #ccc;
-    width: 75px;
-  }
-
-  .content {
-    margin-left: 75px;
-  }
-
-  .menuItems {
-    margin-top: 1rem;
-  }
-
-  .menuItems li {
-    margin-bottom: 1rem;
-    margin-left: 0.7rem;
-  }
-
-  .menuItems li a span {
+  .loggedOut .menuBar {
     display: none;
   }
 
-  .menuItems li a {
-    width: 30px;
-    height: 30px;
-    display: block;
-    background-size: contain;
+  .loggedOut .container {
+    margin-top: 40px;
+    text-align: center;
   }
 
-  .menuItems .home {
-    background-image: url("/images/home-icon.svg");
-  }
-
-  .menuItems .search {
-    background-image: url("/images/search-icon.svg");
-  }
-
-  .menuItems .notifications {
-    background-image: url("/images/bell-icon.svg");
-  }
-
-  .menuItems .messages {
-    background-image: url("/images/email-icon.svg");
-  }
-
-  .menuItems .profile {
-    background-image: url("/images/profile-icon.svg");
-  }
-
-  .menuItems .settings {
-    background-image: url("/images/settings-icon.svg");
-  }
-
-  .menuItems .compose {
-    background-color: #64b5e3;
-    width: 50px;
-    height: 50px;
-    background-image: url("/images/edit-icon.svg");
-    background-size: 24px 24px;
-    background-repeat: no-repeat;
-    background-position-x: 12px;
-    background-position-y: 12px;
-    border-radius: 100%;
-    margin-left: -10px;
-    margin-top: 3rem;
-  }
-
-  .menuBar .profileMenu {
-    margin-bottom: 10px;
-  }
-
-  .menuBar .profileMenu .avatar {
-    padding-left: 2px;
-  }
-
-  .latest {
-    margin-top: 17px;
+  .loggedOut h2 {
+    font-size: 120%;
     margin-bottom: 20px;
   }
 
-  .content {
-    overflow-x: hidden;
-  }
-
-  .composeTop {
-    padding-bottom: 10px;
-    margin-left: 10px;
-  }
-
-  .buttonHolder {
-    padding-bottom: 10px;
-    text-align: right;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    border-bottom: 0.5px solid #ccc;
-  }
-
-  .buttonHolder button {
-    border: 1px solid #64b5e3;
-    background-color: #64b5e3;
-    color: #fff;
-    border-radius: 20px;
-    padding: 2px 10px;
-    position: relative;
-    right: 0px;
-  }
-
-  .post {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border-bottom: 0.5px solid #ccc;
-    padding-right: 10px;
-  }
-
-  .post:hover {
-    background-color: #fafafa;
-  }
-
-  .post .reactions {
-    padding-top: 10px;
-  }
-
-  .post .reactions .reactionButton {
-    color: #888;
-    width: 20px;
-    height: 20px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position-y: 1.5px;
-    padding-left: 25px;
-  }
-
-  .post .reactions .replies {
-    background-image: url("/images/reply-icon.svg")
-  }
-
-  .post .reactions .share {
-    background-image: url("/images/share-icon.svg")
-  }
-
-  .post .reactions .share span {
-    display: none;
-  }
-
-  .postReaction {
-    color: #888;
-  }
-
-  .postReaction .reactionIcon {
-    width: 22px;
-    height: 22px;
-    background-size: contain;
-    display: inline-block;
-  }
-
-  .postReaction .reposts .reactionIcon {
-    background-image: url("/images/reactify/icon-repost.svg");
-  }
-
-  .postReaction .reposts .reactionIcon.active {
-    background-image: url("/images/reactify/icon-repost-active.svg");
-  }
-
-  .postReaction .likes .reactionIcon {
-    background-image: url("/images/reactify/icon-heart.svg");
-  }
-
-  .postReaction .likes .reactionIcon.active {
-    background-image: url("/images/reactify/icon-heart-active.svg");
-  }
-
-  .postReaction span {
-    position: relative;
-    top: -6px;
-    left: 2px;
-  }
-
-  .reblog .reblogNotice {
+  .loggedOut #instanceTip {
     font-size: 80%;
-    font-weight: bold;
-    color: #666;
-    background-image: url("/images/repost-icon.svg");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position-y: 1.5px;
-    padding-left: 30px;
-    padding-top: 2.5px;
-    margin-left: 40px;
-    margin-top: 5px;
-    margin-bottom: -5px;
   }
 
-  .searchBox {
-    width: calc(100% - 70px);
-    padding: 15px 10px;
-    position: fixed;
-    top: 0px;
-    background-color: rgba(255,255,255,0.9);
-    -webkit-backdrop-filter: blur(5px);
-            backdrop-filter: blur(5px);
-    border-bottom: 0.5px solid #ccc;
+  .loggedOut .temporaryLogin {
+    margin-top: 20px;
   }
 
-  .searchBox input[type=text] {
-    display: box;
-    border: 1px solid #ccc;
-    padding: 5px 10px;
-    border-radius: 20px;
-    margin-right: 10px;
-  }
-
-  .searchBox button {
-    background-color: #ccc;
-    margin-right: 10px;
-    color: #fff;
-    font-size: 90%;
-    font-weight: bold;
-    padding: 5px 10px;
-  }
-
-  .searchResults {
-    margin-top: 70px;
-    overflow: hidden;
-  }
-
-  .searchResults .searchResult {
-    border-bottom: 0.5px solid #ccc;
-    margin-top: 10px;
-    padding-right: 10px;
-    padding-bottom: 10px;
-  }
-
-  .notificationsHeader {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 0.5px solid #ccc;
-  }
-
-  .notificationMessage .notifyText {
-    margin-left: 70px;
-    font-size: 90%;
-    margin-top: 10px;
-  }
-
-  .notificationMessage .post .gutter {
-    min-width: 70px;
-    background-position-x:center;
-    background-position-y: top;
-    background-repeat: no-repeat;
-    background-size: 30px;
-  }
-
-  .notificationMessage.notifyLike .post .gutter {
-    position: relative;
-    top: -30px;
-    background-image: url("/images/reactify/heart-icon.svg");
-  }
-
-  .notificationMessage.notifyFollow {
-    background-image: url("/images/profile-icon.svg");
-    background-repeat: no-repeat;
-    background-size: 30px;
-    background-position-x: 20px;
-    background-position-y: top;
-    margin-bottom: 10px;
-    border-bottom: 0.5px solid #ccc;
-    min-height: 50px;
+  .loggedOut #createOffer {
+    margin-top: 20px;
   }
 }
 
