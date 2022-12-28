@@ -501,6 +501,30 @@
     .loggedOut #createOffer {
         margin-top: 20px;
     }
-    
+    .loggedIn .content {
+        margin: auto;
+        max-width: 500px;
+    }
+    .globalNav .menuBar {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        min-width: 50px;
+        width: 50px;
+        height: 100vh;
+        z-index: 0;
+    }
+    .menuBar .menuItems {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 8px 17px 10px 17px;
+        height: 100%;
+    }
+    .menuBar .menuItems li {
+        margin-bottom: 20px;
+    }
+        
 }
 
