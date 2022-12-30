@@ -153,6 +153,14 @@ export const validate = async (navigate,code) => {
         auth: authCredentials,
         user: await res2.json()
     }
+    // always convenient to know the user's instance
+    user.user.instance = instance
     await localforage.setItem(getUserKey(),user)
     await navigate("/home")
+}
+
+export const logout = async (navigate) => {
+    // delete the credentials and go home
+    await localforage.setItem(getUserKey(),null)
+    await navigate("/")
 }

@@ -1,1 +1,247 @@
-body{line-height:1}ol,ul{list-style:none}@font-face{font-family:"Work Sans";src:url("/fonts/WorkSans-VariableFont_wght.ttf");font-display:swap}@font-face{font-family:"Work Sans Italic";src:url("/fonts/WorkSans-Italic-VariableFont_wght.ttf");font-display:swap}:root{--white: #fff;--blue-primary: #184BCB;--blue-secondary: #006CDA;--blue-brand: #008DFF;--blue-container: #EFF5FB;--grey-inactive: #6E7077;--grey-primary: #1A1B1C;--grey-primary-5pc: rgba(26, 27, 28, 0.05);--grey-primary-10pc: rgba(26, 27, 28, 0.1);--grey-primary-20pc: rgba(26, 27, 28, 0.2);--grey-secondary: #38376B;--grey-tertiary: #616575;--purple-primary: #510BF4;--purple-secondary: #7C44FF;--purple-container: #F5F0FF;--pink-secondary: #D70072;font-family:"Work Sans"}@supports (font-variation-settings: "wdth" 115){:root{font-family:"Work Sans"}}
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline; }
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block; }
+
+body {
+  line-height: 1; }
+
+ol, ul {
+  list-style: none; }
+
+blockquote, q {
+  quotes: none; }
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+/** baseline **/
+@font-face {
+  font-family: "Work Sans";
+  src: url("/fonts/WorkSans-VariableFont_wght.ttf");
+  font-display: swap; }
+
+@font-face {
+  font-family: "Work Sans Italic";
+  src: url("/fonts/WorkSans-Italic-VariableFont_wght.ttf");
+  font-display: swap; }
+
+:root {
+  --white: #fff;
+  --blue-primary: #184BCB;
+  --blue-secondary: #006CDA;
+  --blue-brand: #008DFF;
+  --blue-container: #EFF5FB;
+  --grey-inactive: #6E7077;
+  --grey-primary: #1A1B1C;
+  --grey-primary-5pc: rgba(26, 27, 28, 0.05);
+  --grey-primary-10pc: rgba(26, 27, 28, 0.1);
+  --grey-primary-20pc: rgba(26, 27, 28, 0.2);
+  --grey-secondary: #38376B;
+  --grey-tertiary: #616575;
+  --purple-primary: #510BF4;
+  --purple-secondary: #7C44FF;
+  --purple-container: #F5F0FF;
+  --pink-secondary: #D70072;
+  font-family: "Work Sans"; }
+
+@supports (font-variation-settings: "wdth" 115) {
+  :root {
+    font-family: "Work Sans"; } }
+
+/** global nav **/
+.logo {
+  width: calc(100% - 36px);
+  display: flex;
+  flex-direction: row;
+  padding: 10px 14px;
+  height: 60px; }
+  .logo .floof {
+    width: 36px;
+    height: 36px; }
+  .logo .logoType {
+    margin: auto;
+    height: 20px;
+    width: 100%; }
+
+.avatar {
+  min-width: 36px;
+  padding-right: 8px; }
+  .avatar .avatarImage {
+    max-height: 36px;
+    border-radius: 100%; }
+
+.displayName {
+  font-family: 'Work Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 18px;
+  color: var(--grey-primary); }
+  .displayName a:hover {
+    text-decoration: underline; }
+
+.username {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  color: var(--grey-tertiary); }
+
+.profileMenu {
+  position: absolute;
+  top: 10px;
+  right: 14px; }
+  .profileMenu ol {
+    position: absolute;
+    background-color: var(--white);
+    top: 40px;
+    right: 16px;
+    padding: 5px 10px;
+    border: 1px solid var(--grey-primary); }
+    .profileMenu ol li {
+      padding: 5px 5px; }
+
+.globalNav .backLink .arrow {
+  margin-left: 16px;
+  padding-left: 20px;
+  background-image: url("/images/icon-arrow.svg");
+  background-repeat: no-repeat;
+  background-size: 25px;
+  background-position-y: center;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; }
+
+.globalNav .backLink span {
+  margin-left: 10px;
+  min-height: 56px;
+  display: none; }
+
+.menuBar {
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  height: 60px;
+  background-color: var(--white);
+  box-shadow: 0px 0px 8px rgba(26, 27, 28, 0.075);
+  z-index: 1; }
+  .menuBar .menuItems {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 17px 10px 17px;
+    height: 100%;
+    /*
+        .messages {
+            background-image: url('/images/icon-dm.svg');
+        }
+        */ }
+    .menuBar .menuItems li {
+      display: block;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position-x: center;
+      background-position-y: center;
+      width: 24px;
+      height: 24px; }
+      .menuBar .menuItems li span {
+        visibility: hidden; }
+      .menuBar .menuItems li a {
+        display: block;
+        width: 100%;
+        height: 100%; }
+    .menuBar .menuItems .home {
+      background-image: url("/images/icon-home.svg"); }
+    .menuBar .menuItems .compose {
+      width: 45px;
+      height: 45px;
+      border-radius: 4px;
+      background-image: url("/images/icon-edit.svg");
+      background-color: var(--blue-brand);
+      background-size: 24px; }
+    .menuBar .menuItems .search {
+      background-image: url("/images/icon-search.svg"); }
+    .menuBar .menuItems .notifications {
+      height: 35px;
+      background-image: url("/images/icon-notifications.svg"); }
+    .menuBar .menuItems .profile {
+      background-image: url("/images/icon-avatar.svg"); }
+
+/** desktop UI **/
+@media (min-width: 750px) {
+  .loggedOut .globalNav img {
+    display: none; }
+  .loggedOut .globalNav .desktopLogo {
+    display: block;
+    background: url("/images/ab-logo-horizontal.svg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position-x: 50%;
+    width: 100%;
+    height: 100px; }
+  .loggedOut .menuBar {
+    display: none; }
+  .loggedOut .container {
+    margin-top: 40px;
+    text-align: center; }
+  .loggedOut h2 {
+    font-size: 120%;
+    margin-bottom: 20px; }
+  .loggedOut #instanceTip {
+    font-size: 80%; }
+  .loggedOut .temporaryLogin {
+    margin-top: 20px; }
+  .loggedOut #createOffer {
+    margin-top: 20px; }
+  .loggedIn .content {
+    margin: auto;
+    max-width: 500px; }
+  .globalNav .menuBar {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    min-width: 50px;
+    width: 50px;
+    height: 100vh;
+    z-index: 0; }
+    .globalNav .menuBar .menuItems {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 8px 17px 10px 17px;
+      height: 100%; }
+      .globalNav .menuBar .menuItems li {
+        margin-bottom: 20px; } }
