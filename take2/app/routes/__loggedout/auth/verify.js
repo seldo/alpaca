@@ -1,30 +1,28 @@
 import { useState, useEffect } from "react";
-import { authenticate } from "~/shared/library/auth.client"
+import { validate } from "~/shared/library/auth.client"
 import { useNavigate } from "react-router-dom";
 import { useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
-  const instance = url.searchParams.get("instance");
-  return {instance}
+  const code = url.searchParams.get("code");
+  return {code}
 };
 
-export default function Mastodon() {
+export default function Verify() {
 
-  const {instance} = useLoaderData();
+  const {code} = useLoaderData();
   const navigate = useNavigate();
 
   useEffect( () => {
     (async () => {
-      let userAuth = authenticate(navigate,{
-        instance
-      })
+      validate(navigate,code)
     })();
   },[])
 
   return (
     <div className="container">
-      Checking your shiz.
+      Validating your shiz.
     </div>
   )
 }
