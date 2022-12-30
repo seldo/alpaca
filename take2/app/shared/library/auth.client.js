@@ -1,5 +1,11 @@
 import * as localforage from "localforage";
 
+const getThisHost = () => {
+    let currentUrl = new URL(window.location.href)
+    let thisHost = currentUrl.protocol + "//" + currentUrl.host
+    return thisHost
+}
+
 export const authenticate = async (navigate,options) => {
     console.log("authenticating")
     let authUser = await getUser()
@@ -13,7 +19,7 @@ export const authenticate = async (navigate,options) => {
             let authorizeUrl = new URL(getInstanceUrl(options.instance)+"/oauth/authorize")
             authorizeUrl.searchParams.append("response_type","code")
             authorizeUrl.searchParams.append("client_id",app.client_id)
-            authorizeUrl.searchParams.append("redirect_uri","http://localhost:3000/auth/verify")
+            authorizeUrl.searchParams.append("redirect_uri",getThisHost()+"/auth/verify")
             authorizeUrl.searchParams.append("scope","read write")
             console.log(`redirect to ${authorizeUrl}`)
             await localforage.setItem("currentInstance",options.instance)
@@ -74,7 +80,7 @@ export const getOrCreateApp = async (instance) => {
         let createUrl = new URL(getInstanceUrl(instance)+"/api/v1/apps")
         let formData = new FormData();
         formData.append("client_name","Alpaca.Blue dev 3")
-        formData.append("redirect_uris","http://localhost:3000/auth/verify")
+        formData.append("redirect_uris",getThisHost()+"/auth/verify")
         formData.append("scopes","read write push")
         formData.append("website","https://alpaca.blue")
         let res = await fetch(
@@ -117,7 +123,7 @@ export const validate = async (navigate,code) => {
     formData.append("code",code)
     formData.append("client_id",app.client_id)
     formData.append("client_secret",app.client_secret)
-    formData.append("redirect_uri","http://localhost:3000/auth/verify")
+    formData.append("redirect_uri",getThisHost()+"/auth/verify")
     formData.append("scope","read write push")
     let res = await fetch(
         tokenUrl,

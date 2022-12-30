@@ -1,0 +1,52 @@
+Alpaca blue cases:
+
+- login
+	- user selects instance
+	- oauth2 dance delivers credentials
+	- credentials saved on client
+	- proxy gives you a cookie to remember you
+- view timeline
+	- client loads saved posts from localstorage
+	- client creates long running connection
+	- client translates mastodon links into proxy links
+		- any username becomes a proxy link to that user
+		- any post becomes a proxy link to that post
+	- every post is stored in localstorage
+- media
+	- cache and proxy media?
+		- saves instances bandwidth
+		- makes the experience faster
+		- worth paying for?
+		- revenue share based on bandwidth usage
+- users
+	- client views users with account fetch API
+		- every account object is saved in localstorage
+- proxy links
+	- user:
+		- if proxy knows you:
+			- bounce to client and fetch as normal
+		- if proxy doesn't know you:
+			- proxy fetches or registers a new app client
+			- fetches user if public
+			- displays user
+			- if you click follow
+				- bounce to client and goto login
+	- post:
+		- if proxy knows you
+			- bounce to client and fetch as normal
+		- if proxy doesn't know you
+			- fetch and display post in standard UI
+			- if you click like/reblog/reply
+				- bounce to client and goto login
+- mentions
+	- client loads saved mentions from local storage
+	- then the 40 most recent mentions
+	- then backwards from there until it reaches duplicates
+	
+Implementation notes:
+- 
+
+
+
+cd /opt/app;
+docker-compose exec streaming sh -c "RAILS_ENV=production bin/tootctl media remove --days 0;" 

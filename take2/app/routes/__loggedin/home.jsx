@@ -10,7 +10,7 @@ export default function Home() {
     useEffect(() => {
         (async () => {
             let authUser = await authenticate(navigate, {
-                failure: "/?failed"
+                failure: "/?needlogin"
             })
             setAuthUser(authUser)
         })();
