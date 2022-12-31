@@ -13,7 +13,7 @@ export default function Index() {
     useEffect( () => {
         (async () => {
           let user = await authenticate(navigate,{
-            success: "/home"
+            success: "/home" 
           })
           setAuthUser(user)
         })();
