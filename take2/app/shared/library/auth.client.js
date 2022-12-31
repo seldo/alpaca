@@ -7,7 +7,6 @@ const getThisHost = () => {
 }
 
 export const authenticate = async (navigate,options) => {
-    console.log("authenticating")
     let authUser = await getUser()
     if (!authUser) {
         console.log("I ran, but no auth")
@@ -30,6 +29,49 @@ export const authenticate = async (navigate,options) => {
     }
     // if not told to go anywhere we just return
     return authUser
+}
+
+export const callAPIdebounced = async (authUser,endpoint,options = {
+        method: "GET",
+        formParams: null,
+        queryParams: null
+    }) => {
+    console.log(`Debounced ${options.method} to ${endpoint}`)
+
+    if(await transactionLocked(endpoint)) return null
+
+    let url = new URL(getInstanceUrl(authUser.user.instance)+endpoint)
+    if(options.queryParams) {
+        for(let k in options.queryParams) {
+            url.searchParams.append(k,options.queryParams[k])
+        }        
+    }
+    let body = null
+    if (options.formParams) {
+        body = new FormData()
+        for(let k in options.formParams) {
+            body.append(k,options.formParams[k])
+        }
+    }
+
+    let data = null
+    try {
+        let res = await fetch(url,{
+            method: options.method,
+            body: (body ? body : null),
+            headers: {
+                "Authorization": `Bearer ${authUser.auth.access_token}`
+            }
+        })
+        data = await res.json()
+
+    } catch(e) {
+        console.log(`Error ${options.method}'ing ${endpoint}`,e)
+        return data // remains locked to avoid endlessly erroring
+    }
+
+    unlock(endpoint)
+    return data
 }
 
 /**
@@ -63,7 +105,7 @@ export const unlock = async(call) => {
     localforage.setItem(key,null)
 }
 
-const getInstanceUrl = (instance) => {
+export const getInstanceUrl = (instance) => {
     return "https://"+instance
 }
 

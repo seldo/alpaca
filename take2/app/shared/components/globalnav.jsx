@@ -4,8 +4,6 @@ import { Form } from "@remix-run/react";
 
 export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfileMenuOpen}) {
 
-    console.log("globalnav",user)
-
     const toggleMenu = (e) => {
         e.preventDefault()
         e.stopPropagation()
