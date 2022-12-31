@@ -2,6 +2,7 @@ import { getInstanceUrl, callAPIdebounced } from "./auth.client"
 import * as localforage from "localforage";
 
 export const mergeWithoutDupes = async (oldPosts, newPosts) => {
+    if(!newPosts) return oldPosts
     console.log(`merging: ${oldPosts.length} old, ${newPosts.length} new`)
     let merged = []
     let seenIds = []
@@ -37,7 +38,7 @@ export const getTimeline = async (authUser,options = {
             max_id: options.maxId
         }
     }
-    return await callAPIdebounced(authUser, "/api/v1/timelines/home")
+    return await callAPIdebounced(authUser, "/api/v1/timelines/home",callOptions)
 }
 
 export const pollEvents = async(authUser,allPosts,setPosts) => {

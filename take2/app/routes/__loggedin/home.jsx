@@ -6,6 +6,7 @@ import { ComposeBox } from "~/shared/components/compose"
 import { Post } from "~/shared/components/post"
 import { streamEvents, getTimeline, mergeWithoutDupes, saveLocalTimeline, loadLocalTimeline } from "~/shared/library/mastodon.client"
 import { useOutletContext } from "react-router-dom";
+import VisibilitySensor from "react-visibility-sensor";
 
 export default function Home() {
 
@@ -28,15 +29,10 @@ export default function Home() {
         saveLocalTimeline(authUser,merged)
     }
 
-    const handleScroll = async () => {
-        const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
-        const body = document.body;
-        const html = document.documentElement;
-        const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-        const windowBottom = windowHeight + window.pageYOffset;
-        if (windowBottom >= docHeight) {
-            console.log("Last post is ",allPosts)
-            let morePosts = getTimeline(authUser,{
+    const infiniteScroll = async () => {
+        if (allPosts.length > 0) {
+            console.log("Last post is ",allPosts[allPosts.length-1])
+            let morePosts = await getTimeline(authUser,{
                 maxId: allPosts[allPosts.length-1].id
             })
             let merged = await mergeWithoutDupes(allPosts,morePosts)
@@ -85,6 +81,9 @@ export default function Home() {
                             </li>
                     })}</ul> : <div>No posts yet. Give it a sec.</div>
             }
+            <VisibilitySensor onChange={infiniteScroll}>
+                <div>Loading more posts...</div>
+            </VisibilitySensor>
         </div>
     );
 }

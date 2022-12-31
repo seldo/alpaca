@@ -19,9 +19,9 @@ export default function Index() {
         })();
       },[])    
 
-    return <div className="loggedIn">
+    return <div className="loggedIn" >
         <Globalnav user={authUser ? authUser.user : null} navigate={navigate} isHome={true} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
-        <div className="content">
+        <div className="content" onScroll={() => {console.log("They see me scrollin'")}}>
             <Outlet context={{authUser}} />
         </div>
     </div>

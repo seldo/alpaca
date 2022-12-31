@@ -379,7 +379,8 @@ textarea {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-top: 13px; }
+    margin-top: 13px;
+    margin-left: 50px; }
     .post .reactions .reaction {
       width: 55px;
       height: 22px;

@@ -31,13 +31,19 @@ export const authenticate = async (navigate,options) => {
     return authUser
 }
 
-export const callAPIdebounced = async (authUser,endpoint,options = {
+export const callAPIdebounced = async (authUser,endpoint,incomingOptions) => {
+    const defaults = {
         method: "GET",
         formParams: null,
         queryParams: null,
         expectJson: true
-    }) => {
-    console.log(`Debounced ${options.method} to ${endpoint}`)
+    }
+    let options = {
+        ...defaults,
+        ...incomingOptions
+    }
+    console.log(`incoming options were`,incomingOptions)
+    console.log(`Debounced ${options.method} to ${endpoint} with options`,options)
 
     if(await transactionLocked(endpoint)) return null
 
