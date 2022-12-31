@@ -34,7 +34,8 @@ export const authenticate = async (navigate,options) => {
 export const callAPIdebounced = async (authUser,endpoint,options = {
         method: "GET",
         formParams: null,
-        queryParams: null
+        queryParams: null,
+        expectJson: true
     }) => {
     console.log(`Debounced ${options.method} to ${endpoint}`)
 
@@ -63,7 +64,11 @@ export const callAPIdebounced = async (authUser,endpoint,options = {
                 "Authorization": `Bearer ${authUser.auth.access_token}`
             }
         })
-        data = await res.json()
+        if(options.expectJson) {
+            data = await res.json()
+        } else {
+            data = await res.text()
+        }
 
     } catch(e) {
         console.log(`Error ${options.method}'ing ${endpoint}`,e)

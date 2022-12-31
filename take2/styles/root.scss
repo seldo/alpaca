@@ -196,9 +196,9 @@ textarea {
     }
 
     .logoType {
-        margin: auto;
         height: 20px;
-        width: 100%;
+        width: calc(100% - 82px);
+        margin-top: 8px;
     }
 }
 
@@ -463,6 +463,7 @@ textarea {
 
     .status {
         margin-top: 12px;
+        margin-left: 50px;
     }
 
     .reactions {

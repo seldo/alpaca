@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useFetcher } from "@remix-run/react";
 import { ComposeBox } from "~/shared/components/compose"
 import { Post } from "~/shared/components/post"
-import { streamEvents, getTimeline, mergeWithoutDupes } from "~/shared/library/mastodon.client"
+import { streamEvents, getTimeline, mergeWithoutDupes, saveLocalTimeline, loadLocalTimeline } from "~/shared/library/mastodon.client"
 import { useOutletContext } from "react-router-dom";
 
 export default function Home() {
@@ -15,29 +15,57 @@ export default function Home() {
     const {authUser} = useOutletContext();
     const [isComposing, setIsComposing] = useState(false)
     const [allPosts, setPosts] = useState([])
+    const [postBuffer, setPostBuffer] = useState([])
     const [postBufferCount, setPostBufferCount] = useState(0)
-    const mergePostBuffer = () => {
 
+    const mergePostBuffer = async () => {
+        let merged = await mergeWithoutDupes(allPosts,postBuffer)
+        // merge in the posts
+        setPosts(merged)
+        setPostBuffer([])
+        setPostBufferCount(0)
+        // update the client cache
+        saveLocalTimeline(authUser,merged)
     }
+
+    const handleScroll = async () => {
+        const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+        const body = document.body;
+        const html = document.documentElement;
+        const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        const windowBottom = windowHeight + window.pageYOffset;
+        if (windowBottom >= docHeight) {
+            console.log("Last post is ",allPosts)
+            let morePosts = getTimeline(authUser,{
+                maxId: allPosts[allPosts.length-1].id
+            })
+            let merged = await mergeWithoutDupes(allPosts,morePosts)
+            setPosts(merged)
+            saveLocalTimeline(authUser,merged)
+        }
+    }    
 
     useEffect(() => {
         (async () => {
             if(!authUser) return
-            // initialize with saved posts from localstorage
-            // ....
-            // now fetch the latest 
             console.log("Getting posts for",authUser)
+            // initialize with saved posts from localstorage
+            let savedPosts = await loadLocalTimeline(authUser)
+            let mergedPosts = await mergeWithoutDupes(allPosts, savedPosts)
+            setPosts(mergedPosts)
+            // fetch any newer posts from server
             let latestPosts = await getTimeline(authUser)
-            //setPosts(latestPosts)
-            let mergedPosts = await mergeWithoutDupes(allPosts, latestPosts, setPosts)
-            //console.log("Merged posts",mergedPosts)
-            //setPosts(mergedPosts)
+            let secondMerge = await mergeWithoutDupes(mergedPosts, latestPosts)
+            setPosts(secondMerge)
+            saveLocalTimeline(authUser,secondMerge)
             // and start streaming
-            streamEvents(authUser, allPosts)
+            //console.log("Passing setPostBuffer",setPostBuffer)
+            streamEvents(authUser, postBuffer, setPostBuffer, postBufferCount, setPostBufferCount)
+            // infinite scrollllllll
+            window.addEventListener("scroll", handleScroll);
         })();
     }, [authUser])
 
-    console.log("allposts",allPosts)
     return (
         <div>
             <div className="composeTop">
@@ -50,7 +78,6 @@ export default function Home() {
                 (allPosts.length > 0) ? <ul>{
                     allPosts.map((post, index) => {
                         let key = post.id
-                        console.log("Post is ", post)
                         return <li key={index}>
                             <Post 
                                 post={post}

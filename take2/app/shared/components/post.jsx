@@ -159,7 +159,7 @@ export const Post = ({post,options}) => {
     // can I do this?
     fetcher = options.fetcher
 
-    console.log("post is",post)
+    //console.log("post is",post)
     if (!post) return // FIXME: why on earth would we get null posts sometimes?
     if (!post.account.instance) post.account.instance = getInstanceFromAccount(post.account)
     if (post.reblog !== null) {
@@ -167,9 +167,12 @@ export const Post = ({post,options}) => {
             <div className="repostNotice">
                 <span className="repostDisplayName">{LinkToAccount(post.account)}</span> reblogged
             </div>
-            {Post(post.reblog, {
-                ...options,
-                isRepost: true
+            {Post({
+                post: post.reblog, 
+                options: {
+                    ...options,
+                    isRepost: true
+                }
             })}
         </div>
     } else {
