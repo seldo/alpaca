@@ -44,7 +44,11 @@ Alpaca blue cases:
 	- then backwards from there until it reaches duplicates
 	
 Implementation notes:
-- 
+- timeline
+	- load saved posts
+	- load most recent posts from remote
+	- if there are posts before most recent but after saved posts insert a [more] loader
+	- add the streaming loader
 
 
 
