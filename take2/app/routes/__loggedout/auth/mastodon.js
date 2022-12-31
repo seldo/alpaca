@@ -24,7 +24,7 @@ export default function Mastodon() {
 
   return (
     <div className="container">
-      Checking your shiz.
+      Contacting your server for permission...
     </div>
   )
 }

@@ -22,7 +22,7 @@ export default function Verify() {
 
   return (
     <div className="container">
-      Validating your shiz.
+      Confirming your permissions...
     </div>
   )
 }

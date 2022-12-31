@@ -1,6 +1,6 @@
 import { getInstanceUrl, callAPIdebounced } from "./auth.client"
 
-export const mergeWithoutDupes = async (oldPosts, newPosts) => {
+export const mergeWithoutDupes = async (oldPosts, newPosts, setPosts) => {
 
     let merged = []
     let seenIds = []
@@ -22,6 +22,7 @@ export const mergeWithoutDupes = async (oldPosts, newPosts) => {
         if (b.created_at > a.created_at) return 1
         else return -1
     })
+    setPosts(merged)
     return merged
 }
 

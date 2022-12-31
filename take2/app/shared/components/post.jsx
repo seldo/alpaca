@@ -146,7 +146,7 @@ export const reactionData = function () {
     //console.log("Handler says data changed so it probably should do stuff with that")
 }
 
-export const Post = (t,options) => {
+export const Post = ({post,options}) => {
     options = {
         avatar: true,
         displayName: true,
@@ -159,42 +159,43 @@ export const Post = (t,options) => {
     // can I do this?
     fetcher = options.fetcher
 
-    //console.log(t)
-    if (!t.account.instance) t.account.instance = getInstanceFromAccount(t.account)
-    if (t.reblog !== null) {
+    console.log("post is",post)
+    if (!post) return // FIXME: why on earth would we get null posts sometimes?
+    if (!post.account.instance) post.account.instance = getInstanceFromAccount(post.account)
+    if (post.reblog !== null) {
         return <div className="postOrRepost repost">
             <div className="repostNotice">
-                <span className="repostDisplayName">{LinkToAccount(t.account)}</span> reblogged
+                <span className="repostDisplayName">{LinkToAccount(post.account)}</span> reblogged
             </div>
-            {Post(t.reblog, {
+            {Post(post.reblog, {
                 ...options,
                 isRepost: true
             })}
         </div>
     } else {
         return <div className={(!options.isRepost ? `postOrRepost` : ``) + ` post`} >
-            <div className="postBody" onClick={() => options.navigate(getPostLink(t))}>
+            <div className="postBody" onClick={() => options.navigate(getPostLink(post))}>
                 <div className="author">
                     {
                         (options.avatar) ? <div className="authorAvatar">
-                            <Avatar user={t.account} />
+                            <Avatar user={post.account} />
                         </div> : <div />
                     }
                     {
                         (options.displayName) ? <div className="authorText">
-                            <div className="displayName"><Link to={getProfileLink(t.account)}>{t.account.display_name}</Link></div>
+                            <div className="displayName"><Link to={getProfileLink(post.account)}>{post.account.display_name}</Link></div>
                             <div className="userAndTime">
-                                <div className="username">@{t.account.username}@{t.account.instance}</div>
-                                <div className="time"><Link to={getPostLink(t)} title={t.application?`via `+t.application.name:""}>{timeAgo.format(Date.parse(t.created_at), 'twitter')}</Link></div>
+                                <div className="username">@{post.account.username}@{post.account.instance}</div>
+                                <div className="time"><Link to={getPostLink(post)} title={post.application?`via `+post.application.name:""}>{timeAgo.format(Date.parse(post.created_at), 'twitter')}</Link></div>
                             </div>
                         </div> : <div/>
                     }
                 </div>
-                <div className="status" dangerouslySetInnerHTML={{ __html: t.content }} />
+                <div className="status" dangerouslySetInnerHTML={{ __html: post.content }} />
                 { 
-                    (t.media_attachments.length > 0) ? <div className="media">
+                    (post.media_attachments.length > 0) ? <div className="media">
                         {
-                            t.media_attachments.map( (a) => {
+                            post.media_attachments.map( (a) => {
                                 if(!a || !a.preview_url) return
                                 else return <div><img src={a.preview_url}/></div>
                             })
@@ -202,25 +203,25 @@ export const Post = (t,options) => {
                     </div> : <div/>
                 }
                 <div className="reactions">
-                    <div className="reaction replies" onClick={(e) => options.openReply(e,t.id)}>
+                    <div className="reaction replies" onClick={(e) => options.openReply(e,post.id)}>
                         <div className="reactionIcon"></div>
-                        <span>{t.replies_count ? t.replies_count : ''}</span>
+                        <span>{post.replies_count ? post.replies_count : ''}</span>
                     </div>                    
                     <div className="reaction reposts">
                         <fetcher.Form method="post" action="/post/repost" reloadDocument>
-                            <input type="hidden" name="postUrl" value={t.url} />
+                            <input type="hidden" name="postUrl" value={post.url} />
                             <button className="postReaction" type="submit" onClick={options.handleLike}>
                                 <div className="reactionIcon"></div>
-                                <span>{t.reblogs_count ? t.reblogs_count : ''}</span>
+                                <span>{post.reblogs_count ? post.reblogs_count : ''}</span>
                             </button>
                         </fetcher.Form>
                     </div>
                     <div className="reaction likes">
                         <fetcher.Form method="post" action="/post/like" reloadDocument>
-                            <input type="hidden" name="postUrl" value={t.url} />
+                            <input type="hidden" name="postUrl" value={post.url} />
                             <button className="postReaction" type="submit" onClick={options.handleLike}>
                                 <div className="reactionIcon"></div>
-                                <span>{t.favourites_count ? t.favourites_count : ''}</span>
+                                <span>{post.favourites_count ? post.favourites_count : ''}</span>
                             </button>
                         </fetcher.Form>
                     </div>
@@ -230,7 +231,7 @@ export const Post = (t,options) => {
                     </div>
                 </div>
                 {
-                    (options.repliesOpen == t.id) ? <ComposeBox isComposing={true} replyHandle={t.account.username} inReplyTo={getPostUniversalId(t)} doneUrl={options.doneUrl} /> : <div/>
+                    (options.repliesOpen == post.id) ? <ComposeBox isComposing={true} replyHandle={post.account.username} inReplyTo={getPostUniversalId(post)} doneUrl={options.doneUrl} /> : <div/>
                 }
             </div>
         </div>

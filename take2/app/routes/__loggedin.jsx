@@ -22,7 +22,7 @@ export default function Index() {
     return <div className="loggedIn">
         <Globalnav user={authUser ? authUser.user : null} navigate={navigate} isHome={true} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
         <div className="content">
-            <Outlet />
+            <Outlet context={{authUser}} />
         </div>
     </div>
 }
