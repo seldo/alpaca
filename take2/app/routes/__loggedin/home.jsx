@@ -16,8 +16,8 @@ export default function Home() {
     const {authUser} = useOutletContext();
     const [isComposing, setIsComposing] = useState(false)
     const [allPosts, setPosts] = useState([])
-    const [postBuffer, setPostBuffer] = useState([])
-    const [postBufferCount, setPostBufferCount] = useState(0)
+    let [postBuffer, setPostBuffer] = useState([])
+    let [postBufferCount, setPostBufferCount] = useState(0)
 
     const mergePostBuffer = async () => {
         let merged = await mergeWithoutDupes(allPosts,postBuffer)
@@ -57,8 +57,6 @@ export default function Home() {
             // and start streaming
             //console.log("Passing setPostBuffer",setPostBuffer)
             streamEvents(authUser, postBuffer, setPostBuffer, postBufferCount, setPostBufferCount)
-            // infinite scrollllllll
-            window.addEventListener("scroll", handleScroll);
         })();
     }, [authUser])
 

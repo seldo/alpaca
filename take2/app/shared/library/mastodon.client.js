@@ -96,8 +96,10 @@ export const streamEvents = async (authUser, postBuffer, setPostBuffer, postBuff
                         case "update":
                             // add it to the buffer
                             let mergedBuffer = await mergeWithoutDupes(postBuffer,[data])
-                            setPostBuffer(mergedBuffer)
-                            setPostBufferCount(postBufferCount+1)
+                            postBuffer = mergedBuffer
+                            setPostBuffer(postBuffer)
+                            postBufferCount = postBufferCount+1
+                            setPostBufferCount(postBufferCount)
                             break
                         default:
                             console.log("Don't know what to do with event type",type)
@@ -109,7 +111,7 @@ export const streamEvents = async (authUser, postBuffer, setPostBuffer, postBuff
                     return;
                 }
                 // recurse and keep reading
-                return reader.read().then(await processText)
+                return reader.read().then( processText)
             })
         })
 

@@ -54,3 +54,7 @@ Implementation notes:
 
 cd /opt/app;
 docker-compose exec streaming sh -c "RAILS_ENV=production bin/tootctl media remove --days 0;" 
+
+            <VisibilitySensor onChange={infiniteScroll}>
+                <div>Loading more posts...</div>
+            </VisibilitySensor>
