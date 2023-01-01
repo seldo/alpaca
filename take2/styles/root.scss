@@ -392,14 +392,23 @@ textarea {
 }
 
 .morePosts {
-    width: 100%;
-    padding: 5px 10px;
-    text-align: center;
     display: none;
 }
 
 .morePosts.active {
     display: block;
+    margin: auto;
+    width: 7em;
+    padding: 10px 10px;
+    margin-top: 10px;
+    text-align: center;
+    background-color: var(--blue-primary);
+    border-radius: 5px;
+    
+    button {
+        color: var(--white);
+    }
+
 }
 
 .repost .repostNotice {

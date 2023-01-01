@@ -90,7 +90,6 @@ export const streamEvents = async (authUser, postBuffer, setPostBuffer, postBuff
                     let [typeLine,dataLine] = event.split("\n")
                     let type = typeLine.split(":")[1].trim()
                     let dataString = dataLine.substring(5)
-                    console.log('datastring',dataString)
                     let data = JSON.parse(dataString)
                     switch(type) {
                         case "update":

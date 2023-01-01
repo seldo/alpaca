@@ -66,7 +66,7 @@ export default function Home() {
                 <ComposeBox user={authUser?.user} isComposing={isComposing} setIsComposing={setIsComposing} />
             </div>
             <div className={`morePosts ` + ((postBufferCount > 0) ? "active" : "")}>
-                <button className="button morePostsButton" onClick={mergePostBuffer}>Load more ({postBufferCount})</button>
+                <button className="button morePostsButton" onClick={mergePostBuffer}>Show new posts</button>
             </div>
             {
                 (allPosts.length > 0) ? <ul>{
