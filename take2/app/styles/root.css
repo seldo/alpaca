@@ -220,6 +220,9 @@ textarea {
     .profileMenu ol li {
       padding: 5px 5px; }
 
+.globalNav .backLink a {
+  text-decoration: none; }
+
 .globalNav .backLink .arrow {
   margin-left: 16px;
   padding-left: 20px;
@@ -231,11 +234,26 @@ textarea {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly; }
+  .globalNav .backLink .arrow span {
+    margin-left: 7px;
+    display: block;
+    font-size: 90%;
+    width: 50%; }
 
-.globalNav .backLink span {
-  margin-left: 10px;
+/* this isn't inside globalnav but overlays it */
+.pageHeader {
+  position: absolute;
+  margin-left: 2em;
+  margin-right: 2em;
+  font-weight: 550;
+  font-size: 18px;
+  line-height: 16px;
   min-height: 56px;
-  display: none; }
+  top: 0px;
+  left: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; }
 
 .menuBar {
   width: 100%;
@@ -433,6 +451,9 @@ textarea {
 
 /** desktop UI **/
 @media (min-width: 750px) {
+  .loggedOut .content {
+    margin: auto;
+    max-width: 500px; }
   .loggedOut .globalNav img {
     display: none; }
   .loggedOut .globalNav .desktopLogo {

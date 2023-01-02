@@ -4,21 +4,26 @@ import * as localforage from "localforage";
 export const mergeWithoutDupes = async (oldPosts, newPosts) => {
     if(!newPosts) return oldPosts
     console.log(`merging: ${oldPosts.length} old, ${newPosts.length} new`)
-    let merged = []
-    let seenIds = []
+
+    // index the existing posts by ID
+    let mergeSet = {}
     for (let i = 0; i < oldPosts.length; i++) {
         let post = oldPosts[i]
-        seenIds.push(post.id)
+        mergeSet[post.id] = post
+    }
+
+    // either insert or update with any new posts
+    for (let i = 0; i < newPosts.length; i++) {
+        let post = newPosts[i]
+        mergeSet[post.id] = post
+    }
+
+    // convert back to array
+    let merged = []
+    for(let post of Object.values(mergeSet)) {
         merged.push(post)
     }
 
-    // merge in any we haven't seen
-    for (let i = 0; i < newPosts.length; i++) {
-        let post = newPosts[i]
-        if (!seenIds.includes(post.id)) {
-            merged.push(post)
-        }
-    }
     // sort by date
     merged.sort((a, b) => {
         if (b.created_at > a.created_at) return 1
@@ -39,6 +44,45 @@ export const getTimeline = async (authUser,options = {
         }
     }
     return await callAPIdebounced(authUser, "/api/v1/timelines/home",callOptions)
+}
+
+export const getThread = async (username,userInstance,postId) => {
+    try {
+        let post = await callAPIdebounced(null,`/api/v1/statuses/${postId}`,{
+            instanceNotFromAuthUser: userInstance
+        })
+        let thread = await callAPIdebounced(null,`/api/v1/statuses/${postId}/context`,{
+            instanceNotFromAuthUser: userInstance
+        })
+        thread.post = post
+        console.log(`thread for ${postId} is`,thread)
+        return thread    
+    } catch (e) {
+        return null
+    }
+}
+
+export const search = async (authUser, query) => {
+    let searchResults = await callAPIdebounced(authUser,"/api/v2/search",{
+        queryParams: {
+            q: query,
+            resolve: true
+        }
+    })
+    return searchResults
+}
+
+export const translateExternalPostId = async (authUser, post) => {
+    let results = await search(authUser,post.url)
+    if(!results.statuses[0]) throw new Error("Could not find post",post.url)
+    return results.statuses[0].id
+}
+
+export const likePost = async(authUser,postId) => {
+    let likedPost = await callAPIdebounced(authUser,`/api/v1/statuses/${postId}/favourite`,{
+        method: "POST"
+    })
+    return likedPost
 }
 
 export const pollEvents = async(authUser,allPosts,setPosts) => {

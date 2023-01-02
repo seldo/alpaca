@@ -41,6 +41,7 @@ export default function Home() {
         }
     }    
 
+    // when the layout finds the user, this is triggered
     useEffect(() => {
         (async () => {
             if(!authUser) return
@@ -75,7 +76,7 @@ export default function Home() {
                         return <li key={index}>
                             <Post 
                                 post={post}
-                                options={ {navigate, fetcher} } />
+                                options={ {navigate, fetcher, authUser, allPosts, setPosts} } />
                             </li>
                     })}</ul> : <div>No posts yet. Give it a sec.</div>
             }

@@ -6,7 +6,7 @@ const getThisHost = () => {
     return thisHost
 }
 
-export const authenticate = async (navigate,options) => {
+export const authenticate = async (navigate,options = {}) => {
     let authUser = await getUser()
     if (!authUser) {
         console.log("I ran, but no auth")
@@ -36,18 +36,22 @@ export const callAPIdebounced = async (authUser,endpoint,incomingOptions) => {
         method: "GET",
         formParams: null,
         queryParams: null,
-        expectJson: true
+        expectJson: true,
+        instanceNotFromAuthUser: null
     }
     let options = {
         ...defaults,
         ...incomingOptions
     }
-    console.log(`incoming options were`,incomingOptions)
     console.log(`Debounced ${options.method} to ${endpoint} with options`,options)
 
-    if(await transactionLocked(endpoint)) return null
+    if(await transactionLocked(endpoint)) throw new Error("Boing")
 
-    let url = new URL(getInstanceUrl(authUser.user.instance)+endpoint)
+    let instanceUrl = getInstanceUrl(authUser?.user.instance)    
+    if (options.instanceNotFromAuthUser) {
+        instanceUrl = getInstanceUrl(options.instanceNotFromAuthUser)
+    }
+    let url = new URL(instanceUrl+endpoint)
     if(options.queryParams) {
         for(let k in options.queryParams) {
             url.searchParams.append(k,options.queryParams[k])
@@ -62,13 +66,17 @@ export const callAPIdebounced = async (authUser,endpoint,incomingOptions) => {
     }
 
     let data = null
+    let headers
+    if (authUser) {
+        headers = {
+            "Authorization": `Bearer ${authUser.auth.access_token}`
+        }
+    }
     try {
         let res = await fetch(url,{
             method: options.method,
             body: (body ? body : null),
-            headers: {
-                "Authorization": `Bearer ${authUser.auth.access_token}`
-            }
+            headers
         })
         if(options.expectJson) {
             data = await res.json()
@@ -96,7 +104,6 @@ export const transactionLocked = async (call) => {
     let now = new Date()
     let key = createTransactionKey(call)
     let lock = await localforage.getItem(key)
-    console.log(`Transaction lock ${key}`,lock)
     if (!lock) {
         localforage.setItem(key,{
             time: now

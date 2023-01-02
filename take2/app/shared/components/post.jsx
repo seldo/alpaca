@@ -3,6 +3,7 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
 import { ComposeBox } from "~/shared/components/compose"
+import { likePost, translateExternalPostId } from "~/shared/library/mastodon.client"
 
 // FIXME: this gets called lots of times, call it once.
 TimeAgo.addLocale(en)
@@ -118,32 +119,25 @@ export const LinkToAccount = (account, content) => {
     return <Link to={profileLink}>{(account.display_name || "@" + account.username)}</Link>
 }
 
-let fetcher // blows my mind that I can successfully hoist this up here
-let whichOne = null
-
-export const reactionClick = function (e) {
-    //console.log("they clicked the button so we submit the fetcher")
-    e.preventDefault()
-    e.stopPropagation()
-    fetcher.submit(e.currentTarget)
-    whichOne = e.currentTarget
-}
-
-export const reactionState = function () {
-    //console.log("Handler says state changed for this post; do animation here")
-    if (whichOne) {
-        let containerState = whichOne.parentNode.parentNode.classList
-        if (containerState.contains("likes") || containerState.contains("reposts")) {
-            let icon = whichOne.getElementsByClassName('reactionIcon')[0]
-            icon.classList.add("active")
-            icon.style.transition = "1.5s"
-            icon.style.transform = "rotate(720deg)"
+export const handleLike = async function (options) {
+    console.log("they clicked like, so we like it and update state")
+    let postId = await translateExternalPostId(options.authUser,options.post)
+    let likedPost = await likePost(options.authUser,postId)
+    console.log("Likedpost",likedPost)
+    // update this post saying we liked it
+    for(let i = 0; i < options.allPosts.length; i++) {
+        if(options.allPosts[i].id == likedPost.id) {
+            options.allPosts[i] = likedPost
+            options.setPosts(options.allPosts)
+            break;
         }
     }
-}
-
-export const reactionData = function () {
-    //console.log("Handler says data changed so it probably should do stuff with that")
+    // optimistically animate the icon
+    console.log("target",options.target)
+    let icon = options.target.getElementsByClassName('reactionIcon')[0]
+    icon.classList.add("active")
+    icon.style.transition = "1.5s"
+    icon.style.transform = "rotate(720deg)"
 }
 
 export const Post = ({post,options}) => {
@@ -154,10 +148,13 @@ export const Post = ({post,options}) => {
         openReply: null,
         repliesOpen: null,
         doneUrl: false,
+        authUser: null,
+        allPosts: null,
+        setPosts: null,
         ...options
     }    
-    // can I do this?
-    fetcher = options.fetcher
+
+    let fetcher = options.fetcher
 
     //console.log("post is",post)
     if (!post) return // FIXME: why on earth would we get null posts sometimes?
@@ -219,14 +216,19 @@ export const Post = ({post,options}) => {
                             </button>
                         </fetcher.Form>
                     </div>
-                    <div className="reaction likes">
-                        <fetcher.Form method="post" action="/post/like" reloadDocument>
-                            <input type="hidden" name="postUrl" value={post.url} />
-                            <button className="postReaction" type="submit" onClick={options.handleLike}>
-                                <div className="reactionIcon"></div>
-                                <span>{post.favourites_count ? post.favourites_count : ''}</span>
-                            </button>
-                        </fetcher.Form>
+                    <div className="reaction likes" onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleLike({
+                                authUser: options.authUser,
+                                post: post,
+                                allPosts: options.allPosts,
+                                setPosts: options.setPosts,
+                                target: e.currentTarget
+                            })
+                        }}>
+                        <div className={`reactionIcon ` + (post.favourited ? `active` : null) }></div>
+                        <span>{post.favourites_count ? post.favourites_count : ''}</span>
                     </div>
                     <div className="reaction share">
                         <div className="reactionIcon"></div>
