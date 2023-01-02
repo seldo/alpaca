@@ -1,6 +1,6 @@
 import { createPost } from "~/shared/library/mastodon.client"
 
-export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReplyTo=null,doneUrl=false}) => {
+export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle,inReplyTo=null,doneUrl=false,navigate}) => {
 
     const showCompose = (e) => {
         if(setIsComposing) setIsComposing(true)
@@ -21,7 +21,12 @@ export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReply
 
     const sendPost = async (post) => {
         console.log("Trying to post",post)
+        console.log('navigate',navigate)
+        console.log("doneUrl is",doneUrl)
         createPost(user,post)
+        if(doneUrl) {
+            navigate(doneUrl)
+        }
     }
 
     return <div className={`composeBox` + (isComposing ? " active" : "")}>

@@ -86,6 +86,7 @@ export const Post = ({post,options}) => {
         authUser: null,
         allPosts: null,
         setPosts: null,
+        hideReactions: false,
         ...options
     }    
 
@@ -137,7 +138,7 @@ export const Post = ({post,options}) => {
                         }
                     </div> : <div/>
                 }
-                <div className="reactions">
+                { !options.hideReactions ? <div className="reactions">
                     <div className="reaction replies" onClick={(e) => options.openReply(e,post.id)}>
                         <div className="reactionIcon"></div>
                         <span>{post.replies_count ? post.replies_count : ''}</span>
@@ -170,7 +171,7 @@ export const Post = ({post,options}) => {
                         <div className="reactionIcon"></div>
                         <span>Share</span>
                     </div>
-                </div>
+                </div> : <></> }
                 {
                     (options.repliesOpen == post.id) ? <ComposeBox isComposing={true} replyHandle={post.account.username} inReplyTo={getPostUniversalId(post)} doneUrl={options.doneUrl} /> : <div/>
                 }

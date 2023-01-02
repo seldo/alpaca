@@ -49,8 +49,14 @@ Implementation notes:
 	- load most recent posts from remote
 	- if there are posts before most recent but after saved posts insert a [more] loader
 	- add the streaming loader
-
-
+- loading a thread
+	- from universal ID
+	- call to the original instance for thread
+	- render
+	- if logged in
+		- call to our instance for internal data
+		- hydrate
+	
 
 cd /opt/app;
 docker-compose exec streaming sh -c "RAILS_ENV=production bin/tootctl media remove --days 0;" 

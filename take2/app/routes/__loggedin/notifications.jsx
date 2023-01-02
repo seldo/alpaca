@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
 import { mergeWithoutDupes, getNotifications } from "~/shared/library/mastodon.client"
 import { Post, LinkToAccount } from "~/shared/components/post"
+import { useNavigate } from "react-router-dom";
 
 const parseThingId = (n) => {
     switch (n.type) {
@@ -82,11 +83,11 @@ const formatEvent = (event,options) => {
                         <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your post</div>
                     </div>
                 }
-                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false}} />
+                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, hideReactions: true, navigate: options.navigate}} />
             </div>
         case "mention":
             return <div className="notifyMention">
-                <Post post={event.status} options={{isRepost: true}}/>
+                <Post post={event.status} options={{isRepost: true, navigate: options.navigate, hideReactions: true}}/>
             </div>
         case "follow":
             return <div className="notifyFollow">
@@ -104,8 +105,8 @@ const formatEvent = (event,options) => {
 }
 
 export default function Notifications() {
-
     const {authUser} = useOutletContext();
+    const navigate = useNavigate()
     const [allNotifications,setAllNotifications] = useState([])
     const [notificationsBuffer,setNotificationsBuffer] = useState([])
     const [batchedNotifications,setBatchedNotifications] = useState([])
@@ -158,7 +159,7 @@ export default function Notifications() {
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.type}_${n.lastEvent}`} className="notificationMessage">{formatEvent(n)}</li>
+                    return <li key={`notifications_${n.type}_${n.lastEvent}`} className="notificationMessage">{formatEvent(n,{navigate})}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }
