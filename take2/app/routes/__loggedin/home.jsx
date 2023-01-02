@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { authenticate } from "~/shared/library/auth.client"
 import { useNavigate } from "react-router-dom";
 import { useFetcher } from "@remix-run/react";
 import { ComposeBox } from "~/shared/components/compose"
@@ -12,7 +11,6 @@ export default function Home() {
 
     const navigate = useNavigate()
     const fetcher = useFetcher()
-    //const [authUser, setAuthUser] = useState()
     const {authUser} = useOutletContext();
     const [isComposing, setIsComposing] = useState(false)
     const [allPosts, setPosts] = useState([])

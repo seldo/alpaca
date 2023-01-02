@@ -180,6 +180,7 @@ button {
 
 textarea {
     font-family: inherit;
+    font-size: inherit;
 }
 
 /** global nav **/
@@ -279,6 +280,7 @@ textarea {
         }
     }
 }
+
 /* this isn't inside globalnav but overlays it */
 .pageHeader {
     position: absolute;
@@ -423,7 +425,7 @@ textarea {
     text-align: center;
     background-color: var(--blue-primary);
     border-radius: 5px;
-    
+
     button {
         color: var(--white);
     }
@@ -572,6 +574,47 @@ textarea {
 
 .postOrRepost:hover {
     background-color: var(--grey-primary-5pc);
+}
+
+.notificationMessage {
+    .notifyText {
+        margin-top: 10px;
+        margin-left: 16px;
+        margin-bottom: -10px;
+        font-size: 14px;
+        color: var(--grey-tertiary);
+        background-size: contain;
+        background-repeat: no-repeat;
+        height: 40px;
+        padding-left: 45px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .notifyLike {
+        .notifyText {
+            background-image: url('/images/icon-heart-active.svg');
+
+            .displayName {
+                font-size: 14px;
+            }
+        }
+    }
+
+    .notifyFollow {
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+
+        .notifyText {
+            margin-bottom: 0px;
+            margin-top: 0px;
+            margin-left: 16px;
+            background-image: url('/images/icon-avatar-active.svg')
+        }
+    }
 }
 
 /** desktop UI **/

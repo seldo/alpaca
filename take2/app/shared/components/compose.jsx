@@ -1,36 +1,41 @@
-import { Form } from "@remix-run/react";
-import Avatar from "~/shared/components/avatar"
+import { createPost } from "~/shared/library/mastodon.client"
 
 export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle, inReplyTo=null,doneUrl=false}) => {
 
     const showCompose = (e) => {
-        setIsComposing(true)
+        if(setIsComposing) setIsComposing(true)
     }
     const hideCompose = (e) => {
         // if they didn't type anything, hide the compose box again
-        if(!e.currentTarget.value) setIsComposing(false)
+        if(!e.currentTarget.value && setIsComposing) setIsComposing(false)
     }
     const checkSubmit = (e) => {
         if(e.key === 'Enter' && e.metaKey) {
-            e.currentTarget.closest("form").submit()
+            sendPost({text:e.currentTarget.value})
         }
+    }
+    const buttonSubmit = (e) => {
+        let text = e.currentTarget.parentNode.parentNode.getElementsByTagName('textarea')[0].value
+        sendPost({text})
+    }
+
+    const sendPost = async (post) => {
+        console.log("Trying to post",post)
+        createPost(user,post)
     }
 
     return <div className={`composeBox` + (isComposing ? " active" : "")}>
-        <Form method="post" action="/post/create" reloadDocument>
-            {
-                (inReplyTo) ? <input type="hidden" name="inReplyTo" value={inReplyTo} /> : <div />
-            }
-            <div className="pr-4 flex flex-row">
-                <div className="w-full" onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
-                    <input type="hidden" name="done" value={doneUrl}/>
-                    <textarea name="post" placeholder={(replyHandle)?"":"What's up?"} onFocus={showCompose} onBlur={hideCompose} onKeyDown={checkSubmit} defaultValue={replyHandle ? `@`+replyHandle + " " : ""}></textarea>
-                </div>
+        {
+            (inReplyTo) ? <input type="hidden" name="inReplyTo" value={inReplyTo} /> : <div />
+        }
+        <div>
+            <div onClick={(e) => {e.preventDefault(); e.stopPropagation()}}>
+                <textarea name="post" placeholder={(replyHandle)?"":"What's up?"} onFocus={showCompose} onBlur={hideCompose} onKeyDown={checkSubmit} defaultValue={replyHandle ? `@`+replyHandle + " " : ""}></textarea>
             </div>
-            <div className="buttonHolder ">
-                <button type="submit">Post</button>
-            </div>
-        </Form>
+        </div>
+        <div className="buttonHolder ">
+            <button onClick={buttonSubmit}>Post</button>
+        </div>
     </div>
 }
 

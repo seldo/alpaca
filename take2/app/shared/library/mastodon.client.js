@@ -46,6 +46,23 @@ export const getTimeline = async (authUser,options = {
     return await callAPIdebounced(authUser, "/api/v1/timelines/home",callOptions)
 }
 
+const makeTimelineKey = (authUser) => {
+    return `timeline:${authUser.user.username}@${authUser.user.instance}`
+}
+
+export const saveLocalTimeline = async (authUser,allPosts) => {
+    console.log("Allposts to saveLocalTimeline is",allPosts)
+    // get the most recent 200 so we don't just keep saving forever
+    let postsToSave = allPosts.slice(0,200)
+    localforage.setItem(makeTimelineKey(authUser),postsToSave)
+}
+
+export const loadLocalTimeline = async (authUser,allPosts) => {
+    // load everything
+    let posts = localforage.getItem(makeTimelineKey(authUser))
+    return posts
+}
+
 export const getThread = async (username,userInstance,postId) => {
     try {
         let post = await callAPIdebounced(null,`/api/v1/statuses/${postId}`,{
@@ -85,25 +102,30 @@ export const likePost = async(authUser,postId) => {
     return likedPost
 }
 
+export const rePost = async(authUser,postId) => {
+    let rePost = await callAPIdebounced(authUser,`/api/v1/statuses/${postId}/reblog`,{
+        method: "POST"
+    })
+    return rePost
+}
+
+export const getNotifications = async (authUser) => {
+    let notifications = await callAPIdebounced(authUser,`/api/v1/notifications`)
+    return notifications
+}
+
+export const createPost = async(authUser,post) => {
+    let posted = await callAPIdebounced(authUser,`/api/v1/statuses`,{
+        method: "POST",
+        formParams: {
+            status: post.text
+        }
+    })
+    return posted
+}
+
 export const pollEvents = async(authUser,allPosts,setPosts) => {
     // TODO
-}
-
-const makeTimelineKey = (authUser) => {
-    return `timeline:${authUser.user.username}@${authUser.user.instance}`
-}
-
-export const saveLocalTimeline = async (authUser,allPosts) => {
-    console.log("Allposts to saveLocalTimeline is",allPosts)
-    // get the most recent 200 so we don't just keep saving forever
-    let postsToSave = allPosts.slice(0,200)
-    localforage.setItem(makeTimelineKey(authUser),postsToSave)
-}
-
-export const loadLocalTimeline = async (authUser,allPosts) => {
-    // load everything
-    let posts = localforage.getItem(makeTimelineKey(authUser))
-    return posts
 }
 
 export const streamEvents = async (authUser, postBuffer, setPostBuffer, postBufferCount, setPostBufferCount) => {
