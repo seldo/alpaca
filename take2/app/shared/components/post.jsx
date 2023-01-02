@@ -59,7 +59,7 @@ export const handleRepost = async function (options) {
     icon.classList.add("active")
     icon.style.transition = "1.5s"
     icon.style.transform = "rotate(720deg)"
-    let postId = await translateExternalPostId(options.authUser,options.post)
+    let postId = await translateExternalPostId(options.authUser,options.post.url)
     let rePosted = await rePost(options.authUser,postId)
     console.log("Repost",rePosted)
 }
@@ -70,7 +70,7 @@ export const handleLike = async function (options) {
     icon.classList.add("active")
     icon.style.transition = "1.5s"
     icon.style.transform = "rotate(720deg)"
-    let postId = await translateExternalPostId(options.authUser,options.post)
+    let postId = await translateExternalPostId(options.authUser,options.post.url)
     let likedPost = await likePost(options.authUser,postId)
     console.log("Likedpost",likedPost)
 }
@@ -82,15 +82,15 @@ export const Post = ({post,options}) => {
         isRepost: false,
         openReply: null,
         repliesOpen: null,
+        setRepliesOpen: null,
         doneUrl: false,
         authUser: null,
         allPosts: null,
         setPosts: null,
         hideReactions: false,
+        overridePostId: false,
         ...options
     }    
-
-    let fetcher = options.fetcher
 
     //console.log("post is",post)
     if (!post) return // FIXME: why on earth would we get null posts sometimes?
@@ -139,7 +139,11 @@ export const Post = ({post,options}) => {
                     </div> : <div/>
                 }
                 { !options.hideReactions ? <div className="reactions">
-                    <div className="reaction replies" onClick={(e) => options.openReply(e,post.id)}>
+                    <div className="reaction replies" onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            options.openReply(e,post.id)}
+                        }>
                         <div className="reactionIcon"></div>
                         <span>{post.replies_count ? post.replies_count : ''}</span>
                     </div>                    
@@ -173,7 +177,7 @@ export const Post = ({post,options}) => {
                     </div>
                 </div> : <></> }
                 {
-                    (options.repliesOpen == post.id) ? <ComposeBox isComposing={true} replyHandle={post.account.username} inReplyTo={getPostUniversalId(post)} doneUrl={options.doneUrl} /> : <div/>
+                    (options.repliesOpen == post.id) ? <ComposeBox isComposing={true} replyHandle={post.account.username} inReplyTo={options.overridePostId || post.id} doneUrl={options.doneUrl} user={options.authUser} setRepliesOpen={options.setRepliesOpen}/> : <div/>
                 }
             </div>
         </div>

@@ -453,6 +453,9 @@ a {
 .postOrRepost:hover {
   background-color: var(--grey-primary-5pc); }
 
+.notificationMessage:hover {
+  background-color: var(--grey-primary-5pc); }
+
 .notificationMessage .notifyText {
   margin-top: 10px;
   margin-left: 16px;
@@ -482,6 +485,9 @@ a {
     margin-top: 0px;
     margin-left: 16px;
     background-image: url("/images/icon-avatar-active.svg"); }
+
+.thread .currentGeneration .postOrRepost.post {
+  font-size: 120%; }
 
 /** desktop UI **/
 @media (min-width: 700px) {

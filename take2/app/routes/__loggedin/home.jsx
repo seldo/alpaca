@@ -13,6 +13,7 @@ export default function Home() {
     const fetcher = useFetcher()
     const {authUser} = useOutletContext();
     const [isComposing, setIsComposing] = useState(false)
+    const [repliesOpen, setRepliesOpen] = useState(false)
     const [allPosts, setPosts] = useState([])
     let [postBuffer, setPostBuffer] = useState([])
     let [postBufferCount, setPostBufferCount] = useState(0)
@@ -39,6 +40,14 @@ export default function Home() {
         }
     }    
 
+    const openReply = (e,postId) => {
+        if(repliesOpen === postId) {
+            setRepliesOpen(false)
+        } else {
+            setRepliesOpen(postId)
+        }
+    }
+
     // when the layout finds the user, this is triggered
     useEffect(() => {
         (async () => {
@@ -62,7 +71,7 @@ export default function Home() {
     return (
         <div>
             <div className="composeTop">
-                <ComposeBox user={authUser?.user} isComposing={isComposing} setIsComposing={setIsComposing} user={authUser}/>
+                <ComposeBox user={authUser} isComposing={isComposing} setIsComposing={setIsComposing}/>
             </div>
             <div className={`morePosts ` + ((postBufferCount > 0) ? "active" : "")}>
                 <button className="button morePostsButton" onClick={mergePostBuffer}>Show new posts</button>
@@ -74,7 +83,7 @@ export default function Home() {
                         return <li key={index}>
                             <Post 
                                 post={post}
-                                options={ {navigate, fetcher, authUser, allPosts, setPosts} } />
+                                options={ {navigate, fetcher, authUser, allPosts, setPosts, repliesOpen, setRepliesOpen, openReply} } />
                             </li>
                     })}</ul> : <div>No posts yet. Give it a sec.</div>
             }

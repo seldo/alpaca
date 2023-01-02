@@ -581,6 +581,10 @@ a {
 }
 
 .notificationMessage {
+    &:hover {
+        background-color: var(--grey-primary-5pc);
+    }
+
     .notifyText {
         margin-top: 10px;
         margin-left: 16px;
@@ -619,6 +623,10 @@ a {
             background-image: url('/images/icon-avatar-active.svg')
         }
     }
+}
+
+.thread .currentGeneration .postOrRepost.post {
+    font-size: 120%;
 }
 
 /** desktop UI **/

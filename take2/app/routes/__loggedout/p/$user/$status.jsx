@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoaderData } from "@remix-run/react";
-import { getThread } from "~/shared/library/mastodon.client"
+import { getThread, translateExternalPostId } from "~/shared/library/mastodon.client"
 import { Post } from "~/shared/components/post"
 import { useNavigate } from "react-router-dom";
 import { useFetcher } from "@remix-run/react";
@@ -20,11 +20,22 @@ export default function Index() {
     const [thread,setThread] = useState()
     const navigate = useNavigate()
     const fetcher = useFetcher()
+    const [repliesOpen, setRepliesOpen] = useState(false)
+
+    const openReply = (e,postId) => {
+        if(repliesOpen === postId) {
+            setRepliesOpen(false)
+        } else {
+            setRepliesOpen(postId)
+        }
+    }
 
     useEffect( () => {
         (async () => {
             let incomingThread = await getThread(username,userInstance,postId)
-            if (incomingThread) setThread(incomingThread)
+            if (incomingThread) {
+                setThread(incomingThread)
+            }
         })();
       },[])    
 
@@ -37,26 +48,26 @@ export default function Index() {
     })();
     },[authUser])    
 
-    return <div>
+    return <div className="thread">
         <div className="threadTitle pageHeader">Post by {username}@{userInstance}</div>
         {authUser?.access_token}
         <div>
             <ul className="ancestors">
                 {
                     (thread?.ancestors.length > 0) ? thread.ancestors.map(p => {
-                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser }}/></li>
+                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url }}/></li>
                     }) : <div/>
                 }
             </ul>
             { thread ? <ul className="currentGeneration">
                 {
-                    <li key={thread.post.id}><Post post={thread.post} options={{ avatar: true, fetcher, navigate, authUser }}/></li>
+                    <li key={thread.post.id}><Post post={thread.post} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: thread.post.url }}/></li>
                 }
             </ul> : <div>Loading...</div> }
             <ul className="descendants">
                 {
                     (thread?.descendants.length > 0) ? thread.descendants.map(p => {
-                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser }}/></li>
+                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url }}/></li>
                     }) : <div/>
                 }
             </ul>

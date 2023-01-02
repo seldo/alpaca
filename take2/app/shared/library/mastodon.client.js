@@ -89,9 +89,9 @@ export const search = async (authUser, query) => {
     return searchResults
 }
 
-export const translateExternalPostId = async (authUser, post) => {
-    let results = await search(authUser,post.url)
-    if(!results.statuses[0]) throw new Error("Could not find post",post.url)
+export const translateExternalPostId = async (authUser, postUrl) => {
+    let results = await search(authUser,postUrl)
+    if(!results.statuses[0]) throw new Error("Could not find post",postUrl)
     return results.statuses[0].id
 }
 
@@ -115,11 +115,23 @@ export const getNotifications = async (authUser) => {
 }
 
 export const createPost = async(authUser,post) => {
+    let formParams = {
+        status: post.text,
+    }
+    if (post.inReplyTo) {
+        if (post.inReplyTo.indexOf("http") === 0) {
+            // it's a URL, translate it to an ID first
+            let internalId = await translateExternalPostId(authUser,post.inReplyTo)
+            console.log("Replying to internal ID",internalId)
+            formParams.in_reply_to_id = internalId
+        } else {
+            formParams.in_reply_to_id = post.inReplyTo
+        }
+    }
+
     let posted = await callAPIdebounced(authUser,`/api/v1/statuses`,{
         method: "POST",
-        formParams: {
-            status: post.text
-        }
+        formParams
     })
     return posted
 }
