@@ -75,6 +75,19 @@ export const handleLike = async function (options) {
     console.log("Likedpost",likedPost)
 }
 
+const hasATweet = (content) => {
+    if (content.indexOf("https://twitter.com/") > 0) return true
+    return false
+}
+
+const renderTweet = (content) => {
+    // extract the tweet ID
+    let regex = /https:\/\/twitter.com\/(.*?)\/(.*?)\/([0-9]*)/gm
+    let matches = regex.exec(content)
+    let tweetId = matches[3]
+    return <div><iframe className="embeddedTweet" scrolling="no" src={`https://platform.twitter.com/embed/Tweet.html?dnt=true&embedId=twitter-widget-3&frame=false&hideCard=false&hideThread=true&id=${tweetId}&lang=en&theme=light&widgetsVersion=a3525f077c700%3A1667415560940`} /></div>
+}
+
 export const Post = ({post,options}) => {
     options = {
         avatar: true,
@@ -128,6 +141,7 @@ export const Post = ({post,options}) => {
                     }
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: post.content }} />
+                { hasATweet(post.content) ? renderTweet(post.content) : <></> }
                 { 
                     (post.media_attachments.length > 0) ? <div className="media">
                         {
