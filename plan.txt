@@ -64,3 +64,9 @@ docker-compose exec streaming sh -c "RAILS_ENV=production bin/tootctl media remo
             <VisibilitySensor onChange={infiniteScroll}>
                 <div>Loading more posts...</div>
             </VisibilitySensor>
+			
+https://platform.twitter.com/embed/Tweet.html?dnt=true&embedId=twitter-widget-3&frame=false&hideCard=false&hideThread=true&id=1610081575953391617&lang=en&theme=light&widgetsVersion=a3525f077c700%3A1667415560940
+
+https://bitcoinhackers.org/@mastodonusercount/109622801774376529
+
+<iframe src="https://bitcoinhackers.org/@mastodonusercount/109622801774376529/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe>
