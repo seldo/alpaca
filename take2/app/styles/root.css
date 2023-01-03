@@ -214,6 +214,8 @@ a {
   position: absolute;
   top: 10px;
   right: 14px; }
+  .profileMenu .avatar img {
+    max-width: 36px; }
   .profileMenu ol {
     position: absolute;
     background-color: var(--white);
@@ -562,6 +564,15 @@ a {
     color: #000;
     border: 1px solid #ccc;
     background-color: transparent; }
+
+.searchPage .searchBox {
+  width: 100%; }
+  .searchPage .searchBox form {
+    display: flex; }
+    .searchPage .searchBox form .searchInput {
+      flex-grow: 4; }
+    .searchPage .searchBox form .button {
+      flex-grow: 1; }
 
 /** desktop UI **/
 @media (min-width: 700px) {

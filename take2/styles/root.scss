@@ -243,6 +243,12 @@ a {
     top: 10px;
     right: 14px;
 
+    .avatar {
+        img {
+            max-width: 36px;
+        }
+    }
+
     ol {
         position: absolute;
         background-color: var(--white);
@@ -581,6 +587,7 @@ a {
         height: 450px;
         border-radius: 5px;
     }
+
     .embeddedPost {
         margin-top: 10px;
         width: 100%;
@@ -641,8 +648,9 @@ a {
 .thread .currentGeneration .postOrRepost.post {
     font-size: 120%;
 }
+
 .profilePage {
-    
+
     .profileTopNav {
         position: absolute;
         width: calc(100% - 90px);
@@ -654,14 +662,17 @@ a {
             font-size: 110%;
             font-weight: bold;
         }
+
         .postCount {
             font-size: 80%;
             color: var(--grey-primary);
         }
     }
+
     .profileHeader {
         width: 100%;
         height: 15vh;
+
         .avatar {
             .avatarImage {
                 min-width: 120px;
@@ -673,6 +684,7 @@ a {
             }
         }
     }
+
     .headerContainer {
         display: block;
         width: 100%;
@@ -680,18 +692,21 @@ a {
         overflow: hidden;
         position: absolute;
         display: flex;
-        flex-direction:column;
+        flex-direction: column;
         justify-content: space-around;
     }
+
     .avatarContainer {
         height: 15vh;
         position: absolute;
     }
+
     .buttonBar {
         text-align: right;
         padding: 15px 20px;
         height: 60px;
     }
+
     .descriptions {
         padding: 20px;
         border-bottom: 0.5px solid #ccc;
@@ -700,6 +715,7 @@ a {
             font-weight: bold;
             font-size: 150%;
         }
+
         .followerCounts {
             margin-top: 5px;
             font-size: 90%;
@@ -707,12 +723,14 @@ a {
             .followingCount {
                 margin-right: 10px;
             }
+
             .number {
                 font-weight: bold;
             }
         }
     }
 }
+
 .followButton {
     float: right;
 
@@ -720,6 +738,24 @@ a {
         color: #000;
         border: 1px solid #ccc;
         background-color: transparent;
+    }
+}
+
+.searchPage {
+    .searchBox {
+        width: 100%;
+
+        form {
+            display: flex;
+
+            .searchInput {
+                flex-grow: 4;
+            }
+
+            .button {
+                flex-grow: 1;
+            }
+        }
     }
 }
 
@@ -816,6 +852,7 @@ a {
         .profileTopNav {
             max-width: 400px;
         }
+
         .headerContainer {
             max-width: 495px;
         }

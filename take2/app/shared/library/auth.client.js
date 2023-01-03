@@ -9,7 +9,6 @@ const getThisHost = () => {
 export const authenticate = async (navigate,options = {}) => {
     let authUser = await getUser()
     if (!authUser) {
-        console.log("I ran, but no auth")
         if (options.failure) navigate(options.failure);
         // this is an attempt to log in
         if (options.instance) {
@@ -90,6 +89,7 @@ export const callAPIdebounced = async (authUser,endpoint,incomingOptions) => {
     }
 
     unlock(endpoint)
+    console.log(`${options.method} succeeded, response`,data)
     return data
 }
 
