@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoaderData } from "@remix-run/react";
-import { getThread, translateExternalPostId } from "~/shared/library/mastodon.client"
+import { getThread } from "~/shared/library/mastodon.client"
 import { Post } from "~/shared/components/post"
 import { useNavigate } from "react-router-dom";
 import { useFetcher } from "@remix-run/react";
@@ -37,7 +37,7 @@ export default function Index() {
                 setThread(incomingThread)
             }
         })();
-      },[])    
+      },[username])    
 
     useEffect( () => {
     (async () => {

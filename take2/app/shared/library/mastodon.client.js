@@ -136,6 +136,30 @@ export const createPost = async(authUser,post) => {
     return posted
 }
 
+export const getProfile = async (authUser, username, userInstance) => {
+    let statuses
+    if(authUser) {
+        statuses = await callAPIdebounced(authUser,`/api/v1/accounts/${authUser.user.id}/statuses`)
+    } else {
+        // we search for this user on their home instance, to get their ID
+        let profile = await callAPIdebounced(null,`/api/v2/search`,{
+            queryParams: {
+                q: `${username}@${userInstance}`
+            },
+            instanceNotFromAuthUser: userInstance
+        })
+        if (!profile.accounts[0]) throw new Error(`Could not find ${username}@${userInstance}`)
+        let account = profile.accounts[0]
+        // we fetch statuses from their home instance
+        statuses = await callAPIdebounced(null,`/api/v1/accounts/${account.id}/statuses`,{
+            instanceNotFromAuthUser: userInstance
+        })
+    }
+    if(!statuses) throw new Error(`Could not load profile for ${username}@${userInstance}`)
+    return statuses
+}
+
+
 export const pollEvents = async(authUser,allPosts,setPosts) => {
     // TODO
 }

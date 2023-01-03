@@ -89,13 +89,13 @@ const renderTweet = (content) => {
 }
 
 const hasAPost = (content) => {
-    let regex = /https:\/\/.*?\/@.*?\/[0-9]*/gm
+    let regex = /https:\/\/[^ "]*?\/@[^ "]*?\/[0-9]*/gm
     let matches = regex.exec(content)
     if (matches) return true
     return false
 }
 const renderPost = (content) => {
-    let regex = /https:\/\/.*?\/@.*?\/[0-9]*/gm
+    let regex = /https:\/\/[^ "]*?\/@[^ "]*?\/[0-9]*/gm
     let matches = regex.exec(content)
     let postUrl = matches[0] + "/embed"
     return <div><iframe className="embeddedPost" scrolling="no" src={postUrl} /></div>
