@@ -452,7 +452,13 @@ a {
   .post .embeddedTweet {
     margin-top: 10px;
     width: 100%;
-    height: 450px; }
+    height: 450px;
+    border-radius: 5px; }
+  .post .embeddedPost {
+    margin-top: 10px;
+    width: 100%;
+    height: 450px;
+    border-radius: 10px; }
 
 .postOrRepost:hover {
   background-color: var(--grey-primary-5pc); }

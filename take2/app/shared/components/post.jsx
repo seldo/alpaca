@@ -88,6 +88,19 @@ const renderTweet = (content) => {
     return <div><iframe className="embeddedTweet" scrolling="no" src={`https://platform.twitter.com/embed/Tweet.html?dnt=true&embedId=twitter-widget-3&frame=false&hideCard=false&hideThread=true&id=${tweetId}&lang=en&theme=light&widgetsVersion=a3525f077c700%3A1667415560940`} /></div>
 }
 
+const hasAPost = (content) => {
+    let regex = /https:\/\/.*?\/@.*?\/[0-9]*/gm
+    let matches = regex.exec(content)
+    if (matches) return true
+    return false
+}
+const renderPost = (content) => {
+    let regex = /https:\/\/.*?\/@.*?\/[0-9]*/gm
+    let matches = regex.exec(content)
+    let postUrl = matches[0] + "/embed"
+    return <div><iframe className="embeddedPost" scrolling="no" src={postUrl} /></div>
+}
+
 export const Post = ({post,options}) => {
     options = {
         avatar: true,
@@ -142,6 +155,7 @@ export const Post = ({post,options}) => {
                 </div>
                 <div className="status" dangerouslySetInnerHTML={{ __html: post.content }} />
                 { hasATweet(post.content) ? renderTweet(post.content) : <></> }
+                { hasAPost(post.content) ? renderPost(post.content) : <></> }
                 { 
                     (post.media_attachments.length > 0) ? <div className="media">
                         {
