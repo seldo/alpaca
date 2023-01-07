@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
-import { mergeWithoutDupes, getNotifications } from "~/shared/library/mastodon.client"
+import { mergeWithoutDupes, getNotifications, saveLocalNotifications, loadLocalNotifications } from "~/shared/library/mastodon.client"
 import { Post, LinkToAccount } from "~/shared/components/post"
 import { useNavigate } from "react-router-dom";
 
@@ -145,17 +145,19 @@ export default function Notifications() {
         (async () => {
             if(!authUser) return
             console.log("Getting notificatons for",authUser)
-            // initialize with saved posts from localstorage
-            //let savedPosts = await loadLocalTimeline(authUser)
-            //let mergedPosts = await mergeWithoutDupes(allPosts, savedPosts)
-            //setPosts(mergedPosts)
+            // initialize with saved notifications from localstorage
+            let savedNotifications = await loadLocalNotifications(authUser)
+            let mergedNotifications = await mergeWithoutDupes(allNotifications, savedNotifications)
+            setAllNotifications(mergedNotifications)
+            let batchedNotifications = batchNotifications(mergedNotifications)
+            setBatchedNotifications(batchedNotifications)
             // fetch any new notifications from server
             let latestNotifications = await getNotifications(authUser)
-            let secondMerge = await mergeWithoutDupes([], latestNotifications)
+            let secondMerge = await mergeWithoutDupes(mergedNotifications, latestNotifications)
             setAllNotifications(secondMerge)
             let secondBatch = batchNotifications(secondMerge)
             setBatchedNotifications(secondBatch)
-            //saveLocalNotifications(authUser,secondMerge)
+            saveLocalNotifications(authUser,secondMerge)
             // and start streaming
             //console.log("Passing setPostBuffer",setPostBuffer)
             //streamEvents(authUser, postBuffer, setPostBuffer, postBufferCount, setPostBufferCount)

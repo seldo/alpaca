@@ -63,6 +63,23 @@ export const loadLocalTimeline = async (authUser,allPosts) => {
     return posts
 }
 
+const makeNotificationKey = (authUser) => {
+    return `notifications:${authUser.user.username}@${authUser.user.instance}`
+}
+
+export const saveLocalNotifications = async (authUser,allNotifications) => {
+    console.log("Allnotifications to saveLocalNotifications is",allNotifications)
+    // get the most recent 400 so we don't just keep saving forever
+    let notificationsToSave = allNotifications.slice(0,400)
+    localforage.setItem(makeNotificationKey(authUser),notificationsToSave)
+}
+
+export const loadLocalNotifications = async (authUser,allNotifications) => {
+    // load everything
+    let notifications = localforage.getItem(makeNotificationKey(authUser))
+    return notifications
+}
+
 export const getThread = async (username,userInstance,postId) => {
     try {
         let post = await callAPIdebounced(null,`/api/v1/statuses/${postId}`,{
