@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
-import { mergeWithoutDupes, getNotifications, saveLocalNotifications, loadLocalNotifications } from "~/shared/library/mastodon.client"
+import { mergeWithoutDupes, getNotifications, saveLocalNotifications, loadLocalNotifications, streamEvents } from "~/shared/library/mastodon.client"
 import { Post, LinkToAccount } from "~/shared/components/post"
 import { useNavigate } from "react-router-dom";
 
@@ -122,22 +122,20 @@ export default function Notifications() {
     const {authUser} = useOutletContext();
     const navigate = useNavigate()
     const [allNotifications,setAllNotifications] = useState([])
-    const [notificationsBuffer,setNotificationsBuffer] = useState([])
     const [batchedNotifications,setBatchedNotifications] = useState([])
+    const [notificationsBuffer,setNotificationsBuffer] = useState([])
+    const [notificationsBufferCount,setNotificationsBufferCount] = useState(0)
 
     // when they click the button to see new notifications, merge buffer into all and reset buffer
-    const mergeNewNotifications = () => {
-/*        allNotifications = allNotifications.concat(notificationsBuffer)
-        console.log("New full notifications set",allNotifications)
-        notificationsBuffer = []
-        // update local cache for next refresh
-        clientdon.updateNotifications(allNotifications)
+    const mergeNewNotifications = async () => {
+        // merge in the incoming notifications
+        let mergedNotifications = await mergeWithoutDupes(allNotifications,notificationsBuffer)
         // trigger a refresh of batched notifications
-        batchedNotifications = batchNotifications(allNotifications)
-        setAllNotifications(allNotifications)
-        setNotificationsBuffer(notificationsBuffer)
-        setBatchedNotifications(batchedNotifications)
-*/
+        let newlyBatched = batchNotifications(mergedNotifications)
+        setAllNotifications(mergedNotifications)
+        setNotificationsBuffer([])
+        setNotificationsBufferCount(0)
+        setBatchedNotifications(newlyBatched)
     }
 
     // when the layout finds the user, this is triggered
@@ -159,8 +157,7 @@ export default function Notifications() {
             setBatchedNotifications(secondBatch)
             saveLocalNotifications(authUser,secondMerge)
             // and start streaming
-            //console.log("Passing setPostBuffer",setPostBuffer)
-            //streamEvents(authUser, postBuffer, setPostBuffer, postBufferCount, setPostBufferCount)
+            streamEvents(authUser, null, null, null, null, notificationsBuffer, setNotificationsBuffer, notificationsBufferCount, setNotificationsBufferCount)
         })();
     }, [authUser])
 
@@ -168,8 +165,8 @@ export default function Notifications() {
         <div className="pageHeader notificationsHeader">
             <h2>Notifications</h2>
         </div>
-        <div className={`newNotifications ` + ((notificationsBuffer.length > 0) ? "active" : "")}>
-            <button className="button newNotificationsButton" onClick={mergeNewNotifications}>New notifications ({notificationsBuffer.length})</button>
+        <div className={`newNotifications ` + ((notificationsBufferCount > 0) ? "active" : "")}>
+            <button className="button newNotificationsButton" onClick={mergeNewNotifications}>New notifications</button>
         </div>
 
         { 

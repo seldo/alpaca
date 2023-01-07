@@ -346,18 +346,17 @@ a {
 
 .morePosts {
   display: none; }
-
-.morePosts.active {
-  display: block;
-  margin: auto;
-  width: 7em;
-  padding: 10px 10px;
-  margin-top: 10px;
-  text-align: center;
-  background-color: var(--blue-primary);
-  border-radius: 5px; }
-  .morePosts.active button {
-    color: var(--white); }
+  .morePosts.active {
+    display: block;
+    margin: auto;
+    width: 7em;
+    padding: 10px 10px;
+    margin-top: 10px;
+    text-align: center;
+    background-color: var(--blue-primary);
+    border-radius: 5px; }
+    .morePosts.active button {
+      color: var(--white); }
 
 .repost .repostNotice {
   font-style: normal;
@@ -464,6 +463,20 @@ a {
 
 .postOrRepost:hover {
   background-color: var(--grey-primary-5pc); }
+
+.notificationsPage .newNotifications {
+  display: none; }
+  .notificationsPage .newNotifications.active {
+    display: block;
+    margin: auto;
+    width: 8em;
+    padding: 10px 10px;
+    margin-top: 10px;
+    text-align: center;
+    background-color: var(--blue-primary);
+    border-radius: 5px; }
+    .notificationsPage .newNotifications.active button {
+      color: var(--white); }
 
 .notificationMessage:hover {
   background-color: var(--grey-primary-5pc); }
