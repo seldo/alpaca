@@ -17,6 +17,7 @@ export const getInstanceFromAccount = (account) => {
 }
 
 export const getProfileLink = (account) => {
+    if(!account.instance) account.instance = getInstanceFromAccount(account)
     return `/u/${account.username}@${account.instance}`
 }
 
@@ -166,7 +167,7 @@ export const Post = ({post,options}) => {
                         }
                     </div> : <div/>
                 }
-                { !options.hideReactions ? <div className="reactions">
+                { !options.disableReactions ? <div className="reactions">
                     <div className="reaction replies" onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
@@ -203,7 +204,24 @@ export const Post = ({post,options}) => {
                         <div className="reactionIcon"></div>
                         <span>Share</span>
                     </div>
-                </div> : <></> }
+                </div> : <div className="reactions">
+                    <div className="reaction replies">
+                        <div className="reactionIcon"></div>
+                        <span>{post.replies_count ? post.replies_count : ''}</span>
+                    </div>                    
+                    <div className="reaction reposts">
+                        <div className={`reactionIcon ` + (post.reblogged ? `active` : null)}></div>
+                        <span>{post.reblogs_count ? post.reblogs_count : ''}</span>
+                    </div>
+                    <div className="reaction likes">
+                        <div className={`reactionIcon ` + (post.favourited ? `active` : null) }></div>
+                        <span>{post.favourites_count ? post.favourites_count : ''}</span>
+                    </div>
+                    <div className="reaction share">
+                        <div className="reactionIcon"></div>
+                        <span>Share</span>
+                    </div>
+                </div> }
                 {
                     (options.repliesOpen == post.id) ? <ComposeBox isComposing={true} replyHandle={post.account.username} inReplyTo={options.overridePostId || post.id} doneUrl={options.doneUrl} user={options.authUser} setRepliesOpen={options.setRepliesOpen}/> : <div/>
                 }

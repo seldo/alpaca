@@ -18,7 +18,7 @@ const parseThingId = (n) => {
 }
 
 const batchNotifications = (notifications) => {
-    console.log("batching up",notifications)
+    //console.log("batching up",notifications)
     let thingsReactedTo = {}
     // batch up by the thing they are reacting to
     for (let i = 0; i < notifications.length; i++) {
@@ -30,7 +30,7 @@ const batchNotifications = (notifications) => {
     // process each group of reactions
     let batches = []
     for (let trt of Object.values(thingsReactedTo)) {
-        console.log(trt)
+        //console.log(trt)
         // everything is the same type so we can infer it from the first one
         let type = trt[0].type
         // get the events into most recent order
@@ -42,6 +42,7 @@ const batchNotifications = (notifications) => {
         let notification = { type, lastEvent }
         switch (type) {
             case "favourite": // fuckin' "u"s
+            case "reblog": // we batch these the same way
                 // many people can favorite one status
                 notification.status = trt[0].status
                 notification.accounts = trt.map((t) => {
@@ -83,11 +84,24 @@ const formatEvent = (event,options) => {
                         <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your post</div>
                     </div>
                 }
-                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, hideReactions: true, navigate: options.navigate}} />
+                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, disableReactions: true, navigate: options.navigate}} />
+            </div>
+        case "reblog":
+            return <div className="notifyRepost">
+                {
+                    (event.accounts.length == 1) ? <div className="notifyText">
+                        <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> reposted your post</div>
+                    </div> : (event.accounts.length == 2) ? <div className="notifyText">
+                        <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and <span className="displayName">{LinkToAccount(event.accounts[1])}</span> reposted your post</div>
+                    </div> : <div className="notifyText">
+                        <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others reposted your post</div>
+                    </div>
+                }
+                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, disableReactions: true, navigate: options.navigate}} />
             </div>
         case "mention":
             return <div className="notifyMention">
-                <Post post={event.status} options={{isRepost: true, navigate: options.navigate, hideReactions: true}}/>
+                <Post post={event.status} options={{isRepost: true, navigate: options.navigate, disableReactions: true}}/>
             </div>
         case "follow":
             return <div className="notifyFollow">

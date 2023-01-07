@@ -630,6 +630,16 @@ a {
         }
     }
 
+    .notifyRepost {
+        .notifyText {
+            background-image: url('/images/icon-repost-active.svg');
+
+            .displayName {
+                font-size: 14px;
+            }
+        }
+    }
+
     .notifyFollow {
         min-height: 100px;
         display: flex;

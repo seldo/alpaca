@@ -487,6 +487,11 @@ a {
   .notificationMessage .notifyLike .notifyText .displayName {
     font-size: 14px; }
 
+.notificationMessage .notifyRepost .notifyText {
+  background-image: url("/images/icon-repost-active.svg"); }
+  .notificationMessage .notifyRepost .notifyText .displayName {
+    font-size: 14px; }
+
 .notificationMessage .notifyFollow {
   min-height: 100px;
   display: flex;
