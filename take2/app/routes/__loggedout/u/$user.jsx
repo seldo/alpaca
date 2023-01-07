@@ -5,6 +5,7 @@ import { getProfile } from "~/shared/library/mastodon.client"
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 import { Post } from "~/shared/components/post"
+import { useNavigate } from "react-router-dom";
 
 export const loader = async ({ request, params }) => {
     const [username, userInstance] = params.user.split("@")
@@ -15,6 +16,7 @@ export default function Index() {
 
     let {username,userInstance} = useLoaderData()
     const { authUser } = useOutletContext()
+    const navigate = useNavigate()
     const [posts,setPosts] = useState([])
     const [user,setUser] = useState()
     let optimisticFollow = null // FIXME: get this from loader?
@@ -63,7 +65,7 @@ export default function Index() {
             <ul>
                 {
                     (posts && posts.length > 0) ? posts.map(p => {
-                        return <li key={p.id}><Post post={p} options={{ avatar: true }}/></li>
+                        return <li key={p.id}><Post post={p} options={{ avatar: true, navigate: navigate }}/></li>
                     }) : <li key="noPosts">No posts yet. Give it a sec.</li>
                 }
             </ul>
