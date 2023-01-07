@@ -20,7 +20,10 @@ export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfi
                 <img className="logoType" src="/images/ab-logotype.svg" />
                 <div className="desktopLogo"></div>
             </div> : <div className="backLink">
-                <Link to="/" onClick={() => navigate(-1)}>
+                <Link to="/" onClick={(e) => {
+                    e.preventDefault()
+                    navigate(-1)
+                }}>
                     <div className="arrow"><span>Back</span></div>
                 </Link>
             </div>

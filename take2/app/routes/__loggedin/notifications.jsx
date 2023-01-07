@@ -84,7 +84,7 @@ const formatEvent = (event,options) => {
                         <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others liked your post</div>
                     </div>
                 }
-                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, disableReactions: true, navigate: options.navigate}} />
+                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, disableReactions: true, navigate: options.navigate, showLightbox: options.showLightbox, setShowLightbox: options.setShowLightbox}} />
             </div>
         case "reblog":
             return <div className="notifyRepost">
@@ -97,11 +97,11 @@ const formatEvent = (event,options) => {
                         <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others reposted your post</div>
                     </div>
                 }
-                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, disableReactions: true, navigate: options.navigate}} />
+                <Post post={event.status} options={{isRepost: true, avatar: false, displayName: false, disableReactions: true, navigate: options.navigate, showLightbox: options.showLightbox, setShowLightbox: options.setShowLightbox}} />
             </div>
         case "mention":
             return <div className="notifyMention">
-                <Post post={event.status} options={{isRepost: true, navigate: options.navigate, disableReactions: true}}/>
+                <Post post={event.status} options={{isRepost: true, navigate: options.navigate, disableReactions: true, showLightbox: options.showLightbox, setShowLightbox: options.setShowLightbox}}/>
             </div>
         case "follow":
             return <div className="notifyFollow">
@@ -125,6 +125,7 @@ export default function Notifications() {
     const [batchedNotifications,setBatchedNotifications] = useState([])
     const [notificationsBuffer,setNotificationsBuffer] = useState([])
     const [notificationsBufferCount,setNotificationsBufferCount] = useState(0)
+    const [showLightbox,setShowLightbox] = useState(false)
 
     // when they click the button to see new notifications, merge buffer into all and reset buffer
     const mergeNewNotifications = async () => {
@@ -172,7 +173,7 @@ export default function Notifications() {
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.type}_${n.lastEvent}`} className="notificationMessage">{formatEvent(n,{navigate})}</li>
+                    return <li key={`notifications_${n.type}_${n.lastEvent}`} className="notificationMessage">{formatEvent(n,{navigate,showLightbox,setShowLightbox})}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }

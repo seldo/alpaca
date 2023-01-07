@@ -102,6 +102,11 @@ const renderPost = (content) => {
     return <div><iframe className="embeddedPost" scrolling="no" src={postUrl} /></div>
 }
 
+const lightBox = (e,post,currentMedia,setShowLightbox) => {
+    e.stopPropagation()
+    setShowLightbox(post.id)
+}
+
 export const Post = ({post,options}) => {
     options = {
         avatar: true,
@@ -116,6 +121,8 @@ export const Post = ({post,options}) => {
         setPosts: null,
         hideReactions: false,
         overridePostId: false,
+        showLightBox: null,
+        setShowLightbox: null,
         ...options
     }    
 
@@ -162,7 +169,10 @@ export const Post = ({post,options}) => {
                         {
                             post.media_attachments.map( (a) => {
                                 if(!a || !a.preview_url) return
-                                else return <div><img src={a.preview_url}/></div>
+                                else return <div><img 
+                                    src={a.preview_url}
+                                    onClick={(e) => lightBox(e,post,a,options.setShowLightbox)}    
+                                /></div>
                             })
                         }
                     </div> : <div/>
@@ -224,6 +234,15 @@ export const Post = ({post,options}) => {
                 </div> }
                 {
                     (options.repliesOpen == post.id) ? <ComposeBox isComposing={true} replyHandle={post.account.username} inReplyTo={options.overridePostId || post.id} doneUrl={options.doneUrl} user={options.authUser} setRepliesOpen={options.setRepliesOpen}/> : <div/>
+                }
+                {
+                    options.showLightbox == post.id ? <div className="lightBox">
+                        <button onClick={(e) => {
+                            e.stopPropagation()
+                            options.setShowLightbox(false)
+                        }}>X</button>
+                        LIGHTBOX
+                    </div> : <></>
                 }
             </div>
         </div>
