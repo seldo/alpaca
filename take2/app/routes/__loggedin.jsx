@@ -25,7 +25,14 @@ export default function Index() {
       },[])    
 
     return <div className="loggedIn" >
-        <Globalnav user={authUser ? authUser.user : null} navigate={navigate} isHome={true} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
+        <Globalnav 
+          user={authUser ? authUser.user : null} 
+          navigate={navigate} 
+          isHome={true} 
+          pathname={pathname}
+          profileMenuOpen={profileMenuOpen} 
+          setProfileMenuOpen={setProfileMenuOpen} 
+        />
         <div className="content">
             <Outlet context={{authUser}} />
         </div>

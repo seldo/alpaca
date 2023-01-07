@@ -297,6 +297,13 @@ a {
         height: 100%; }
     .menuBar .menuItems .home {
       background-image: url("/images/icon-home.svg"); }
+      .menuBar .menuItems .home.active {
+        background-image: url("/images/icon-home-active.svg"); }
+    .menuBar .menuItems .notifications {
+      height: 35px;
+      background-image: url("/images/icon-notifications.svg"); }
+      .menuBar .menuItems .notifications.active {
+        background-image: url("/images/icon-notifications-active.svg"); }
     .menuBar .menuItems .compose {
       width: 45px;
       height: 45px;
@@ -306,11 +313,12 @@ a {
       background-size: 24px; }
     .menuBar .menuItems .search {
       background-image: url("/images/icon-search.svg"); }
-    .menuBar .menuItems .notifications {
-      height: 35px;
-      background-image: url("/images/icon-notifications.svg"); }
+      .menuBar .menuItems .search.active {
+        background-image: url("/images/icon-search-active.svg"); }
     .menuBar .menuItems .profile {
       background-image: url("/images/icon-avatar.svg"); }
+      .menuBar .menuItems .profile.active {
+        background-image: url("/images/icon-avatar-active.svg"); }
 
 .composeBox {
   border-bottom: 1px solid var(--grey-primary-10pc); }

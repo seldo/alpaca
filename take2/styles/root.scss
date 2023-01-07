@@ -346,6 +346,17 @@ a {
 
         .home {
             background-image: url('/images/icon-home.svg');
+            &.active {
+                background-image: url('/images/icon-home-active.svg');
+            }
+        }
+
+        .notifications {
+            height: 35px;
+            background-image: url('/images/icon-notifications.svg');
+            &.active {
+                background-image: url('/images/icon-notifications-active.svg');
+            }
         }
 
         /*
@@ -364,15 +375,16 @@ a {
 
         .search {
             background-image: url('/images/icon-search.svg');
-        }
-
-        .notifications {
-            height: 35px;
-            background-image: url('/images/icon-notifications.svg');
+            &.active {
+                background-image: url('/images/icon-search-active.svg');
+            }
         }
 
         .profile {
             background-image: url('/images/icon-avatar.svg');
+            &.active {
+                background-image: url('/images/icon-avatar-active.svg');
+            }
         }
     }
 }

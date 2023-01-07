@@ -153,10 +153,10 @@ export const Post = ({post,options}) => {
                     }
                     {
                         (options.displayName) ? <div className="authorText">
-                            <div className="displayName"><Link to={getProfileLink(post.account)}>{post.account.display_name}</Link></div>
+                            <div className="displayName"><Link to={getProfileLink(post.account)} onClick={(e) => e.stopPropagation()}>{post.account.display_name}</Link></div>
                             <div className="userAndTime">
                                 <div className="username">@{post.account.username}@{post.account.instance}</div>
-                                <div className="time"><Link to={getPostLink(post)} title={post.application?`via `+post.application.name:""}>{timeAgo.format(Date.parse(post.created_at), 'twitter')}</Link></div>
+                                <div className="time"><Link to={getPostLink(post)}  onClick={(e) => e.stopPropagation()} title={post.application?`via `+post.application.name:""}>{timeAgo.format(Date.parse(post.created_at), 'twitter')}</Link></div>
                             </div>
                         </div> : <div/>
                     }

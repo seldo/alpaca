@@ -13,6 +13,7 @@ export default function Index() {
 
     let pathname = matches[matches.length-1].pathname
     let isHome = false
+    console.log("pathname is",pathname)
     if (pathname == "/home" || pathname == "/") isHome = true;
 
     // loggedout case knows if you're logged in, but it's optional
@@ -24,7 +25,14 @@ export default function Index() {
       },[])    
 
     return <div className="loggedOut">
-        <Globalnav user={authUser ? authUser.user : null} navigate={navigate} isHome={isHome} profileMenuOpen={profileMenuOpen} setProfileMenuOpen={setProfileMenuOpen} />
+        <Globalnav 
+          user={authUser ? authUser.user : null} 
+          navigate={navigate} 
+          pathname={pathname}
+          isHome={isHome} 
+          profileMenuOpen={profileMenuOpen} 
+          setProfileMenuOpen={setProfileMenuOpen} 
+        />
         <div className="content">
             <Outlet context={{authUser}} />
         </div>

@@ -2,7 +2,7 @@ import Avatar from "~/shared/components/avatar"
 import { Link } from "react-router-dom";
 import { Form } from "@remix-run/react";
 
-export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfileMenuOpen}) {
+export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfileMenuOpen,pathname}) {
 
     const toggleMenu = (e) => {
         e.preventDefault()
@@ -43,11 +43,21 @@ export default function Globalnav({user,isHome,navigate,profileMenuOpen,setProfi
         </div>
         <div className="menuBar">
             <ul className="menuItems">
-                <li className="home" key="menu1"><Link prefetch="render" to="/home"><span>Home</span></Link></li>
-                <li className="notifications" key="menu2"><Link prefetch="render" to="/notifications"><span>Notifications</span></Link></li>
-                <li className="compose" key="menu3"><a href="/compose"><span>Compose</span></a></li>
-                <li className="search" key="menu4"><Link prefetch="render" to="/search"><span>Search</span></Link></li>
-                <li className="profile" key="menu5"><Link rel="intent" to={`/u/${user?.username}@${user?.instance}`}><span>Profile</span></Link></li>
+                <li 
+                    className={`home ${(pathname == "/home") ? "active" : ""}`} 
+                    key="menu1"><Link prefetch="render" to="/home"><span>Home</span></Link></li>
+                <li 
+                    className={`notifications ${(pathname == "/notifications") ? "active" : ""}`} 
+                    key="menu2"><Link prefetch="render" to="/notifications"><span>Notifications</span></Link></li>
+                <li 
+                    className="compose" 
+                    key="menu3"><a href="/compose"><span>Compose</span></a></li>
+                <li 
+                    className={`search ${(pathname == "/search") ? "active" : ""}`}
+                    key="menu4"><Link prefetch="render" to="/search"><span>Search</span></Link></li>
+                <li 
+                    className={`profile ${(pathname.indexOf("/u/") === 0) ? "active" : ""}`}
+                    key="menu5"><Link rel="intent" to={`/u/${user?.username}@${user?.instance}`}><span>Profile</span></Link></li>
             </ul>
         </div>
     </div>
