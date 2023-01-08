@@ -28,7 +28,7 @@ export default function Index() {
         <Globalnav 
           user={authUser ? authUser.user : null} 
           navigate={navigate} 
-          isHome={true} 
+          isHome={isHome} 
           pathname={pathname}
           profileMenuOpen={profileMenuOpen} 
           setProfileMenuOpen={setProfileMenuOpen} 

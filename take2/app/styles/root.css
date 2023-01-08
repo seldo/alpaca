@@ -150,6 +150,9 @@ blockquote,
 q {
   quotes: none; }
 
+a {
+  color: var(--grey-primary); }
+
 blockquote:before,
 blockquote:after,
 q:before,
@@ -474,17 +477,39 @@ a {
     left: 0px;
     width: 100%;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
     z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(10px); }
+    .post .lightbox .mediaHolder {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-content: center;
+      height: 100vh; }
+      .post .lightbox .mediaHolder img {
+        display: block; }
     .post .lightbox button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 28px;
-      height: 28px;
-      background-repeat: no-repeat;
-      background-image: url("/images/icon-x.svg"); }
+      z-index: 1;
+      position: absolute; }
+      .post .lightbox button.close {
+        top: 10px;
+        right: 10px;
+        width: 28px;
+        height: 28px;
+        background-repeat: no-repeat;
+        background-image: url("/images/icon-x.svg"); }
+      .post .lightbox button.back {
+        left: 0px; }
+      .post .lightbox button.forward {
+        right: 0px; }
+    .post .lightbox .controls button {
+      top: 50%;
+      font-size: 40px;
+      width: 50px;
+      height: 50px;
+      background-color: rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
+      border-radius: 100%; }
 
 .postOrRepost:hover {
   background-color: var(--grey-primary-5pc); }

@@ -160,6 +160,7 @@ export const getProfile = async (authUser, username, userInstance) => {
     if (authUser) {
         // if it's your own profile we can load it very simply
         if (username == authUser.user.username && userInstance == authUser.user.instance) {
+            account = authUser.user
             statuses = await callAPIdebounced(authUser, `/api/v1/accounts/${authUser.user.id}/statuses`)
         } else {
             // you're logged in, looking for somebody else's profile

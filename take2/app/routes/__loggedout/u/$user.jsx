@@ -25,10 +25,8 @@ export default function Index() {
 
     useEffect( () => {
         (async () => {
-            console.log("Username is",username)
             let {account,statuses} = await getProfile(authUser,username,userInstance)
             if (account) {
-                console.log("incoming posts",statuses)
                 setUser(account)
                 setPosts(statuses)
             }
