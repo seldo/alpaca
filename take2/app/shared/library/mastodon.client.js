@@ -155,9 +155,26 @@ export const createPost = async (authUser, post) => {
 
 export const getProfile = async (authUser, username, userInstance) => {
     let statuses
+    let account
+    console.log(authUser)
     if (authUser) {
-        statuses = await callAPIdebounced(authUser, `/api/v1/accounts/${authUser.user.id}/statuses`)
+        // if it's your own profile we can load it very simply
+        if (username == authUser.user.username && userInstance == authUser.user.instance) {
+            statuses = await callAPIdebounced(authUser, `/api/v1/accounts/${authUser.user.id}/statuses`)
+        } else {
+            // you're logged in, looking for somebody else's profile
+            let profile = await callAPIdebounced(authUser, `/api/v2/search`, {
+                queryParams: {
+                    q: `${username}@${userInstance}`,
+                    resolve: true
+                }
+            })
+            if (!profile.accounts[0]) throw new Error(`Could not find ${username}@${userInstance}`)
+            account = profile.accounts[0]
+            statuses = await callAPIdebounced(authUser, `/api/v1/accounts/${account.id}/statuses`)
+        }
     } else {
+        // this is the logged out case
         // we search for this user on their home instance, to get their ID
         let profile = await callAPIdebounced(null, `/api/v2/search`, {
             queryParams: {
@@ -166,14 +183,17 @@ export const getProfile = async (authUser, username, userInstance) => {
             instanceNotFromAuthUser: userInstance
         })
         if (!profile.accounts[0]) throw new Error(`Could not find ${username}@${userInstance}`)
-        let account = profile.accounts[0]
+        account = profile.accounts[0]
         // we fetch statuses from their home instance
         statuses = await callAPIdebounced(null, `/api/v1/accounts/${account.id}/statuses`, {
             instanceNotFromAuthUser: userInstance
         })
     }
-    if (!statuses) throw new Error(`Could not load profile for ${username}@${userInstance}`)
-    return statuses
+    if (!account) throw new Error(`Could not load profile for ${username}@${userInstance}`)
+    return {
+        account,
+        statuses
+    }
 }
 
 

@@ -15,8 +15,9 @@ export default function Home() {
     const [isComposing, setIsComposing] = useState(false)
     const [repliesOpen, setRepliesOpen] = useState(false)
     const [allPosts, setPosts] = useState([])
-    let [postBuffer, setPostBuffer] = useState([])
-    let [postBufferCount, setPostBufferCount] = useState(0)
+    const [showLightbox,setShowLightbox] = useState(false)
+    const [postBuffer, setPostBuffer] = useState([])
+    const [postBufferCount, setPostBufferCount] = useState(0)
 
     const mergePostBuffer = async () => {
         let merged = await mergeWithoutDupes(allPosts,postBuffer)
@@ -83,7 +84,7 @@ export default function Home() {
                         return <li key={index}>
                             <Post 
                                 post={post}
-                                options={ {navigate, fetcher, authUser, allPosts, setPosts, repliesOpen, setRepliesOpen, openReply} } />
+                                options={ {navigate, fetcher, authUser, allPosts, setPosts, repliesOpen, setRepliesOpen, openReply, showLightbox, setShowLightbox } } />
                             </li>
                     })}</ul> : <div>No posts yet. Give it a sec.</div>
             }

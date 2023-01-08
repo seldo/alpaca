@@ -21,16 +21,19 @@ export default function Index() {
     const [user,setUser] = useState()
     let optimisticFollow = null // FIXME: get this from loader?
     let following = { following: false} // FIXME: load this
+    const [showLightbox,setShowLightbox] = useState(false)
 
     useEffect( () => {
         (async () => {
-            let incomingPosts = await getProfile(authUser,username,userInstance)
-            if (incomingPosts) {
-                setPosts(incomingPosts)
-                if(incomingPosts[0]) setUser(incomingPosts[0].account)
+            console.log("Username is",username)
+            let {account,statuses} = await getProfile(authUser,username,userInstance)
+            if (account) {
+                console.log("incoming posts",statuses)
+                setUser(account)
+                setPosts(statuses)
             }
         })();
-      },[])
+      },[username])
 
     if (!user) return <div></div>
     else return <div className="profilePage">
@@ -65,7 +68,7 @@ export default function Index() {
             <ul>
                 {
                     (posts && posts.length > 0) ? posts.map(p => {
-                        return <li key={p.id}><Post post={p} options={{ avatar: true, navigate: navigate }}/></li>
+                        return <li key={p.id}><Post post={p} options={{ avatar: true, navigate: navigate, showLightbox, setShowLightbox }}/></li>
                     }) : <li key="noPosts">No posts yet. Give it a sec.</li>
                 }
             </ul>

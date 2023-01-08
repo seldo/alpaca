@@ -21,6 +21,7 @@ export default function Index() {
     const navigate = useNavigate()
     const fetcher = useFetcher()
     const [repliesOpen, setRepliesOpen] = useState(false)
+    const [showLightbox,setShowLightbox] = useState(false)
 
     const openReply = (e,postId) => {
         if(repliesOpen === postId) {
@@ -55,19 +56,19 @@ export default function Index() {
             <ul className="ancestors">
                 {
                     (thread?.ancestors.length > 0) ? thread.ancestors.map(p => {
-                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url }}/></li>
+                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url, showLightbox, setShowLightbox }}/></li>
                     }) : <div/>
                 }
             </ul>
             { thread ? <ul className="currentGeneration">
                 {
-                    <li key={thread.post.id}><Post post={thread.post} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: thread.post.url }}/></li>
+                    <li key={thread.post.id}><Post post={thread.post} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: thread.post.url, showLightbox, setShowLightbox}}/></li>
                 }
             </ul> : <div>Loading...</div> }
             <ul className="descendants">
                 {
                     (thread?.descendants.length > 0) ? thread.descendants.map(p => {
-                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url }}/></li>
+                        return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url, showLightbox, setShowLightbox }}/></li>
                     }) : <div/>
                 }
             </ul>

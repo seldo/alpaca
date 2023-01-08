@@ -3,6 +3,7 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { Link } from "react-router-dom";
 import { ComposeBox } from "~/shared/components/compose"
+import { Lightbox } from "~/shared/components/lightbox"
 import { likePost, rePost, translateExternalPostId } from "~/shared/library/mastodon.client"
 
 // FIXME: this gets called lots of times, call it once.
@@ -104,7 +105,12 @@ const renderPost = (content) => {
 
 const lightBox = (e,post,currentMedia,setShowLightbox) => {
     e.stopPropagation()
-    setShowLightbox(post.id)
+    setShowLightbox({
+        id: post.id,
+        post,
+        currentMedia,
+        setShowLightbox
+    })
 }
 
 export const Post = ({post,options}) => {
@@ -236,13 +242,7 @@ export const Post = ({post,options}) => {
                     (options.repliesOpen == post.id) ? <ComposeBox isComposing={true} replyHandle={post.account.username} inReplyTo={options.overridePostId || post.id} doneUrl={options.doneUrl} user={options.authUser} setRepliesOpen={options.setRepliesOpen}/> : <div/>
                 }
                 {
-                    options.showLightbox == post.id ? <div className="lightBox">
-                        <button onClick={(e) => {
-                            e.stopPropagation()
-                            options.setShowLightbox(false)
-                        }}>X</button>
-                        LIGHTBOX
-                    </div> : <></>
+                    options.showLightbox.id == post.id ? <Lightbox options={options.showLightbox} /> : <></>
                 }
             </div>
         </div>
