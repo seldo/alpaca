@@ -19,7 +19,6 @@ export default function Index() {
     const navigate = useNavigate()
     const [posts,setPosts] = useState([])
     const [user,setUser] = useState()
-    let optimisticFollow = null // FIXME: get this from loader?
     const [following,setFollowing] = useState(false)
     const [showLightbox,setShowLightbox] = useState(false)
 
@@ -63,7 +62,7 @@ export default function Index() {
             <FollowButton 
                 authUser={authUser}
                 user={user}
-                isFollowing={(optimisticFollow !== null) ? optimisticFollow : following.following}
+                isFollowing={following.following}
                 setFollowing={setFollowing} 
             />
         </div>

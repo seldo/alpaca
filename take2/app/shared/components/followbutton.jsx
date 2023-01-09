@@ -6,7 +6,7 @@ const handleFollow = async (authUser,account,isFollowing,setFollowing) => {
         setFollowing(false)
     } else {
         follow(authUser,account)
-        setFollowing(true)
+        setFollowing({following:true})
     }
 }
 
