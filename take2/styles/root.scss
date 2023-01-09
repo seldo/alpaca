@@ -164,6 +164,13 @@ a {
     color: var(--grey-primary);
 }
 
+.genericButton {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: var(--purple-secondary);
+    color: var(--white);
+}
+
 blockquote:before,
 blockquote:after,
 q:before,
@@ -838,9 +845,9 @@ a {
     float: right;
 
     &.empty {
-        color: #000;
-        border: 1px solid #ccc;
-        background-color: transparent;
+        color: var(--grey-primary);
+        border: 1px solid var(--purple-primary);
+        background-color: var(--white);
     }
 }
 

@@ -25,7 +25,7 @@ export default function Index() {
       <div className="temporaryLogin">
         <form method="get" action="/auth/mastodon">
           <p>Instance name: <input type="text" name="instance" /></p>
-          <button type="submit">Login</button>
+          <button className="genericButton loginButton" type="submit">Login</button>
         </form>
       </div>
       <p id="createOffer">If you don't have a mastodon account, you can create one over at <a href="https://alpaca.gold">alpaca.gold</a>.</p>

@@ -1,19 +1,25 @@
-import { Form } from "@remix-run/react";
+import {follow,unfollow} from "~/shared/library/mastodon.client"
 
-// FIXME: don't use form for this
-
-export default function FollowButton({username,instance,following}) {
-    if (following) {
-        return <Form method="post" action={`/u/unfollow`} reloadDocument>
-            <input type="hidden" name="username" value={username} />
-            <input type="hidden" name="instance" value={instance} />
-            <button className="genericButton followButton empty">Following</button>
-        </Form>
+const handleFollow = async (authUser,account,isFollowing,setFollowing) => {
+    if (isFollowing) {
+        unfollow(authUser,account)
+        setFollowing(false)
     } else {
-        return <Form method="post" action={`/u/follow`} reloadDocument>
-            <input type="hidden" name="username" value={username} />
-            <input type="hidden" name="instance" value={instance} />
-            <button className="genericButton followButton filled">Follow</button>
-        </Form>
+        follow(authUser,account)
+        setFollowing(true)
+    }
+}
+
+export default function FollowButton({authUser,user,isFollowing,setFollowing}) {
+    if (isFollowing) {
+        return <button 
+            className="genericButton followButton empty"
+            onClick={(e) => handleFollow(authUser,user,isFollowing,setFollowing)}    
+        >Following</button>
+    } else {
+        return <button 
+            className="genericButton followButton filled"
+            onClick={(e) => handleFollow(authUser,user,isFollowing,setFollowing)}    
+        >Follow</button>
     }
 }

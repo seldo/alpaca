@@ -156,7 +156,6 @@ export const createPost = async (authUser, post) => {
 export const getProfile = async (authUser, username, userInstance) => {
     let statuses
     let account
-    console.log(authUser)
     if (authUser) {
         // if it's your own profile we can load it very simply
         if (username == authUser.user.username && userInstance == authUser.user.instance) {
@@ -197,6 +196,29 @@ export const getProfile = async (authUser, username, userInstance) => {
     }
 }
 
+export const isFollowing = async (authUser,account) => {
+    let following = await callAPIdebounced(authUser, `/api/v1/accounts/relationships`,{
+        queryParams: {
+            id: account.id
+        }
+    })
+    if(!following[0]) return null // not found
+    return following[0]
+}
+
+export const follow = async(authUser,account) => {
+    let followed = await callAPIdebounced(authUser, `/api/v1/accounts/${account.id}/follow`,{
+        method: "POST"
+    })
+    return followed
+}
+
+export const unfollow = async(authUser,account) => {
+    let unfollowed = await callAPIdebounced(authUser, `/api/v1/accounts/${account.id}/unfollow`,{
+        method: "POST"
+    })
+    return unfollowed
+}
 
 export const pollEvents = async (authUser, allPosts, setPosts) => {
     // TODO

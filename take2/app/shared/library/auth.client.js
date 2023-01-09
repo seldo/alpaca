@@ -44,7 +44,7 @@ export const callAPIdebounced = async (authUser,endpoint,incomingOptions) => {
     }
     console.log(`Debounced ${options.method} to ${endpoint} with options`,options)
 
-    if(await transactionLocked(endpoint)) throw new Error("Boing")
+    if(await transactionLocked(endpoint,options)) throw new Error("Boing")
 
     let instanceUrl = getInstanceUrl(authUser?.user.instance)    
     if (options.instanceNotFromAuthUser) {
@@ -88,7 +88,7 @@ export const callAPIdebounced = async (authUser,endpoint,incomingOptions) => {
         return data // remains locked to avoid endlessly erroring
     }
 
-    unlock(endpoint)
+    unlock(endpoint,options)
     console.log(`${options.method} succeeded, response`,data)
     return data
 }
@@ -96,30 +96,30 @@ export const callAPIdebounced = async (authUser,endpoint,incomingOptions) => {
 /**
  * We will not repeat the same call more than once per X seconds
  */
-const createTransactionKey = (call) => {
-    return "transaction_lock_" + call
+const createTransactionKey = (endpoint,options) => {
+    return "transaction_lock_" + endpoint + ":" + JSON.stringify(options)
 
 }
-export const transactionLocked = async (call) => {
+export const transactionLocked = async (endpoint,options) => {
     let now = new Date()
-    let key = createTransactionKey(call)
+    let key = createTransactionKey(endpoint,options)
     let lock = await localforage.getItem(key)
     if (!lock) {
         localforage.setItem(key,{
             time: now
         })
-        return false // not locked at all
+        return false // not previously locked, new lock created
     } else {
         if( (now - lock.time) > 5000 ) { // 5 seconds
             localforage.setItem(key,null)
-            return false // lock expired
+            return false // a previous lock expired
         } else {
-            return true // lock still effective
+            return true // a previous lock still effective
         }
     }
 }
-export const unlock = async(call) => {
-    let key = createTransactionKey(call)
+export const unlock = async(endpoint,options) => {
+    let key = createTransactionKey(endpoint,options)
     localforage.setItem(key,null)
 }
 

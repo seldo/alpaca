@@ -13,7 +13,6 @@ export default function Index() {
 
     let pathname = matches[matches.length-1].pathname
     let isHome = false
-    console.log("pathname is",pathname)
     if (pathname == "/home" || pathname == "/") isHome = true;
 
     // loggedout case knows if you're logged in, but it's optional

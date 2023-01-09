@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link, useOutletContext } from "react-router-dom"
 import { useLoaderData } from "@remix-run/react"
-import { getProfile } from "~/shared/library/mastodon.client"
+import { getProfile, isFollowing } from "~/shared/library/mastodon.client"
 import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 import { Post } from "~/shared/components/post"
@@ -20,18 +20,28 @@ export default function Index() {
     const [posts,setPosts] = useState([])
     const [user,setUser] = useState()
     let optimisticFollow = null // FIXME: get this from loader?
-    let following = { following: false} // FIXME: load this
+    const [following,setFollowing] = useState(false)
     const [showLightbox,setShowLightbox] = useState(false)
 
     useEffect( () => {
         (async () => {
-            let {account,statuses} = await getProfile(authUser,username,userInstance)
-            if (account) {
-                setUser(account)
-                setPosts(statuses)
+            try {
+                let {account,statuses} = await getProfile(authUser,username,userInstance)
+                if (account) {
+                    setUser(account)
+                    setPosts(statuses)
+                }
+                if(authUser) {
+                    let followStatus = await isFollowing(authUser,account)
+                    console.log("Followstatus now",followStatus)
+                    setFollowing(followStatus)
+                }
+            } catch (e) {
+                // if we double-query and it throws an error we just ignore it
+                console.log("Boing")
             }
         })();
-      },[username])
+      },[username,authUser])
 
     if (!user) return <div></div>
     else return <div className="profilePage">
@@ -50,7 +60,12 @@ export default function Index() {
             </div>
         </div>
         <div className="buttonBar">
-            <FollowButton username={user.username} instance={user.instance} following={(optimisticFollow !== null) ? optimisticFollow : following.following} />
+            <FollowButton 
+                authUser={authUser}
+                user={user}
+                isFollowing={(optimisticFollow !== null) ? optimisticFollow : following.following}
+                setFollowing={setFollowing} 
+            />
         </div>
         <div className="descriptions">
             <div className="displayName">
