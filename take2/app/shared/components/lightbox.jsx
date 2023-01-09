@@ -39,7 +39,15 @@ export const Lightbox = ({options}) => {
                 }}
                 className="back">&lt;</button> : <></>
             }
-            <img src={currentMedia.url} width="100%" alt={currentMedia.description} />
+            { (currentMedia.type == "image") ? <img 
+                src={currentMedia.url} 
+                width="100%" 
+                alt={currentMedia.description} 
+            /> : (currentMedia.type == "video") ? <div>
+                <video width="100%" controls>
+                    <source src={currentMedia.url} type="video/mp4"/>
+                </video></div> : <div>{currentMedia.type}</div>
+            }
             { (currentIndex < lastMediaIndex) ? <button
                 onClick={(e) => {
                     e.stopPropagation()
