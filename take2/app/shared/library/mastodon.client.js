@@ -257,7 +257,8 @@ export const streamEvents = async (authUser, postBuffer, setPostBuffer, postBuff
                     let data = JSON.parse(dataString)
                     switch (type) {
                         case "update":
-                            // add it to the buffer
+                            // add it to the buffer if we've got one
+                            if (!postBuffer) break
                             let mergedBuffer = await mergeWithoutDupes(postBuffer, [data])
                             postBuffer = mergedBuffer
                             setPostBuffer(postBuffer)
