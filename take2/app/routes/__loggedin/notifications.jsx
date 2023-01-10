@@ -101,7 +101,7 @@ const formatEvent = (event,options) => {
             </div>
         case "mention":
             return <div className="notifyMention">
-                <Post post={event.status} options={{isRepost: true, navigate: options.navigate, disableReactions: true, showLightbox: options.showLightbox, setShowLightbox: options.setShowLightbox}}/>
+                <Post post={event.status} options={{isRepost: true, navigate: options.navigate, showLightbox: options.showLightbox, setShowLightbox: options.setShowLightbox, openReply: options.openReply, repliesOpen: options.repliesOpen}}/>
             </div>
         case "follow":
             return <div className="notifyFollow">
@@ -126,6 +126,7 @@ export default function Notifications() {
     const [notificationsBuffer,setNotificationsBuffer] = useState([])
     const [notificationsBufferCount,setNotificationsBufferCount] = useState(0)
     const [showLightbox,setShowLightbox] = useState(false)
+    const [repliesOpen, setRepliesOpen] = useState(false)
 
     // when they click the button to see new notifications, merge buffer into all and reset buffer
     const mergeNewNotifications = async () => {
@@ -162,6 +163,15 @@ export default function Notifications() {
         })();
     }, [authUser])
 
+    const openReply = (e,postId) => {
+        console.log("Trying to open reply",postId)
+        if(repliesOpen === postId) {
+            setRepliesOpen(false)
+        } else {
+            setRepliesOpen(postId)
+        }
+    }
+
     return <div className="notificationsPage">
         <div className="pageHeader notificationsHeader">
             <h2>Notifications</h2>
@@ -173,7 +183,7 @@ export default function Notifications() {
         { 
             (batchedNotifications && batchedNotifications.length > 0) ? <ul>
                 { batchedNotifications.map( (n) => {
-                    return <li key={`notifications_${n.type}_${n.lastEvent}`} className="notificationMessage">{formatEvent(n,{navigate,showLightbox,setShowLightbox})}</li>
+                    return <li key={`notifications_${n.type}_${n.lastEvent}`} className="notificationMessage">{formatEvent(n,{navigate,showLightbox,setShowLightbox,openReply,repliesOpen})}</li>
                 })}
             </ul> : <div>Nothing has happened yet</div>
         }
