@@ -571,6 +571,14 @@ a {
     margin-top: 0px;
     margin-left: 16px;
     background-image: url("/images/icon-avatar-active.svg"); }
+  .notificationMessage .notifyFollow .avatarMiniList .avatar {
+    margin-top: 3px;
+    display: inline-block;
+    min-width: 25px;
+    padding-right: 2px; }
+    .notificationMessage .notifyFollow .avatarMiniList .avatar img {
+      width: 25px;
+      height: 25px; }
 
 .thread .currentGeneration .postOrRepost.post {
   font-size: 120%; }

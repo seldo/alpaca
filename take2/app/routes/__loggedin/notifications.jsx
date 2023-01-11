@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom"
 import { mergeWithoutDupes, getNotifications, saveLocalNotifications, loadLocalNotifications, streamEvents } from "~/shared/library/mastodon.client"
 import { Post, LinkToAccount } from "~/shared/components/post"
 import { useNavigate } from "react-router-dom";
+import Avatar from "~/shared/components/avatar"
 
 const parseThingId = (n) => {
     switch (n.type) {
@@ -112,6 +113,9 @@ const formatEvent = (event,options) => {
                         <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and <span className="displayName">{LinkToAccount(event.accounts[1])}</span> followed you</div>
                     </div> : <div className="notifyText">
                         <div><span className="displayName">{LinkToAccount(event.accounts[0])}</span> and {event.accounts.length-1} others followed you.</div>
+                        <div class="avatarMiniList">{event.accounts.slice(0,15).map( a => {
+                            return <Avatar user={a} />
+                        })}</div>
                     </div>
                 }
             </div>

@@ -752,6 +752,20 @@ a {
             margin-left: 16px;
             background-image: url('/images/icon-avatar-active.svg')
         }
+
+        .avatarMiniList {
+            .avatar {
+                margin-top: 3px;
+                display: inline-block;
+                min-width: 25px;
+                padding-right: 2px;
+
+                img {
+                    width: 25px;
+                    height: 25px;    
+                }
+            }
+        }
     }
 }
 
