@@ -127,7 +127,11 @@ export const rePost = async (authUser, postId) => {
 }
 
 export const getNotifications = async (authUser) => {
-    let notifications = await callAPIdebounced(authUser, `/api/v1/notifications`)
+    let notifications = await callAPIdebounced(authUser, `/api/v1/notifications`,{
+        queryParams: {
+            limit: 30
+        }
+    })
     if(!notifications) return []
     return notifications
 }
