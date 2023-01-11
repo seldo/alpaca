@@ -35,12 +35,12 @@ export const ComposeBox = ({user,isComposing,setIsComposing,replyHandle,setRepli
         console.log("doneUrl is",doneUrl)
         if (inReplyTo) post.inReplyTo = inReplyTo
         // actually post (async)
-        createPost(user,post)
-        // clean up (since we likely stay on this page)
+        let newPost = await createPost(user,post)
         // send them on their way
         if(doneUrl) {
             navigate(doneUrl)
         }
+        // clean up (if we haven't already navigated away)
         target.value = ""
         if (setIsComposing) setIsComposing(false)
         if (setRepliesOpen) setRepliesOpen(false)

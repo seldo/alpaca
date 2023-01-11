@@ -38,7 +38,7 @@ export default function Index() {
                 setThread(incomingThread)
             }
         })();
-      },[username,userInstance,postId])    
+      },[username,userInstance,postId,repliesOpen])    
 
     useEffect( () => {
     (async () => {
