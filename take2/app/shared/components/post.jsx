@@ -134,6 +134,8 @@ export const Post = ({post,options}) => {
 
     //console.log("post is",post)
     if (!post) return // FIXME: why on earth would we get null posts sometimes?
+    console.log("post",post)
+    console.log("post account",post.account)
     if (!post.account.instance) post.account.instance = getInstanceFromAccount(post.account)
     if (post.reblog !== null) {
         return <div className="postOrRepost repost">

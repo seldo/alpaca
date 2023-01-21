@@ -55,7 +55,7 @@ export default function Index() {
         <div>
             <ul className="ancestors">
                 {
-                    (thread?.ancestors.length > 0) ? thread.ancestors.map(p => {
+                    (thread?.ancestors?.length > 0) ? thread.ancestors.map(p => {
                         return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url, showLightbox, setShowLightbox }}/></li>
                     }) : <div/>
                 }
@@ -67,7 +67,7 @@ export default function Index() {
             </ul> : <div>Loading...</div> }
             <ul className="descendants">
                 {
-                    (thread?.descendants.length > 0) ? thread.descendants.map(p => {
+                    (thread?.descendants?.length > 0) ? thread.descendants.map(p => {
                         return <li key={p.id}><Post post={p} options={{ avatar: true, fetcher, navigate, authUser, openReply, repliesOpen, setRepliesOpen, overridePostId: p.url, showLightbox, setShowLightbox }}/></li>
                     }) : <div/>
                 }
