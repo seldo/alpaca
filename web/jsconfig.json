@@ -16,5 +16,6 @@
       "~/*": ["./app/*"]
     },
     "noEmit": true
-  }
+  },
+  "exclude": ["node_modules"]
 }

@@ -187,9 +187,11 @@ export const Post = ({post,options}) => {
                 }
                 { !options.disableReactions ? <div className="reactions">
                     <div className="reaction replies" onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            options.openReply(e,post.id)}
+                            if (options.openReply) {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                options.openReply(e,post.id)}
+                            }
                         }>
                         <div className="reactionIcon"></div>
                         <span>{post.replies_count ? post.replies_count : ''}</span>

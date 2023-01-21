@@ -8,6 +8,7 @@ import Avatar from "~/shared/components/avatar"
 import FollowButton from "~/shared/components/followbutton"
 import { search } from "~/shared/library/mastodon.client"
 import { useOutletContext } from "react-router-dom";
+import { Post } from "~/shared/components/post"
 
 export const loader = async ({ request, params }) => {
     const url = new URL(request.url);
@@ -23,16 +24,20 @@ export const meta = ({ data }) => {
 
 export default function Index() {
     let { q } = useLoaderData()
+    const navigate = useNavigate()
     const { authUser } = useOutletContext()
     const [value, setValue] = useState(q);
     const [results, setResults] = useState();
+    const [repliesOpen, setRepliesOpen] = useState(false)
+    const [showLightbox,setShowLightbox] = useState(false)
+
     const onChange = (event) => {
         setValue(event.target.value);
     };
 
     useEffect(() => {
         (async () => {
-            if(authUser) {
+            if(authUser && q) {
                 let incomingResults = await search(authUser, q)
                 setResults(incomingResults)    
             }
@@ -78,7 +83,7 @@ export default function Index() {
                     <ul>
                         {results.statuses.map((r, index) => {
                             return <li key={`statuses_${index}`} className="miniStatus searchResult">
-                                {JSON.stringify(r)}
+                                <Post post={r} options={{ avatar: true, navigate, authUser, showLightbox, setShowLightbox}} />
                             </li>
                         })
                         }
