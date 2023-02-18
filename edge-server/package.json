@@ -1,0 +1,34 @@
+{
+  "name": "remix-template-netlify",
+  "private": true,
+  "description": "",
+  "license": "",
+  "sideEffects": false,
+  "scripts": {
+    "build": "remix build",
+    "dev": "remix dev",
+    "start": "cross-env NODE_ENV=production netlify dev"
+  },
+  "dependencies": {
+    "@netlify/functions": "latest",
+    "@remix-run/netlify-edge": "experimental-netlify-edge",
+    "@remix-run/react": "experimental-netlify-edge",
+    "@remix-run/server-runtime": "experimental-netlify-edge",
+    "cross-env": "^7.0.3",
+    "isbot": "^3.4.6",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "experimental-netlify-edge",
+    "@remix-run/eslint-config": "experimental-netlify-edge",
+    "@remix-run/serve": "experimental-netlify-edge",
+    "@types/react": "^18.0.5",
+    "@types/react-dom": "^18.0.1",
+    "eslint": "^8.11.0",
+    "typescript": "^4.5.5"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
